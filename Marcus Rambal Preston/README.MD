@@ -76,7 +76,7 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 
 [Abrir prototipo en Figma](https://www.figma.com/design/oBLF7jJv8gcLZ9mn8zJGEO/gestPalette?node-id=29-54&t=7hqSzzE44vwVFrJu-1)
 
----
+
 
 ## Pantallas de la Aplicación
 
@@ -84,7 +84,7 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 #### Pantalla de Login
 <img width="1349" height="471" alt="Login Page" src="assets/loginPage.png">
 
----
+
 
 ### Vistas del Profesor
 
@@ -100,7 +100,7 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 #### Grupos del Profesor
 <img width="1349" height="471" alt="Groups Professor" src="assets/GroupsProfessor.png">
 
----
+
 
 ### Vistas del Estudiante
 
@@ -114,7 +114,6 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 
 <img width="1349" height="471" alt="Results Student" src="assets/ResultsStudent.png">
 
----
 
 ### Notificaciones
 
