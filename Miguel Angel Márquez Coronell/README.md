@@ -63,10 +63,19 @@ Finalmente, **FeedbackFruits**, propuesto por la profesora Rocío Ramos, sirvió
 
 ## Prototipo y Material Visual
 
-- 🔗 **Enlace al prototipo en Figma:** *<img width="1349" height="471" alt="image" src="https://github.com/user-attachments/assets/891c1ad3-82c7-45c6-a344-0baecaa39050" />
-*
-- 📸 **Capturas de pantalla del prototipo:** *![Uploading image.png…]()
-*
+- 🔗 **Enlace al prototipo en Figma:**
+  https://www.figma.com/design/wvI3QGm1XcHzfHarir4qow/Sin-t%C3%ADtulo?node-id=33-719&p=f
+  https://www.figma.com/design/wvI3QGm1XcHzfHarir4qow/Sin-t%C3%ADtulo?node-id=0-1&t=8WbotOlhMCXbrt7C-1
+  
+- 📸 **Capturas de pantalla del prototipo:**
+  <img width="1349" height="471" alt="image" src="https://github.com/user-attachments/assets/891c1ad3-82c7-45c6-a344-0baecaa39050" />
+  <img width="891" height="468" alt="image" src="https://github.com/user-attachments/assets/9474ccda-967b-4d33-9b69-1b9bc56044d7" />
+  <img width="1360" height="473" alt="image" src="https://github.com/user-attachments/assets/e15fc733-d64e-4755-bd2c-6cb3696a3181" />
+  <img width="664" height="467" alt="image" src="https://github.com/user-attachments/assets/a10d7cef-004f-4886-aac1-ca3c96a0cf0e" />
+  <img width="1241" height="421" alt="image" src="https://github.com/user-attachments/assets/c2e28b09-b405-489a-99af-fa8498b9ca7a" />
+  <img width="1229" height="425" alt="image" src="https://github.com/user-attachments/assets/c7fad07e-1379-49c8-a582-6c88679ce256" />
+  <img width="1225" height="416" alt="image" src="https://github.com/user-attachments/assets/dc9d1cac-9384-45d6-950c-a084bc6471bb" />
+  <img width="616" height="424" alt="image" src="https://github.com/user-attachments/assets/b7b8a927-55db-48fb-b8b7-2dacc15cc212" />
 
 ---
 
