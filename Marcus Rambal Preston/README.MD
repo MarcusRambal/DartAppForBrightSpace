@@ -82,7 +82,7 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 
 
 #### Pantalla de Login
-<img width="1349" height="471" alt="Login Page" src="assets/loginPage.png">
+<img width="390" height="844" alt="Login Page" src="assets/loginPage.png">
 
 
 
