@@ -64,7 +64,9 @@ Finalmente, **FeedbackFruits**, propuesto por la profesora Rocío Ramos, sirvió
 ## Prototipo y Material Visual
 
 - 🔗 **Enlace al prototipo en Figma:**
+  
   https://www.figma.com/design/wvI3QGm1XcHzfHarir4qow/Sin-t%C3%ADtulo?node-id=33-719&p=f
+  
   https://www.figma.com/design/wvI3QGm1XcHzfHarir4qow/Sin-t%C3%ADtulo?node-id=0-1&t=8WbotOlhMCXbrt7C-1
   
 - 📸 **Capturas de pantalla del prototipo:**
