@@ -89,32 +89,32 @@ La idea es que este tipo de preguntas sirvan para entender como la actitud indiv
 ### Vistas del Profesor
 
 #### Layout Principal Profesor
-<img width="1349" height="471" alt="Professor Layout" src="assets/ProfessorLayout.png">
+<img width="390" height="844" alt="Professor Layout" src="assets/ProfessorLayout.png">
 
 #### Botón Cursos
-<img width="1349" height="471" alt="Courses Button" src="assets/CoursesButton.png">
+<img width="390" height="844" alt="Courses Button" src="assets/CoursesButton.png">
 
 #### Cursos del Profesor
-<img width="1349" height="471" alt="Courses Professor" src="assets/CoursesPro.png">
+<img width="390" height="844" alt="Courses Professor" src="assets/CoursesPro.png">
 
 #### Grupos del Profesor
-<img width="1349" height="471" alt="Groups Professor" src="assets/GroupsProfessor.png">
+<img width="390" height="844" alt="Groups Professor" src="assets/GroupsProfessor.png">
 
 
 
 ### Vistas del Estudiante
 
 
-<img width="1349" height="471" alt="Student Layout" src="assets/StudentLayoutr.png">
+<img width="390" height="844" alt="Student Layout" src="assets/StudentLayoutr.png">
 
 
-<img width="1349" height="471" alt="Groups Student" src="assets/GroupsStudent.png">
+<img width="390" height="844" alt="Groups Student" src="assets/GroupsStudent.png">
 
-<img width="1349" height="471" alt="Test Student" src="assets/testStudent.png">
+<img width="390" height="844" alt="Test Student" src="assets/testStudent.png">
 
-<img width="1349" height="471" alt="Results Student" src="assets/ResultsStudent.png">
+<img width="390" height="844" alt="Results Student" src="assets/ResultsStudent.png">
 
 
 ### Notificaciones
 
-<img width="1349" height="471" alt="Notifications" src="assets/Notificatiosn.png">
+<img width="390" height="844" alt="Notifications" src="assets/Notificatiosn.png">
