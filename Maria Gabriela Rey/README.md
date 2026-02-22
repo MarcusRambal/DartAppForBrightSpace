@@ -1,4 +1,4 @@
-**Propuesta de aplicación.**  
+#Propuesta de aplicación.  
 Desarrollar una aplicación móvil en Flutter que permita evaluar el desempeño y compromiso de los integrantes de un grupo en actividades colaborativas. La aplicación tendrá dos roles (profesor y estudiante) y se apoyará en Roble para autenticación. Los grupos no se crean dentro de la app: se importan desde Brightspace.
 
 ---
