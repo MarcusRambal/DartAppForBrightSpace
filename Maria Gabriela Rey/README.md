@@ -49,3 +49,14 @@ Decidimos que la mejor opción es realizar una sola aplicación con ambos roles 
 Tuvimos una reunión con la profesora Rocío Ramos, quien nos confirmó que usar una sola aplicación sería lo más práctico y menos complicado. Además, consideró que la idea es muy buena. Nos comentó que ella ya ha usado aplicaciones parecidas para sus actividades, pero que no la han dejado completamente satisfecha y que le resultaban un poco incómodas de usar, lo cual refuerza la necesidad de una solución más simple y centrada en la experiencia del usuario.
 
 Por otro lado, los referentes utilizados ayudaron a guiarnos sobre cómo queremos que sea la aplicación. Por ejemplo, la “Evaluación de docente” ayuda a identificar tipos de preguntas/criterios útiles para medir y evaluar la contribución de los integrantes del grupo.
+
+---
+**Link de Figma y capturas**
+https://www.figma.com/design/8R8bbWatcP6gCUSAbSi5aS/Untitled?node-id=0-1&t=LStXb0MKD5Hn2AsW-1
+
+<img width="484" height="507" alt="image" src="https://github.com/user-attachments/assets/2803a59b-c96d-4638-aa8a-d0abe3340b21" />
+<img width="518" height="504" alt="image" src="https://github.com/user-attachments/assets/03f2fd14-656b-43c1-b5ad-67e1a8b4103e" />
+<img width="487" height="501" alt="image" src="https://github.com/user-attachments/assets/2133dcc3-0b7d-4ffb-b4a0-718f08b07fbb" />
+<img width="708" height="502" alt="image" src="https://github.com/user-attachments/assets/3fcf2270-bbab-4ec3-a926-9eb8af0acb90" />
+
+
