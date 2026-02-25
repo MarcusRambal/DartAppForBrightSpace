@@ -79,8 +79,4 @@ Finalmente, **FeedbackFruits**, propuesto por la profesora Rocío Ramos, sirvió
   <img width="1225" height="416" alt="image" src="https://github.com/user-attachments/assets/dc9d1cac-9384-45d6-950c-a084bc6471bb" />
   <img width="616" height="424" alt="image" src="https://github.com/user-attachments/assets/b7b8a927-55db-48fb-b8b7-2dacc15cc212" />
 
----
 
-## Observaciones Finales
-
-Esta propuesta busca facilitar la evaluación del trabajo colaborativo, centralizando la gestión en una sola aplicación, mejorando la experiencia de usuario tanto para docentes como para estudiantes, y apoyándose en referentes existentes y en la retroalimentación de profesores con experiencia en trabajos colaborativos.
