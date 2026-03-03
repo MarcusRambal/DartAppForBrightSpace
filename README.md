@@ -18,7 +18,7 @@ Estos referentes sirvieron como base para analizar funcionalidades, experiencia 
 
 La solución estará compuesta por una **única aplicación móvil desarrollada en Flutter**, la cual será utilizada tanto por docentes como por estudiantes, diferenciando las funcionalidades mediante un **sistema de roles**.
 
-## Funcionalidades de la interfaz del docente
+### Funcionalidades de la interfaz del docente
 
 La interfaz del docente contará con las siguientes funcionalidades:
 
