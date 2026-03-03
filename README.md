@@ -28,6 +28,16 @@ La interfaz del docente contará con las siguientes funcionalidades:
 - Crear las evaluaciones.
 - Visualizar los resultados.
 - Priorizar y resaltar los casos excepcionales en los resultados.
+  
+### Funcionalidades de la interfaz del estudiante
+
+La interfaz del estudiante contará con las siguientes funcionalidades:
+
+- Ver cursos.
+- Ver grupos.
+- Realizar la evaluación de cada integrante del grupo cuando le corresponde.
+- Ver el promedio que hemos obtenido en las evalucaiocnes.
+- Visualizar los resultados propios si la evaluación lo permite.
 
 Ambas interfaces se conectarán a un **backend centralizado**, encargado de la gestión de datos, el control de permisos y el procesamiento de resultados.  
 La autenticación se realizará mediante **Roble**, permitiendo identificar el rol del usuario y habilitar las funcionalidades correspondientes.
@@ -40,13 +50,13 @@ La autenticación se realizará mediante **Roble**, permitiendo identificar el r
 La creación de los grupos se realiza fuera de la aplicación, en Brightspace. Una vez todos los estudiantes se han inscrito en un grupo, el docente obtiene el archivo en formato Excel o CSV.
 
 ### 2. Subida del archivo Excel o CSV
-El docente sube el archivo obtenido desde Brightspace a la plataforma (ya sea desde la aplicación o desde la web). Una vez realizado este proceso, los estudiantes que ya han iniciado sesión pueden visualizar su grupo dentro de la aplicación.
+El docente sube el archivo obtenido desde Brightspace a la plataforma, este archivo se sube a un curso que haya sido previamente creado dentro de la plataforma,. Una vez realizado este proceso, los estudiantes que ya han iniciado sesión pueden visualizar su grupo dentro de la aplicación.
 
 ### 3. Creación de evaluaciones
 El docente puede crear una o varias evaluaciones, permitiendo configurar si los resultados serán visibles de forma **pública** o **privada** para los compañeros del grupo.
 
 ### 4. Desarrollo del trabajo y evaluaciones intermedias
-Durante el tiempo de realización del trabajo, si el docente lo requiere, los estudiantes podrán calificar a sus compañeros de manera opcional mediante evaluaciones intermedias de carácter semanal.  
+Durante el tiempo de realización del trabajo, si el docente lo requiere, los estudiantes podrán calificar a sus compañeros de manera opcional mediante evaluaciones intermedias.  
 En caso contrario, se realizará únicamente una evaluación al finalizar el trabajo.  
 Estas evaluaciones siguen los mismos parámetros de la evaluación final.
 
@@ -61,8 +71,6 @@ Luego de promediar los resultados según las indicaciones definidas, los resulta
 ## Justificación de la Propuesta
 
 Además de cumplir los requerimientos como el uso de Roble en el apartado de autenticación y base de datos, la decisión de usar una sola aplicación para ambos roles permite la reutilización de componentes, evita la duplicidad de código y reduce la complejidad en la gestión.
-
-Por otro lado, la propuesta de utilizar una plataforma web para subir el archivo que contiene la información de los grupos se justifica por la comodidad del usuario, en este caso los docentes, ya que realizar este tipo de acciones desde una aplicación móvil suele ser más tosco y complejo en comparación con una página web.
 
 Estas decisiones fueron reforzadas a partir de una reunión con la profesora **Rocío Ramos**, quien estuvo de acuerdo con la importancia de una plataforma de este tipo y consideró que una sola aplicación es suficiente para mantener todo centralizado y en orden. Además, destacó la importancia de la comodidad dentro de la aplicación, mencionando su experiencia con **FeedbackFruits**, herramienta que utilizó con el mismo propósito, pero que no cumplía todas sus expectativas y resultaba incómoda y enredada en algunos escenarios.
 
