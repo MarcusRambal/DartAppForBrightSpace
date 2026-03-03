@@ -4,14 +4,6 @@
 
 ## Referentes Analizados
 
-A continuación se presentan algunos referentes relacionados con la problemática de la evaluación de trabajos colaborativos:
-
-- **FeedbackFruits**
-- **Evaluación docente de la universidad**
-- **Google Forms**
-
-Estos referentes sirvieron como base para analizar funcionalidades, experiencia de usuario y gestión de evaluaciones.
-
 ---
 
 ## Composición y Diseño de la Solución
@@ -50,7 +42,7 @@ La autenticación se realizará mediante **Roble**, permitiendo identificar el r
 La creación de los grupos se realiza fuera de la aplicación, en Brightspace. Una vez todos los estudiantes se han inscrito en un grupo, el docente obtiene el archivo en formato Excel o CSV.
 
 ### 2. Subida del archivo Excel o CSV
-El docente sube el archivo obtenido desde Brightspace a la plataforma, este archivo se sube a un curso que haya sido previamente creado dentro de la plataforma,. Una vez realizado este proceso, los estudiantes que ya han iniciado sesión pueden visualizar su grupo dentro de la aplicación.
+El docente sube el archivo obtenido desde Brightspace a la plataforma(ya todos los docentes estan inscritos en la base de datos de la plataforma), este archivo se sube a un curso que haya sido previamente creado dentro de la aplicación,. Una vez realizado este proceso, los estudiantes que ya han iniciado sesión pueden visualizar su grupo dentro de la aplicación.
 
 ### 3. Creación de evaluaciones
 El docente puede crear una o varias evaluaciones, permitiendo configurar si los resultados serán visibles de forma **pública** o **privada** para los compañeros del grupo.
@@ -65,17 +57,6 @@ Al finalizar el trabajo colaborativo, se realiza una evaluación final. Tanto en
 
 ### 6. Visualización de resultados
 Luego de promediar los resultados según las indicaciones definidas, los resultados se mostrarán a los estudiantes dependiendo de si la evaluación fue configurada como pública o privada.
-
----
-
-## Justificación de la Propuesta
-
-Además de cumplir los requerimientos como el uso de Roble en el apartado de autenticación y base de datos, la decisión de usar una sola aplicación para ambos roles permite la reutilización de componentes, evita la duplicidad de código y reduce la complejidad en la gestión.
-
-Estas decisiones fueron reforzadas a partir de una reunión con la profesora **Rocío Ramos**, quien estuvo de acuerdo con la importancia de una plataforma de este tipo y consideró que una sola aplicación es suficiente para mantener todo centralizado y en orden. Además, destacó la importancia de la comodidad dentro de la aplicación, mencionando su experiencia con **FeedbackFruits**, herramienta que utilizó con el mismo propósito, pero que no cumplía todas sus expectativas y resultaba incómoda y enredada en algunos escenarios.
-
-Por otro lado, los referentes no se tomaron a la ligera. **Google Forms** y la evaluación docente brindan una idea clara de cómo los estudiantes pueden visualizar preguntas y estadísticas, así como de qué manera el docente puede gestionar las preguntas y las respuestas obtenidas.  
-Finalmente, **FeedbackFruits**, propuesto por la profesora Rocío Ramos, sirvió como referente para analizar qué ideas y conceptos podían ser adoptados, y cuáles debían descartarse o mejorarse en la propuesta.
 
 ---
 
