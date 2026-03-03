@@ -8,31 +8,44 @@
 
 ## Composición y Diseño de la Solución
 
-La solución estará compuesta por una **única aplicación móvil desarrollada en Flutter**, la cual será utilizada tanto por docentes como por estudiantes, diferenciando las funcionalidades mediante un **sistema de roles**.
+La solución estará compuesta por una única aplicación móvil desarrollada en Flutter, la cual será utilizada tanto por docentes como por estudiantes, diferenciando las funcionalidades mediante un sistema de roles (Profesor y Estudiante).
+
+Se propone el desarrollo de una sola aplicación móvil con acceso basado en roles, lo que permitirá centralizar la autenticación, la gestión de permisos y el almacenamiento de información a través de los servicios de Roble.
+
+### Justificación de la Arquitectura
+
+**Clean Architecture:**
+La aplicación se estructurará en tres capas principales: Datos, Dominio y Presentación. Esta separación permitirá mantener el código desacoplado, facilitando su mantenimiento, escalabilidad y pruebas futuras.
+
+**GetX:**
+Se utilizará este paquete para la gestión del estado de la aplicación, la navegación entre pantallas y la inyección de dependencias, permitiendo una implementación más organizada y eficiente.
+
+**Centralización:**
+Al utilizar una única aplicación para ambos roles, se simplifica la administración del sistema, la autenticación mediante Roble y el control de acceso a funcionalidades específicas según el tipo de usuario.
 
 ### Funcionalidades de la interfaz del docente
 
 La interfaz del docente contará con las siguientes funcionalidades:
 
-- Crear cursos.
-- Subir archivos `.csv` obtenidos desde BrightSpace.
-- Crear y/o actualizar los grupos de la respectiva materia a partir de los archivos cargados.
-- Crear las evaluaciones.
-- Visualizar los resultados.
-- Priorizar y resaltar los casos excepcionales en los resultados.
-  
+* Crear cursos.
+* Subir archivos .csv obtenidos desde BrightSpace.
+* Crear y/o actualizar los grupos de la respectiva materia a partir de los archivos cargados.
+* Crear las evaluaciones.
+* Visualizar los resultados.
+* Priorizar y resaltar los casos excepcionales en los resultados.
+
 ### Funcionalidades de la interfaz del estudiante
 
 La interfaz del estudiante contará con las siguientes funcionalidades:
 
-- Ver cursos.
-- Ver grupos.
-- Realizar la evaluación de cada integrante del grupo cuando le corresponde.
-- Ver el promedio que hemos obtenido en las evalucaiocnes.
-- Visualizar los resultados propios si la evaluación lo permite.
+* Ver cursos.
+* Ver grupos.
+* Realizar la evaluación de cada integrante del grupo cuando le corresponde.
+* Ver el promedio obtenido en las evaluaciones.
+* Visualizar los resultados propios si la evaluación lo permite.
 
-Ambas interfaces se conectarán a un **backend centralizado**, encargado de la gestión de datos, el control de permisos y el procesamiento de resultados.  
-La autenticación se realizará mediante **Roble**, permitiendo identificar el rol del usuario y habilitar las funcionalidades correspondientes.
+Ambas interfaces se conectarán a un backend centralizado, encargado de la gestión de datos, el control de permisos y el procesamiento de resultados. La autenticación se realizará mediante Roble, permitiendo identificar el rol del usuario y habilitar las funcionalidades correspondientes.
+
 
 ---
 
