@@ -2,8 +2,6 @@
 
 # Propuesta de Aplicación – Evaluación de Trabajo Colaborativo
 
-## Referentes Analizados
-
 ---
 
 ## Composición y Diseño de la Solución
