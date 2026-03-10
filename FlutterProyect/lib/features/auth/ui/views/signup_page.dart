@@ -118,10 +118,12 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return "Enter email";
-                              if (!value.contains('@'))
+                              }
+                              if (!value.contains('@')) {
                                 return "Enter valid email";
+                              }
                               return null;
                             },
                           ),
@@ -151,10 +153,12 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             obscureText: true,
                             validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return "Enter password";
-                              if (value.length < 6)
+                              }
+                              if (value.length < 6) {
                                 return "Password must have at least 6 characters";
+                              }
                               return null;
                             },
                             onFieldSubmitted: (value) async {
@@ -183,13 +187,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                     }
                                   },
                                   style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       const Color.fromARGB(255, 218, 165, 33),
                                     ),
-                                    foregroundColor: MaterialStateProperty.all(
+                                    foregroundColor: WidgetStateProperty.all(
                                       Colors.black,
                                     ),
-                                    shape: MaterialStateProperty.all(
+                                    shape: WidgetStateProperty.all(
                                       RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
                                       ),

@@ -58,8 +58,8 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Image.asset(
                     'assets/images/ulogo.png', // tu imagen
-                    width: 100,
-                    height: 100,
+                    width: 150,
+                    height: 150,
                   ),
                   const SizedBox(
                     height: 0,
@@ -192,13 +192,13 @@ class _LoginPageState extends State<LoginPage> {
                                     }
                                   },
                                   style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       const Color.fromARGB(255, 218, 165, 33),
                                     ), // color de fondo
-                                    foregroundColor: MaterialStateProperty.all(
+                                    foregroundColor: WidgetStateProperty.all(
                                       Colors.black,
                                     ), // color del texto
-                                    shape: MaterialStateProperty.all(
+                                    shape: WidgetStateProperty.all(
                                       RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
                                       ), // bordes redondeados
