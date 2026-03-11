@@ -4,6 +4,7 @@ import 'package:loggy/loggy.dart';
 import '../viewsmodels/authentication_controller.dart';
 import 'signup_page.dart'; // Para poder navegar a la página de registro
 import 'home_page.dart';
+import 'teacher_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,8 +20,16 @@ class _LoginPageState extends State<LoginPage> {
   final controllerPassword = TextEditingController();
   final AuthenticationController authenticationController = Get.find();
 
+  bool isTeacherEmail(String email) {
+    final cleanEmail = email.trim().toLowerCase();
+    final regex = RegExp(r'^profesor\d*@institucion\.edu$');
+    return regex.hasMatch(cleanEmail);
+  }
+
   // 2️⃣ Método que llama al controller para hacer login
   Future<void> _login(String email, String password) async {
+    final cleanEmail = controllerEmail.text.trim().toLowerCase();
+
     logInfo('_login $email $password');
     try {
       bool success = await authenticationController.login(email, password);
@@ -32,8 +41,11 @@ class _LoginPageState extends State<LoginPage> {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        // Login exitoso -> ir a HomePage y pasar el email
-        Get.to(() => HomePage(email: email));
+        if (isTeacherEmail(cleanEmail)) {
+          Get.to(() => TeacherHomePage(email: cleanEmail));
+        } else {
+          Get.to(() => HomePage(email: cleanEmail));
+        }
       }
     } catch (err) {
       Get.snackbar(
