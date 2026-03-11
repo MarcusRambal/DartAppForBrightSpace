@@ -26,7 +26,8 @@ class AuthenticationSourceService
 
   // 2️⃣ Login: busca usuario existente (docente o estudiante)
   @override
-  Future<bool> login(AuthenticationUser user) async {
+  Future<UserModel?> login(AuthenticationUser user) async {
+    // 👈 Cambiar bool por UserModel?
     logInfo("Attempting login for email: ${user.email}");
 
     var existingUser = _users.firstWhereOrNull(
@@ -35,10 +36,12 @@ class AuthenticationSourceService
 
     if (existingUser != null) {
       logInfo("Login successful: ${existingUser.email} (${existingUser.rol})");
-      return Future.value(true);
+      return Future.value(
+        existingUser,
+      ); // 👈 Retornar el usuario en lugar de true
     } else {
       logWarning("Login failed for: ${user.email}");
-      return Future.value(false);
+      return Future.value(null); // 👈 Retornar null en lugar de false
     }
   }
 
@@ -47,9 +50,7 @@ class AuthenticationSourceService
   Future<bool> signUp(AuthenticationUser user) async {
     logInfo("Attempting sign up for email: ${user.email}");
 
-    var existingUser = _users.firstWhereOrNull(
-      (u) => u.email == user.email,
-    );
+    var existingUser = _users.firstWhereOrNull((u) => u.email == user.email);
 
     if (existingUser != null) {
       logWarning("Sign up failed: user already exists ${user.email}");

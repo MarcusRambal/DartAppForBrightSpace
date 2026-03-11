@@ -1,6 +1,7 @@
 import '../../domain/entities/authentication_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../dataSources/i_authentication_source.dart';
+import '../models/user_model.dart'; // 👈 Añadir esta línea
 
 class AuthRepository implements IAuthRepository {
   late IAuthenticationSource authenticationSource;
@@ -8,7 +9,7 @@ class AuthRepository implements IAuthRepository {
   AuthRepository(this.authenticationSource);
 
   @override
-  Future<bool> login(AuthenticationUser user) async =>
+  Future<UserModel?> login(AuthenticationUser user) async =>
       await authenticationSource.login(user);
 
   @override

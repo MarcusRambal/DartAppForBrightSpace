@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
+import '../../domain/entities/authentication_user.dart'; // 👈 IMPORTANTE: Añadimos esto para poder leer UserRole
 import '../viewsmodels/authentication_controller.dart';
 import 'signup_page.dart'; // Para poder navegar a la página de registro
 import 'home_page.dart';
@@ -20,12 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   final controllerPassword = TextEditingController();
   final AuthenticationController authenticationController = Get.find();
 
-  bool isTeacherEmail(String email) {
-    final cleanEmail = email.trim().toLowerCase();
-    final regex = RegExp(r'^profesor\d*@institucion\.edu$');
-    return regex.hasMatch(cleanEmail);
-  }
-
   // 2️⃣ Método que llama al controller para hacer login
   Future<void> _login(String email, String password) async {
     final cleanEmail = controllerEmail.text.trim().toLowerCase();
@@ -41,7 +36,8 @@ class _LoginPageState extends State<LoginPage> {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        if (isTeacherEmail(cleanEmail)) {
+        // 👈 AHORA SÍ LEEMOS EL ROL REAL CON GETX
+        if (authenticationController.role == UserRole.teacher) {
           Get.to(() => TeacherHomePage(email: cleanEmail));
         } else {
           Get.to(() => HomePage(email: cleanEmail));
