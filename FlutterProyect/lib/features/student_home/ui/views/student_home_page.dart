@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+class StudentHomePage extends StatelessWidget {
   final String email;
 
-  const HomePage({super.key, required this.email});
+  const StudentHomePage({super.key, required this.email});
 
   // Colores de diseño
   final Color primaryGold = const Color(0xFFE6C363);
@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
                   Image.asset('assets/images/ulogo.png', width: 50, height: 50),
                   const SizedBox(width: 15),
                   const Text(
-                    "Cursos",
+                    "Bienvenido",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -51,21 +51,21 @@ class HomePage extends StatelessWidget {
                       subtitle: "MOVIL_202610_1852",
                       id: "202610_1852 - 202610",
                       pending: 1,
-                      color: Colors.blueAccent,
+                      color: Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
                       title: "DLLO APLICACIONES WEB",
                       subtitle: "FRONTEND_202610_2085",
                       id: "202610_2085 - 202610",
                       pending: 0,
-                      color: Colors.indigo,
+                      color: Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
                       title: "DISEÑO DEL SOFTWARE",
                       subtitle: "II_202610_2064",
                       id: "202610_2064 - 202610",
                       pending: 2,
-                      color: Colors.teal,
+                      color: Color(0xFFB8860B),
                     ),
                   ],
                 ),

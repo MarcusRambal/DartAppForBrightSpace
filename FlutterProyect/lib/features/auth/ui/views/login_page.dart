@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
-import '../../domain/entities/authentication_user.dart'; // 👈 IMPORTANTE: Añadimos esto para poder leer UserRole
+import '../../domain/entities/authentication_user.dart';
 import '../viewsmodels/authentication_controller.dart';
-import 'signup_page.dart'; // Para poder navegar a la página de registro
-import 'home_page.dart';
-import 'teacher_home_page.dart';
+import 'signup_page.dart';
+import '../../../student_home/ui/views/student_home_page.dart';
+import '../../../teacher_home/ui/views/teacher_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,19 +15,20 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // 1️⃣ Clave para el formulario y controladores de texto
   final _formKey = GlobalKey<FormState>();
   final controllerEmail = TextEditingController();
   final controllerPassword = TextEditingController();
   final AuthenticationController authenticationController = Get.find();
 
-  // 2️⃣ Método que llama al controller para hacer login
   Future<void> _login(String email, String password) async {
     final cleanEmail = controllerEmail.text.trim().toLowerCase();
 
     logInfo('_login $email $password');
+
     try {
-      bool success = await authenticationController.login(email, password);
+      bool success = await authenticationController.login(cleanEmail, password);
+
+
       if (!success) {
         Get.snackbar(
           "Login failed",
@@ -36,11 +37,10 @@ class _LoginPageState extends State<LoginPage> {
           snackPosition: SnackPosition.BOTTOM,
         );
       } else {
-        // 👈 AHORA SÍ LEEMOS EL ROL REAL CON GETX
         if (authenticationController.role == UserRole.teacher) {
-          Get.to(() => TeacherHomePage(email: cleanEmail));
+          Get.off(() => TeacherHomePage(email: cleanEmail));
         } else {
-          Get.to(() => HomePage(email: cleanEmail));
+          Get.off(() => StudentHomePage(email: cleanEmail));
         }
       }
     } catch (err) {
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color.fromARGB(245, 244, 245, 239), // color de fondo
+        color: const Color.fromARGB(245, 244, 245, 239),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Center(
@@ -65,20 +65,16 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/ulogo.png', // tu imagen
+                    'assets/images/ulogo.png',
                     width: 150,
                     height: 150,
                   ),
-                  const SizedBox(
-                    height: 0,
-                  ), // espacio entre imagen y formulario
-
+                  const SizedBox(height: 0),
                   Form(
                     key: _formKey,
-
                     child: Container(
                       width: 350,
-                      margin: EdgeInsets.only(top: 50),
+                      margin: const EdgeInsets.only(top: 50),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 255, 255, 255),
@@ -87,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
                             blurRadius: 10,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
@@ -101,7 +97,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // 3️⃣ Campo de email
                           TextFormField(
                             keyboardType: TextInputType.emailAddress,
                             controller: controllerEmail,
@@ -113,23 +108,19 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               floatingLabelStyle: TextStyle(
-                                color: Colors
-                                    .grey, // color cuando el campo está enfocado o flotando
-                                fontWeight: FontWeight
-                                    .bold, // opcional: que resalte más
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
                                 borderSide: BorderSide(
-                                  color: Colors
-                                      .grey, // 👈 color cuando el usuario escribe
-                                  width: 2, // ancho del borde cuando enfocado
+                                  color: Colors.grey,
+                                  width: 2,
                                 ),
                               ),
                             ),
-
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return "Enter email";
@@ -140,7 +131,6 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          // 4️⃣ Campo de contraseña
                           TextFormField(
                             controller: controllerPassword,
                             decoration: const InputDecoration(
@@ -151,19 +141,16 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               floatingLabelStyle: TextStyle(
-                                color: Colors
-                                    .grey, // color cuando el campo está enfocado o flotando
-                                fontWeight: FontWeight
-                                    .bold, // opcional: que resalte más
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
                                 ),
                                 borderSide: BorderSide(
-                                  color: Colors
-                                      .grey, // 👈 color cuando el usuario escribe
-                                  width: 2, // ancho del borde cuando enfocado
+                                  color: Colors.grey,
+                                  width: 2,
                                 ),
                               ),
                             ),
@@ -186,7 +173,6 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          // 5️⃣ Botón de login
                           Row(
                             children: [
                               Expanded(
@@ -202,14 +188,14 @@ class _LoginPageState extends State<LoginPage> {
                                   style: ButtonStyle(
                                     backgroundColor: WidgetStateProperty.all(
                                       const Color.fromARGB(255, 218, 165, 33),
-                                    ), // color de fondo
+                                    ),
                                     foregroundColor: WidgetStateProperty.all(
                                       Colors.black,
-                                    ), // color del texto
+                                    ),
                                     shape: WidgetStateProperty.all(
                                       RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
-                                      ), // bordes redondeados
+                                      ),
                                     ),
                                   ),
                                   child: const Text(
@@ -224,7 +210,6 @@ class _LoginPageState extends State<LoginPage> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          // 6️⃣ Botón para ir a registro
                           TextButton(
                             onPressed: () {
                               Navigator.push(

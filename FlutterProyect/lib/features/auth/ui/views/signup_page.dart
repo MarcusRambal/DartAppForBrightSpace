@@ -60,8 +60,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 children: [
                   Image.asset(
                     'assets/images/ulogo.png', // tu imagen
-                    width: 100,
-                    height: 100,
+                    width: 150,
+                    height: 150,
                   ),
                   const SizedBox(
                     height: 0,

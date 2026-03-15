@@ -13,6 +13,17 @@ class TeacherHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: accentButtonColor,
+        elevation: 6,
+        shape: const CircleBorder(),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -28,7 +39,7 @@ class TeacherHomePage extends StatelessWidget {
                   const SizedBox(width: 15),
                   const Expanded(
                     child: Text(
-                      'Mis cursos',
+                      'Bienvenido ',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -42,33 +53,6 @@ class TeacherHomePage extends StatelessWidget {
               const SizedBox(height: 20),
 
               _buildTeacherSummaryCard(),
-
-              const SizedBox(height: 18),
-
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add, color: Colors.white, size: 22),
-                  label: const Text(
-                    'Crear curso',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(accentButtonColor),
-                    foregroundColor: WidgetStateProperty.all(Colors.white),
-                    elevation: WidgetStateProperty.all(4),
-                    padding: WidgetStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
 
               const SizedBox(height: 20),
 
@@ -92,24 +76,21 @@ class TeacherHomePage extends StatelessWidget {
                       subtitle: 'MOVIL_202610_1852',
                       id: '202610_1852 - 202610',
                       students: 32,
-                      groups: 8,
-                      color: Colors.blueAccent,
+                      color: const Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
                       title: 'DLLO APLICACIONES WEB',
                       subtitle: 'FRONTEND_202610_2085',
                       id: '202610_2085 - 202610',
                       students: 28,
-                      groups: 7,
-                      color: Colors.indigo,
+                      color: const Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
                       title: 'DISEÑO DEL SOFTWARE',
                       subtitle: 'II_202610_2064',
                       id: '202610_2064 - 202610',
                       students: 35,
-                      groups: 9,
-                      color: Colors.teal,
+                      color: const Color(0xFFB8860B),
                     ),
                   ],
                 ),
@@ -133,8 +114,7 @@ class TeacherHomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildSummaryItem('Cursos activos', '3'),
-          _buildSummaryItem('Grupos', '24'),
-          _buildSummaryItem('Est. críticos', '7'),
+          _buildSummaryItem('Casos críticos', '7'),
         ],
       ),
     );
@@ -162,7 +142,6 @@ class TeacherHomePage extends StatelessWidget {
     required String subtitle,
     required String id,
     required int students,
-    required int groups,
     required Color color,
   }) {
     return Container(
@@ -217,13 +196,6 @@ class TeacherHomePage extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   'Estudiantes: $students',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  'Grupos: $groups',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
