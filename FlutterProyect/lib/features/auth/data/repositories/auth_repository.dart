@@ -1,7 +1,6 @@
 import '../../domain/entities/authentication_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../dataSources/i_authentication_source.dart';
-import '../models/user_model.dart'; // 👈 Añadir esta línea
 
 class AuthRepository implements IAuthRepository {
   late IAuthenticationSource authenticationSource;
@@ -9,12 +8,14 @@ class AuthRepository implements IAuthRepository {
   AuthRepository(this.authenticationSource);
 
   @override
-  Future<UserModel?> login(AuthenticationUser user) async =>
-      await authenticationSource.login(user);
+    Future<void> login(String email, String password) async =>
+      await authenticationSource.login(email, password);
 
   @override
-  Future<bool> signUp(AuthenticationUser user) async =>
-      await authenticationSource.signUp(user);
+   Future<void> signUp(
+        String email, String password, String name, bool direct) async =>
+        await authenticationSource.signUp(email, password, name, direct);
+
 
   @override
   Future<bool> logOut() async => await authenticationSource.logOut();
@@ -30,4 +31,12 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<void> forgotPassword(String email) async =>
       await authenticationSource.forgotPassword(email);
+
+  @override
+  Future<AuthenticationUser> getLoggedUser() async =>
+      await authenticationSource.getLoggedUser();
+
+  @override
+  Future<List<AuthenticationUser>> getUsers() async =>
+      await authenticationSource.getUsers();
 }

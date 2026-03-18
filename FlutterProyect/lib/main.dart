@@ -15,7 +15,7 @@ void main() {
   // 1️⃣ Registrar repositorio de autenticación simulado
   Get.put<IAuthRepository>(
     AuthRepository(
-      AuthenticationSourceService(),
+      AuthenticationSourceServiceRoble(),
     ),
   );
 

@@ -1,10 +1,9 @@
 import '../../domain/entities/authentication_user.dart';
-import '../models/user_model.dart'; // 👈 Añadir esta línea
 
 abstract class IAuthenticationSource {
-  Future<UserModel?> login(AuthenticationUser user);
+  Future<void> login(String username, String password);
 
-  Future<bool> signUp(AuthenticationUser user);
+  Future<void> signUp(String email, String password, String name, bool direct);
   Future<bool> logOut();
 
   Future<bool> validate(String email, String validationCode);
@@ -20,4 +19,8 @@ abstract class IAuthenticationSource {
   );
 
   Future<bool> verifyToken();
+
+  Future<AuthenticationUser> getLoggedUser();
+
+  Future<List<AuthenticationUser>> getUsers();
 }
