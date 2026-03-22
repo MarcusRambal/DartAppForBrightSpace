@@ -14,29 +14,22 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final controllerEmail = TextEditingController();
   final controllerPassword = TextEditingController();
+  final controllerName = TextEditingController();
   final AuthenticationController authenticationController = Get.find();
 
-  Future<void> _signup(String email, String password) async {
+  Future<void> _signup(String email, String password, name ) async {
     logInfo('_signup $email $password');
     try {
-      bool success = await authenticationController.signUp(email, password);
-      if (success) {
-        Get.snackbar(
-          "Sign Up",
-          "User created successfully",
-          icon: const Icon(Icons.check_circle, color: Colors.green),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        Navigator.pop(context); // vuelve al login
-      } else {
-        Get.snackbar(
-          "Sign Up Failed",
-          "User already exists or invalid data",
-          icon: const Icon(Icons.error, color: Colors.red),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
+      await authenticationController.signUp(email,password, name);
+      Get.snackbar(
+        "Sign Up",
+        "User created successfully",
+        icon: const Icon(Icons.check_circle, color: Colors.green),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
     } catch (err) {
+      // Si el repositorio lanza un error (ej: 400 o 500), caerá aquí
       logError('SignUp error $err');
       Get.snackbar(
         "Error",
@@ -91,6 +84,27 @@ class _SignUpPageState extends State<SignUpPage> {
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Dentro de tu Column, arriba del TextFormField del Email
+                          TextFormField(
+                            controller: controllerName,
+                            decoration: const InputDecoration(
+                              labelText: "Name",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                borderSide: BorderSide(color: Colors.grey, width: 2),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Enter your name";
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
@@ -166,6 +180,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 await _signup(
                                   controllerEmail.text,
                                   controllerPassword.text,
+                                  controllerName.text,
                                 );
                               }
                             },
@@ -183,6 +198,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       await _signup(
                                         controllerEmail.text,
                                         controllerPassword.text,
+                                        controllerName.text,
                                       );
                                     }
                                   },

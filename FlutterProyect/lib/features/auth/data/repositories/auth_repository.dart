@@ -13,8 +13,8 @@ class AuthRepository implements IAuthRepository {
 
   @override
    Future<void> signUp(
-        String email, String password, String name, bool direct) async =>
-        await authenticationSource.signUp(email, password, name, direct);
+        String email, String password, String name) async =>
+        await authenticationSource.signUp(email, password, name);
 
 
   @override

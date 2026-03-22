@@ -3,7 +3,7 @@ import '../entities/authentication_user.dart';
 abstract class IAuthRepository {
   Future<void> login(String email, String password);
 
-  Future<void> signUp(String email, String password, String name, bool direct);
+  Future<void> signUp(String email, String password, String name);
 
   Future<bool> logOut();
 

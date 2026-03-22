@@ -54,12 +54,10 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
       final data = jsonDecode(response.body);
       final token = data['accessToken'];
       final refreshToken = data['refreshToken'];
-      final rol = data['rol'];
       final ILocalPreferences sharedPreferences = Get.find();
       await sharedPreferences.setString('token', token);
       await sharedPreferences.setString('refreshToken', refreshToken);
       await sharedPreferences.setString('userId', data['user']['id']);
-      await sharedPreferences.setString('rol', rol);
       logInfo("Token: $token"
           "\nRefresh Token: $refreshToken");
       return Future.value();
@@ -73,17 +71,12 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
   }
 
   @override
-  Future<void> signUp(String email, String password, String name, bool direct) async {
+  Future<void> signUp(String email, String password, String name) async {
     
     late final String endpoint;
 
-     if (direct) {
-      logInfo("Signing up directly");
-      endpoint = "$baseUrl/signup-direct";
-    } else {
       logInfo("Signing up with validation");
       endpoint = "$baseUrl/signup";
-    }
 
     final response = await http.post(
       Uri.parse(endpoint),
@@ -99,17 +92,25 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
 
     logInfo(response.statusCode);
     if (response.statusCode == 201) {
-      await login(email, password);
-      await addUser(email, name);
+      // await login(email, password);
+     //  await addUser(email);
       return Future.value();
     } else {
       logError(response.body);
       final Map<String, dynamic> body = json.decode(response.body);
-      final List<dynamic> messages = body['message'];
-      final String errorMessage = messages.join(" ");
-      logError(
-          "signUp endpoint got error code ${response.statusCode} - $errorMessage");
-      return Future.error('Error $errorMessage');
+      final dynamic messageData = body['message']; // Usamos dynamic para ser flexibles
+
+      String errorMessage;
+
+      // Verificamos si es una lista o un simple string
+      if (messageData is List) {
+        errorMessage = messageData.join(" ");
+      } else {
+        errorMessage = messageData.toString();
+      }
+
+      logError("signUp endpoint got error code ${response.statusCode} - $errorMessage");
+      return Future.error(errorMessage); // Retornamos solo el mensaje
     }
   }
     /*
@@ -285,7 +286,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
     }
   }
 
-  Future<bool> addUser(String email, String name) async {
+  Future<bool> addUser(String email) async {
     logInfo("Web service, Adding user");
     final String baseUrl = 'roble-api.openlab.uninorte.edu.co';
     final uri = Uri.https(
@@ -305,7 +306,6 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
         {
           "userId": await sharedPreferences.getString('userId'),
           "email": email,
-          "name": name,
         }
       ],
     });

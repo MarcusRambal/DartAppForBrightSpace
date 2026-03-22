@@ -26,23 +26,13 @@ class _LoginPageState extends State<LoginPage> {
     logInfo('_login $email $password');
 
     try {
-      bool success = await authenticationController.login(cleanEmail, password);
-
-
-      if (!success) {
-        Get.snackbar(
-          "Login failed",
-          "Invalid email or password",
-          icon: const Icon(Icons.error, color: Colors.red),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      } else {
-        if (authenticationController.role == UserRole.teacher) {
-          Get.off(() => TeacherHomePage(email: cleanEmail));
-        } else {
-          Get.off(() => StudentHomePage(email: cleanEmail));
-        }
-      }
+       await authenticationController.login(cleanEmail, password);
+       Get.snackbar(
+         "Login",
+         "User logged successfully",
+         icon: const Icon(Icons.check_circle, color: Colors.green),
+         snackPosition: SnackPosition.BOTTOM,
+       );
     } catch (err) {
       Get.snackbar(
         "Error",
@@ -163,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               return null;
                             },
-                            onFieldSubmitted: (value) async {
+                           onFieldSubmitted: (value) async {
                               if (_formKey.currentState!.validate()) {
                                 await _login(
                                   controllerEmail.text,
@@ -171,6 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                                 );
                               }
                             },
+
                           ),
                           const SizedBox(height: 20),
                           Row(
@@ -178,13 +169,13 @@ class _LoginPageState extends State<LoginPage> {
                               Expanded(
                                 child: FilledButton.tonal(
                                   onPressed: () async {
-                                    if (_formKey.currentState!.validate()) {
+                                   if (_formKey.currentState!.validate()) {
                                       await _login(
                                         controllerEmail.text,
                                         controllerPassword.text,
                                       );
                                     }
-                                  },
+                         },
                                   style: ButtonStyle(
                                     backgroundColor: WidgetStateProperty.all(
                                       const Color.fromARGB(255, 218, 165, 33),

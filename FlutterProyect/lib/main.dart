@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
@@ -7,24 +8,31 @@ import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewsmodels/authentication_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
+import 'package:flutter_prueba/core/i_local_preferences.dart';
+import 'package:flutter_prueba/core/local_preferences_secured.dart';
+import 'package:flutter_prueba/core/local_preferences_shared.dart';
 
-void main() {
-  // Inicializar logging
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Logging
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
 
-  // 1️⃣ Registrar repositorio de autenticación simulado
-  Get.put<IAuthRepository>(
-    AuthRepository(
-      AuthenticationSourceServiceRoble(),
-    ),
+  // 2. Cargar Env
+  await dotenv.load(fileName: ".env");
+
+  Get.lazyPut<ILocalPreferences>(() => LocalPreferencesSecured(), fenix: true);
+
+  Get.lazyPut<IAuthRepository>(
+          () => AuthRepository(AuthenticationSourceServiceRoble()),
+      fenix: true
   );
 
-  // 2️⃣ Registrar el controller de autenticación
-  Get.put(
-    AuthenticationController(Get.find()),
+  Get.lazyPut(
+          () => AuthenticationController(repository: Get.find<IAuthRepository>()),
+      fenix: true
   );
 
-  // 3️⃣ Correr la app
   runApp(const MyApp());
 }
 

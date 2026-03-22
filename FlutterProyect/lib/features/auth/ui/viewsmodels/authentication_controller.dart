@@ -1,111 +1,73 @@
-// Importaciones necesarias
-import '../../domain/entities/authentication_user.dart';
+import 'package:get/get.dart';
+import 'package:loggy/loggy.dart';
 import '../../domain/repositories/i_auth_repository.dart';
-import '../../data/models/user_model.dart'; // 👈 IMPORTANTE: Añadimos esto para conocer el modelo
-import 'package:get/get.dart'; // GetX para estado reactivo y controllers
-import 'package:loggy/loggy.dart'; // Loggy para imprimir logs de depuración
 
-// Este controller maneja toda la lógica de autenticación de la app
 class AuthenticationController extends GetxController {
-  // Repositorio de autenticación (contrato abstracto)
-  // Aquí se inyecta el repository que puede ser mock, local o remoto
-  final IAuthRepository repoAuthentication;
+  final IAuthRepository repository;
 
-  // 👈 CAMBIO CLAVE: Ahora el estado reactivo guarda al usuario completo (para saber su ROL)
-  final _loggedUser = Rxn<UserModel>();
+  AuthenticationController({required this.repository});
 
-  // Estado reactivo de loading
-  final _isLoading = false.obs;
+  // --- Observables para la UI ---
+  var isLoading = false.obs;
+  var userEmail = ''.obs; // Lo guardamos para la pantalla de verificación
+  var verificationCode = ''.obs;
 
-  // Constructor con inyección del repositorio
-  AuthenticationController(this.repoAuthentication);
+  // --- Registro ---
+  Future<void> signUp(String email, String password, String name) async {
+    try {
+      isLoading.value = true;
+      userEmail.value = email; // Persistimos el email en el controlador
 
-  // Getters públicos para la UI
-  bool get isLoading => _isLoading.value;
-  bool get isLogged =>
-      _loggedUser.value != null; // 👈 Devuelve true si hay un usuario guardado
+      await repository.signUp(email, password, name);
 
-  // 👈 NUEVO: Getter para que la LoginPage pregunte qué rol tiene el usuario que acaba de entrar
-  UserRole get role => _loggedUser.value?.rol ?? UserRole.student;
-
-  // ============================
-  // Método para iniciar sesión
-  // ============================
-  Future<bool> login(String email, String password) async {
-    logInfo('AuthenticationController: Login $email $password');
-
-    // Validación básica de email y password antes de llamar al repository
-    if (!_validate(email, password)) {
-      logWarning('AuthenticationController: Invalid email or password');
-      return false;
+      // Si el signUp es exitoso (201), navegamos a la verificación
+      Get.toNamed('/verify-email');
+    } catch (e) {
+      logError("Error en signUp: $e");
+      rethrow;
+    } finally {
+      isLoading.value = false;
     }
-
-    // Activar indicador de carga en la UI
-    _isLoading.value = true;
-
-    // Crear usuario del dominio y mandarlo al repositorio
-    // 👈 CAMBIO: Ahora recibe el UserModel? completo desde tu base de datos simulada
-    var userResult = await repoAuthentication.login(
-      AuthenticationUser(email: email, name: email, password: password),
-    );
-
-    // 👈 CAMBIO: Verificamos si el usuario fue encontrado
-    if (userResult != null) {
-      _loggedUser.value =
-          userResult; // Guardamos el usuario (y su rol) en el estado de GetX
-      _isLoading.value = false;
-      return true; // Login exitoso
-    }
-
-    // Desactivar loading si falla
-    _isLoading.value = false;
-    return false; // Login fallido
   }
 
-  // ============================
-  // Método para registrar usuario
-  // ============================
-  Future<bool> signUp(String email, String password) async {
-    logInfo('AuthenticationController: Sign Up $email $password');
-
-    // Validación básica de email y password
-    if (!_validate(email, password)) {
-      logWarning('AuthenticationController: Invalid email or password');
-      return false;
+  //  Verificación
+  Future<void> verifyEmail() async {
+    if (verificationCode.value.length < 6) {
+      throw "El código debe tener 6 dígitos";
     }
 
-    // Activar loading
-    _isLoading.value = true;
+    try {
+      isLoading.value = true;
 
-    // Crear usuario y enviar al repository
-    var success = await repoAuthentication.signUp(
-      AuthenticationUser(email: email, name: email, password: password),
-    );
+      final success = await repository.validate(userEmail.value, verificationCode.value);
 
-    // Desactivar loading
-    _isLoading.value = false;
+      if (success) {
+        logInfo("Email verificado para ${userEmail.value}");
 
-    // Retornar el resultado de la creación
-    return success;
+        // await repository.addUser(userEmail.value);
+
+        Get.offAllNamed('/home'); // Limpia el stack y va al Home
+      }
+    } catch (e) {
+      logError("Error en verificación: $e");
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  // ============================
-  // Método para cerrar sesión
-  // ============================
-  Future<void> logOut() async {
-    logInfo('AuthenticationController: Log Out');
-
-    // Llamar al repository
-    await repoAuthentication.logOut();
-
-    // 👈 CAMBIO: Limpiamos el estado del usuario al salir
-    _loggedUser.value = null;
+  Future<void> login(String email, String password) async {
+    try {
+      isLoading.value = true;
+      await repository.login(email, password);
+    }catch(e){
+      logError("Error en login: $e");
+      rethrow;
+    }finally{
+      isLoading.value = false;
+    }
   }
 
-  // ============================
-  // Validación simple de datos
-  // ============================
-  bool _validate(String email, String password) =>
-      email.isNotEmpty &&
-      password.length >= 6; // Ajustado a >= 6 para coincidir con tu UI
+  // Helper para el PinCodeTextField de la UI
+  void onCodeChanged(String code) => verificationCode.value = code;
 }

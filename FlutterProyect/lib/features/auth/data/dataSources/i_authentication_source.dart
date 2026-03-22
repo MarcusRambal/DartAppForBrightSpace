@@ -3,7 +3,7 @@ import '../../domain/entities/authentication_user.dart';
 abstract class IAuthenticationSource {
   Future<void> login(String username, String password);
 
-  Future<void> signUp(String email, String password, String name, bool direct);
+  Future<void> signUp(String email, String password, String name);
   Future<bool> logOut();
 
   Future<bool> validate(String email, String validationCode);
