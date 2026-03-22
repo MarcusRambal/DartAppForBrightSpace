@@ -202,14 +202,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 20),
                           TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SignUpPage(),
-                                ),
-                              );
-                            },
+                            onPressed: () => authenticationController.goToSignUp(),
                             child: const Text(
                               "Create account",
                               style: TextStyle(

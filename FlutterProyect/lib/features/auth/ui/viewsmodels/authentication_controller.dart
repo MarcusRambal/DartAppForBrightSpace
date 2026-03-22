@@ -7,21 +7,40 @@ class AuthenticationController extends GetxController {
 
   AuthenticationController({required this.repository});
 
-  // --- Observables para la UI ---
+  // --- ESTADOS REACTIVOS PARA CENTRAL.DART ---
+  var isLogged = false.obs;
+  var isWaitingVerification = false.obs;
   var isLoading = false.obs;
-  var userEmail = ''.obs; // Lo guardamos para la pantalla de verificación
+  var isRegistering = false.obs;
+
+  void goToSignUp() {
+    isWaitingVerification.value = false;
+    isRegistering.value = true;
+  }
+
+  void goToLogin() {
+    isRegistering.value = false;
+    isWaitingVerification.value = false;
+  }
+
+  // Variables para persistencia temporal
+  var userEmail = ''.obs;
+  String? _tempPassword;
+  String? _tempName;
   var verificationCode = ''.obs;
 
-  // --- Registro ---
   Future<void> signUp(String email, String password, String name) async {
     try {
       isLoading.value = true;
-      userEmail.value = email; // Persistimos el email en el controlador
+      userEmail.value = email;
+      _tempPassword = password;
+      _tempName = name;
 
       await repository.signUp(email, password, name);
 
-      // Si el signUp es exitoso (201), navegamos a la verificación
-      Get.toNamed('/verify-email');
+      isRegistering.value = false;
+      isWaitingVerification.value = true;
+
     } catch (e) {
       logError("Error en signUp: $e");
       rethrow;
@@ -29,27 +48,22 @@ class AuthenticationController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  //  Verificación
-  Future<void> verifyEmail() async {
-    if (verificationCode.value.length < 6) {
-      throw "El código debe tener 6 dígitos";
-    }
-
+  Future<bool> validateCode(String email, String code) async {
     try {
       isLoading.value = true;
+      await repository.validate(email, code);
 
-      final success = await repository.validate(userEmail.value, verificationCode.value);
+      isWaitingVerification.value = false;
 
-      if (success) {
-        logInfo("Email verificado para ${userEmail.value}");
+      Get.snackbar(
+        "¡Cuenta Verificada!",
+        "Tu correo ha sido validado. Ya puedes ingresar.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
 
-        // await repository.addUser(userEmail.value);
-
-        Get.offAllNamed('/home'); // Limpia el stack y va al Home
-      }
+      return true;
     } catch (e) {
-      logError("Error en verificación: $e");
+      logError("Error en validación: $e");
       rethrow;
     } finally {
       isLoading.value = false;
@@ -60,14 +74,33 @@ class AuthenticationController extends GetxController {
     try {
       isLoading.value = true;
       await repository.login(email, password);
-    }catch(e){
+
+      isLogged.value = true;
+
+    } catch(e) {
       logError("Error en login: $e");
       rethrow;
-    }finally{
+    } finally {
       isLoading.value = false;
     }
   }
 
-  // Helper para el PinCodeTextField de la UI
+  Future<void> resendCode() async {
+    if (_tempPassword == null || _tempName == null) {
+      Get.snackbar("Error", "Datos perdidos, intenta registrarte de nuevo.");
+      return;
+    }
+    try {
+      isLoading.value = true;
+      await repository.signUp(userEmail.value, _tempPassword!, _tempName!);
+      Get.snackbar("Éxito", "Nuevo código enviado a ${userEmail.value}");
+    } catch (e) {
+      logError("Error al reenviar: $e");
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   void onCodeChanged(String code) => verificationCode.value = code;
 }

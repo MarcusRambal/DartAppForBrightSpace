@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
+import 'central.dart';
 import 'features/auth/data/dataSources/authentication_source_service.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/i_auth_repository.dart';
@@ -45,7 +46,8 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Login Test',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(),
-      home: const LoginPage(), // Pantalla inicial de prueba
+      home: const Central(),
     );
   }
 }
+

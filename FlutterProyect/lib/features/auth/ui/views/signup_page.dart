@@ -17,19 +17,19 @@ class _SignUpPageState extends State<SignUpPage> {
   final controllerName = TextEditingController();
   final AuthenticationController authenticationController = Get.find();
 
-  Future<void> _signup(String email, String password, name ) async {
+  Future<void> _signup(String email, String password, name) async {
     logInfo('_signup $email $password');
     try {
-      await authenticationController.signUp(email,password, name);
+      await authenticationController.signUp(email, password, name);
+      Get.back();
       Get.snackbar(
         "Sign Up",
-        "User created successfully",
+        "User created successfully. Check your email.",
         icon: const Icon(Icons.check_circle, color: Colors.green),
         snackPosition: SnackPosition.BOTTOM,
       );
 
     } catch (err) {
-      // Si el repositorio lanza un error (ej: 400 o 500), caerá aquí
       logError('SignUp error $err');
       Get.snackbar(
         "Error",
@@ -182,6 +182,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   controllerPassword.text,
                                   controllerName.text,
                                 );
+
                               }
                             },
                           ),
@@ -229,7 +230,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           const SizedBox(height: 15),
                           TextButton(
                             onPressed: () {
-                              Navigator.pop(context); // volver al login
+                              authenticationController.goToLogin();
                             },
                             child: const Text(
                               "Back to Login",
