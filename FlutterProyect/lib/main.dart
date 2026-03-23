@@ -12,6 +12,12 @@ import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewsmodels/authentication_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
 
+import 'features/cursos/data/dataSources/curso_source_service.dart';
+import 'features/cursos/data/dataSources/i_curso_source.dart';
+import 'features/cursos/data/repositories/curso_repository.dart';
+import 'features/cursos/domain/repositories/i_curso_repository.dart';
+import 'features/cursos/ui/viewsmodels/curso_controller.dart';
+
 import 'package:flutter_prueba/core/i_local_preferences.dart';
 import 'package:flutter_prueba/core/local_preferences_secured.dart';
 import 'package:flutter_prueba/core/local_preferences_shared.dart';
@@ -42,10 +48,7 @@ void main() async {
   // - hacer refresh
   // - reintentar request
   Get.put<http.Client>(
-    RefreshClient(
-      http.Client(),
-      Get.find<IAuthenticationSource>(),
-    ),
+    RefreshClient(http.Client(), Get.find<IAuthenticationSource>()),
     tag: 'apiClient', // 🔑 importante para usarlo después
     permanent: true,
   );
@@ -61,7 +64,27 @@ void main() async {
     () => AuthenticationController(repository: Get.find<IAuthRepository>()),
     fenix: true,
   );
+  // 📚 CURSOS
 
+  // DataSource (usa el cliente con refresh automático)
+  Get.lazyPut<ICursoSource>(
+    () => CursoSourceServiceRoble(
+      client: Get.find<http.Client>(tag: 'apiClient'),
+    ),
+    fenix: true,
+  );
+
+  // Repository
+  Get.lazyPut<ICursoRepository>(
+    () => CursoRepository(Get.find<ICursoSource>()),
+    fenix: true,
+  );
+
+  // Controller
+  Get.lazyPut(
+    () => CursoController(repository: Get.find<ICursoRepository>()),
+    fenix: true,
+  );
   runApp(const MyApp());
 }
 
@@ -78,4 +101,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
