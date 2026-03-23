@@ -13,19 +13,23 @@ class CursoController extends GetxController {
   var cursos = <CursoCurso>[].obs;
   var isLoading = false.obs;
 
-  // --- OPCIONAL (para UI) ---
   var isCreating = false.obs;
   var isUpdating = false.obs;
   var isDeleting = false.obs;
+
+  // 👈 NUEVO: Cargar los cursos automáticamente al inicializar el controlador
+  @override
+  void onInit() {
+    super.onInit();
+    cargarCursos();
+  }
 
   // --- CARGAR CURSOS ---
   Future<void> cargarCursos() async {
     try {
       isLoading.value = true;
-
       final result = await repository.getCursosByProfe();
       cursos.value = result;
-
     } catch (e) {
       logError("Error cargando cursos: $e");
       Get.snackbar("Error", "No se pudieron cargar los cursos");
@@ -38,13 +42,9 @@ class CursoController extends GetxController {
   Future<void> crearCurso(String idCurso, String nombre) async {
     try {
       isCreating.value = true;
-
       await repository.createCurso(idCurso, nombre);
-
       Get.snackbar("Éxito", "Curso creado correctamente");
-
-      await cargarCursos(); // 🔥 refresca
-
+      await cargarCursos(); // 🔥 Refresca la lista automáticamente
     } catch (e) {
       logError("Error creando curso: $e");
       Get.snackbar("Error", "No se pudo crear el curso");
@@ -57,13 +57,9 @@ class CursoController extends GetxController {
   Future<void> actualizarCurso(CursoCurso curso, String nuevoNombre) async {
     try {
       isUpdating.value = true;
-
       await repository.updateCurso(curso, nuevoNombre);
-
       Get.snackbar("Éxito", "Curso actualizado");
-
       await cargarCursos();
-
     } catch (e) {
       logError("Error actualizando curso: $e");
       Get.snackbar("Error", "No se pudo actualizar");
@@ -76,16 +72,12 @@ class CursoController extends GetxController {
   Future<void> eliminarCurso(String idCurso) async {
     try {
       isDeleting.value = true;
-
       await repository.deleteCurso(idCurso);
-
       Get.snackbar("Éxito", "Curso eliminado");
-
       await cargarCursos();
-
     } catch (e) {
       logError("Error eliminando curso: $e");
-      Get.snackbar("Error", "No se pudo eliminar");
+      Get.snackbar("Error", "No se pudo eliminar el curso");
     } finally {
       isDeleting.value = false;
     }
