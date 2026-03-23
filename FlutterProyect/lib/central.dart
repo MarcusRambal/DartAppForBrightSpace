@@ -7,16 +7,30 @@ import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/verificationEmail_page.dart';
 import 'features/student_home/ui/views/student_home_page.dart';
 
-
 class Central extends StatelessWidget {
   const Central({super.key});
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationController authController = Get.find();
+    final AuthenticationController authController = Get.find();
 
     return Obx(() {
-      if (authController.isLogged.value) return const StudentHomePage(email: '',);
+      // Usuario logueado
+      if (authController.isLogged.value) {
+        // Verificamos rol del usuario
+        final user = authController.loggedUser.value;
+        if (user != null && user.rol == 'estudiante') {
+          return StudentHomePage(email: user.email);
+        } else {
+          // Si no es estudiante, se puede redirigir a otra página o mostrar un mensaje
+          return Scaffold(
+            body: Center(
+              child: Text('No tienes permisos para acceder.'),
+            ),
+          );
+        }
+      }
+
       if (authController.isWaitingVerification.value) return const VerificationPage();
       if (authController.isRegistering.value) return const SignUpPage();
 

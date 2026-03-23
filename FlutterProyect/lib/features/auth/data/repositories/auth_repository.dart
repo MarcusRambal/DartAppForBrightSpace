@@ -8,14 +8,12 @@ class AuthRepository implements IAuthRepository {
   AuthRepository(this.authenticationSource);
 
   @override
-    Future<void> login(String email, String password) async =>
+  Future<void> login(String email, String password) async =>
       await authenticationSource.login(email, password);
 
   @override
-   Future<void> signUp(
-        String email, String password, String name) async =>
-        await authenticationSource.signUp(email, password, name);
-
+  Future<void> signUp(String email, String password, String name) async =>
+      await authenticationSource.signUp(email, password, name);
 
   @override
   Future<bool> logOut() async => await authenticationSource.logOut();
@@ -39,4 +37,8 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<List<AuthenticationUser>> getUsers() async =>
       await authenticationSource.getUsers();
+
+  @override
+  Future<bool> addUser(String email) async =>
+      await authenticationSource.addUser(email);
 }

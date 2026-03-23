@@ -23,4 +23,5 @@ abstract class IAuthenticationSource {
   Future<AuthenticationUser> getLoggedUser();
 
   Future<List<AuthenticationUser>> getUsers();
+  Future<bool> addUser(String email);
 }

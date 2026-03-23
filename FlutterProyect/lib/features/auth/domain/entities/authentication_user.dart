@@ -1,23 +1,22 @@
 class AuthenticationUser {
-  final int? id;
+  final String id;
   final String email;
-  final String name;
-
-
+  //final String name;
+  final String rol; // ✅ nuevo campo
 
   AuthenticationUser({
-    this.id,
+    required this.id,
     required this.email,
-    required this.name,
-
+    //required this.name,
+    this.rol = "estudiante", // ✅ predeterminado
   });
 
   factory AuthenticationUser.fromJson(Map<String, dynamic> json) {
     return AuthenticationUser(
-      id: json['id'],
+      id: json['userId'], // Cambié a userId porque tu JSON lo tiene así
       email: json['email'],
-      name: json['name'],
-
+      //name: json['name'],
+      rol: json['rol'] ?? "estudiante", // Si no viene, asumimos estudiante
     );
   }
 
@@ -25,9 +24,8 @@ class AuthenticationUser {
     return {
       'userId': id,
       'email': email,
-      'name': name,
+      //'name': name,
+      'rol': rol, // ✅ incluimos rol en el JSON
     };
   }
 }
-
-
