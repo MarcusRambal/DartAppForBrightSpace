@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
-import '../../domain/entities/authentication_user.dart';
 import '../viewsmodels/authentication_controller.dart';
-import 'signup_page.dart';
-import '../../../student_home/ui/views/student_home_page.dart';
-import '../../../teacher_home/ui/views/teacher_home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -26,13 +22,13 @@ class _LoginPageState extends State<LoginPage> {
     logInfo('_login $email $password');
 
     try {
-       await authenticationController.login(cleanEmail, password);
-       Get.snackbar(
-         "Login",
-         "User logged successfully",
-         icon: const Icon(Icons.check_circle, color: Colors.green),
-         snackPosition: SnackPosition.BOTTOM,
-       );
+      await authenticationController.login(cleanEmail, password);
+      Get.snackbar(
+        "Login",
+        "User logged successfully",
+        icon: const Icon(Icons.check_circle, color: Colors.green),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (err) {
       Get.snackbar(
         "Error",
@@ -153,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               return null;
                             },
-                           onFieldSubmitted: (value) async {
+                            onFieldSubmitted: (value) async {
                               if (_formKey.currentState!.validate()) {
                                 await _login(
                                   controllerEmail.text,
@@ -161,7 +157,6 @@ class _LoginPageState extends State<LoginPage> {
                                 );
                               }
                             },
-
                           ),
                           const SizedBox(height: 20),
                           Row(
@@ -169,13 +164,13 @@ class _LoginPageState extends State<LoginPage> {
                               Expanded(
                                 child: FilledButton.tonal(
                                   onPressed: () async {
-                                   if (_formKey.currentState!.validate()) {
+                                    if (_formKey.currentState!.validate()) {
                                       await _login(
                                         controllerEmail.text,
                                         controllerPassword.text,
                                       );
                                     }
-                         },
+                                  },
                                   style: ButtonStyle(
                                     backgroundColor: WidgetStateProperty.all(
                                       const Color.fromARGB(255, 218, 165, 33),
@@ -202,7 +197,8 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(height: 20),
                           TextButton(
-                            onPressed: () => authenticationController.goToSignUp(),
+                            onPressed: () =>
+                                authenticationController.goToSignUp(),
                             child: const Text(
                               "Create account",
                               style: TextStyle(

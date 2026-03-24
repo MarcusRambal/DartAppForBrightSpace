@@ -287,6 +287,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
   }
 
   //IMPORTANTE
+  @override
   Future<bool> addUser(String email) async {
     logInfo("Web service, Adding user");
 
@@ -340,6 +341,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
     }
   }
 
+  @override
   Future<AuthenticationUser> getLoggedUser() async {
     final String baseUrl = 'roble-api.openlab.uninorte.edu.co';
 
@@ -386,6 +388,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
     }
   }
 
+  @override
   Future<List<AuthenticationUser>> getUsers() async {
     final String baseUrl = 'roble-api.openlab.uninorte.edu.co';
     final ILocalPreferences sharedPreferences = Get.find();

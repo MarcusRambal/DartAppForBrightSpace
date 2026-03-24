@@ -34,8 +34,9 @@ class Central extends StatelessWidget {
         }
       }
 
-      if (authController.isWaitingVerification.value)
+      if (authController.isWaitingVerification.value) {
         return const VerificationPage();
+      }
       if (authController.isRegistering.value) return const SignUpPage();
 
       return const LoginPage();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../../features/cursos/ui/viewsmodels/curso_controller.dart';
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
+import '../../../../features/grupos/ui/viewmodels/grupo_import_controller.dart';
 
 class TeacherHomePage extends StatelessWidget {
   final String email;
@@ -12,8 +14,10 @@ class TeacherHomePage extends StatelessWidget {
   final Color backgroundColor = const Color(0xFFF4F5EF);
   final Color accentButtonColor = const Color(0xFFB8860B);
 
-  // 1️⃣ Inyectamos el controlador de cursos
+  // 1️⃣ Inyectamos los controladores
   final CursoController cursoController = Get.find();
+  final GrupoImportController grupoController =
+      Get.find(); // 🔥 NUEVO CONTROLADOR
 
   // 2️⃣ Menú de opciones del Floating Action Button
   void _showOptionsBottomSheet(BuildContext context) {
@@ -129,10 +133,10 @@ class TeacherHomePage extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/ulogo.png', width: 50, height: 50),
                   const SizedBox(width: 15),
-                  Expanded(
+                  const Expanded(
                     child: Text(
                       'Hola, Profesor',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -173,7 +177,6 @@ class TeacherHomePage extends StatelessWidget {
                     itemCount: cursoController.cursos.length,
                     itemBuilder: (context, index) {
                       final curso = cursoController.cursos[index];
-                      // Usamos un patrón de colores para las tarjetas
                       final List<Color> colores = [
                         Colors.blueAccent,
                         Colors.teal,
@@ -212,10 +215,12 @@ class TeacherHomePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem(
-                "Mis Cursos",
-                "0",
-              ), // Podrías enlazar esto al .length de la lista luego
+              Obx(
+                () => _buildSummaryItem(
+                  "Mis Cursos",
+                  cursoController.cursos.length.toString(),
+                ),
+              ), // 🔥 Enlace dinámico
               _buildSummaryItem("Alertas", "0"),
             ],
           ),
@@ -282,27 +287,57 @@ class TeacherHomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 15),
 
-                // 6️⃣ El Botón para adjuntar el CSV (Aún sin función activa)
+                // 6️⃣ Botón para adjuntar el CSV (AHORA FUNCIONAL CON ANIMACIÓN) 🔥
                 SizedBox(
                   width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: Implementar lógica de carga de CSV aquí
-                      Get.snackbar(
-                        "Próximamente",
-                        "Aquí abriremos el selector de archivos CSV para el curso ${curso.nombre}",
+                  child: Obx(() {
+                    if (grupoController.isImporting.value) {
+                      return OutlinedButton(
+                        onPressed: null, // Deshabilita el botón mientras carga
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: accentButtonColor,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              grupoController.importProgress.value,
+                              style: TextStyle(
+                                color: accentButtonColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
-                    },
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text("Adjuntar archivo de grupos (.csv)"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: accentButtonColor,
-                      side: BorderSide(color: accentButtonColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    }
+
+                    return OutlinedButton.icon(
+                      onPressed: () {
+                        grupoController.importarCSV(curso.id!);
+                      },
+                      icon: const Icon(Icons.upload_file),
+                      label: const Text("Adjuntar archivo de grupos (.csv)"),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: accentButtonColor,
+                        side: BorderSide(color: accentButtonColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ],
             ),

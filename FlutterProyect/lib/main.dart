@@ -10,7 +10,6 @@ import 'features/auth/data/dataSources/i_authentication_source.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewsmodels/authentication_controller.dart';
-import 'features/auth/ui/views/login_page.dart';
 
 import 'features/cursos/data/dataSources/curso_source_service.dart';
 import 'features/cursos/data/dataSources/i_curso_source.dart';
@@ -20,8 +19,13 @@ import 'features/cursos/ui/viewsmodels/curso_controller.dart';
 
 import 'package:flutter_prueba/core/i_local_preferences.dart';
 import 'package:flutter_prueba/core/local_preferences_secured.dart';
-import 'package:flutter_prueba/core/local_preferences_shared.dart';
 import 'core/refresh_client.dart';
+
+import 'features/grupos/data/dataSources/grupo_source_service_roble.dart';
+import 'features/grupos/data/dataSources/i_grupo_source.dart';
+import 'features/grupos/data/repositories/grupo_repository.dart';
+import 'features/grupos/domain/repositories/i_grupo_repository.dart';
+import 'features/grupos/ui/viewmodels/grupo_import_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +87,22 @@ void main() async {
   // Controller
   Get.lazyPut(
     () => CursoController(repository: Get.find<ICursoRepository>()),
+    fenix: true,
+  );
+
+  // 👥 GRUPOS
+  Get.lazyPut<IGrupoSource>(
+    () => GrupoSourceServiceRoble(
+      client: Get.find<http.Client>(tag: 'apiClient'),
+    ),
+    fenix: true,
+  );
+  Get.lazyPut<IGrupoRepository>(
+    () => GrupoRepository(Get.find<IGrupoSource>()),
+    fenix: true,
+  );
+  Get.lazyPut(
+    () => GrupoImportController(repository: Get.find<IGrupoRepository>()),
     fenix: true,
   );
   runApp(const MyApp());
