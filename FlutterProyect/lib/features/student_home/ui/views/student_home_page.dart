@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'student_home_controller.dart'; // Importamos el controlador que acabas de crear
 import '../../../../features/cursos/domain/entities/curso_matriculado.dart';
 import 'student_course_details_page.dart';
+import '../../../../features/auth/ui/viewsmodels/authentication_controller.dart';
 
 class StudentHomePage extends StatelessWidget {
   final String email;
@@ -20,6 +21,7 @@ class StudentHomePage extends StatelessWidget {
     final controller = Get.put(
       StudentHomeController(cursoRepository: Get.find(), studentEmail: email),
     );
+    final authController = Get.find<AuthenticationController>();
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -32,16 +34,38 @@ class StudentHomePage extends StatelessWidget {
               // Header
               const SizedBox(height: 20),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Image.asset('assets/images/ulogo.png', width: 50, height: 50),
                   const SizedBox(width: 15),
-                  const Text(
-                    "Bienvenido",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  const Expanded(
+                    child: Text(
+                      'Bienvenido',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
+                  ),
+
+                  // 🔥 BOTÓN DE LOGOUT
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.black),
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: "Cerrar sesión",
+                        middleText: "¿Seguro que quieres cerrar sesión?",
+                        textConfirm: "Sí",
+                        textCancel: "Cancelar",
+                        confirmTextColor: Colors.white,
+                        buttonColor: Colors.red,
+                        onConfirm: () {
+                          Get.back();
+                          authController.logout();
+                        },
+                      );
+                    },
                   ),
                 ],
               ),

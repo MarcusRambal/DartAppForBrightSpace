@@ -5,6 +5,7 @@ import 'teacher_course_details_page.dart';
 import '../../../../features/cursos/ui/viewsmodels/curso_controller.dart';
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
 import '../../../../features/grupos/ui/viewmodels/grupo_import_controller.dart';
+import '../../../../features/auth/ui/viewsmodels/authentication_controller.dart';
 
 class TeacherHomePage extends StatelessWidget {
   final String email;
@@ -19,6 +20,7 @@ class TeacherHomePage extends StatelessWidget {
   final CursoController cursoController = Get.find();
   final GrupoImportController grupoController =
       Get.find(); // 🔥 NUEVO CONTROLADOR
+  final authController = Get.find<AuthenticationController>();
 
   // 2️⃣ Menú de opciones del Floating Action Button
   void _showOptionsBottomSheet(BuildContext context) {
@@ -143,6 +145,25 @@ class TeacherHomePage extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
+                  ),
+
+                  // 🔥 BOTÓN DE LOGOUT
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.black),
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: "Cerrar sesión",
+                        middleText: "¿Seguro que quieres cerrar sesión?",
+                        textConfirm: "Sí",
+                        textCancel: "Cancelar",
+                        confirmTextColor: Colors.white,
+                        buttonColor: Colors.red,
+                        onConfirm: () {
+                          Get.back();
+                          authController.logout();
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
