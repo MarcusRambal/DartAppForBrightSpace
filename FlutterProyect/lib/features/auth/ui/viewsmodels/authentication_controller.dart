@@ -96,45 +96,83 @@ class AuthenticationController extends GetxController {
   }
 
   // --- LOGIN ---
-Future<void> login(String email, String password) async {
-  try {
-    isLoading.value = true;
-
-    // --- 1️⃣ Login normal ---
-    await repository.login(email, password);
-
-    // --- 2️⃣ Revisar si el usuario ya existe ---
-    bool userExists = false;
+  Future<void> login(String email, String password) async {
     try {
-      final users = await repository.getUsers(); // obtiene todos los usuarios
-      userExists = users.any((u) => u.email == email); // verifica por email
-    } catch (e) {
-      logError("No se pudo obtener la lista de usuarios: $e");
-      // Si falla la verificación, opcional: podrías continuar o detener
-    }
+      isLoading.value = true;
 
-    // --- 3️⃣ Solo agregar si no existe ---
-    if (!userExists) {
+      // --- 1️⃣ Login normal ---
+      await repository.login(email, password);
+
+      // --- 2️⃣ Revisar si el usuario ya existe ---
+      bool userExists = false;
       try {
-        await repository.addUser(email);
-        logInfo("Usuario agregado a la tabla Users: $email");
+        final users = await repository.getUsers(); // obtiene todos los usuarios
+        userExists = users.any((u) => u.email == email); // verifica por email
       } catch (e) {
-        logError("No se pudo agregar el usuario en la tabla: $e");
+        logError("No se pudo obtener la lista de usuarios: $e");
+        // Si falla la verificación, opcional: podrías continuar o detener
       }
-    } else {
-      logInfo("Usuario ya existe en la tabla Users: $email");
-    }
 
-    // --- 4️⃣ Obtener usuario logueado después del login ---
-    loggedUser.value = await repository.getLoggedUser();
-    isLogged.value = true;
-  } catch (e) {
-    logError("Error en login: $e");
-    rethrow;
-  } finally {
-    isLoading.value = false;
+      // --- 3️⃣ Solo agregar si no existe ---
+      if (!userExists) {
+        try {
+          await repository.addUser(email);
+          logInfo("Usuario agregado a la tabla Users: $email");
+        } catch (e) {
+          logError("No se pudo agregar el usuario en la tabla: $e");
+        }
+      } else {
+        logInfo("Usuario ya existe en la tabla Users: $email");
+      }
+
+      // --- 4️⃣ Obtener usuario logueado después del login ---
+      loggedUser.value = await repository.getLoggedUser();
+      isLogged.value = true;
+    } catch (e) {
+      logError("Error en login: $e");
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
+
+  // --- LOGOUT ---
+  Future<void> logout() async {
+    try {
+      isLoading.value = true;
+
+      // Intentar logout en backend (pero no depender de esto)
+      try {
+        await repository.logOut();
+      } catch (e) {
+        logWarning("Logout falló en backend, pero se cerrará localmente");
+      }
+
+      // 🔥 IMPORTANTE: limpiar estado
+      isLogged.value = false;
+      loggedUser.value = null;
+
+      // Resetear flujo
+      isRegistering.value = false;
+      isWaitingVerification.value = false;
+
+      Get.snackbar(
+        "Sesión cerrada",
+        "Has cerrado sesión correctamente",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      logError("Error en logout: $e");
+
+      Get.snackbar(
+        "Error",
+        "No se pudo cerrar sesión",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   // --- REENVIAR CODIGO ---
   Future<void> resendCode() async {
