@@ -41,7 +41,10 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{"email": email, "password": password}),
+      body: jsonEncode(<String, String>{
+        "email": email,
+        "password": 'ThePassword!1.',
+      }),
     );
 
     logInfo(response.statusCode);
