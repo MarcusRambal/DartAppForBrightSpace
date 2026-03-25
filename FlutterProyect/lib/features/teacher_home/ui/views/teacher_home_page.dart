@@ -274,12 +274,38 @@ class TeacherHomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  curso.nombre,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                // 🔴 AQUÍ INYECTAMOS EL BOTÓN DE ELIMINAR (Papelera)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        curso.nombre,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Color(0xFF8B0000)),
+                      onPressed: () {
+                        Get.defaultDialog(
+                          title: "Eliminar Curso",
+                          middleText:
+                              "¿Estás seguro? Se perderán todos los grupos.",
+                          textConfirm: "Sí, borrar",
+                          textCancel: "Cancelar",
+                          confirmTextColor: Colors.white,
+                          buttonColor: const Color(0xFF8B0000),
+                          onConfirm: () {
+                            Get.back();
+                            cursoController.eliminarCurso(curso.id);
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 Text(
                   "Código: ${curso.id}",
@@ -311,11 +337,14 @@ class TeacherHomePage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 10),
-                            Text(
-                              grupoController.importProgress.value,
-                              style: TextStyle(
-                                color: accentButtonColor,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Text(
+                                grupoController.importProgress.value,
+                                style: TextStyle(
+                                  color: accentButtonColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
@@ -323,19 +352,54 @@ class TeacherHomePage extends StatelessWidget {
                       );
                     }
 
-                    return OutlinedButton.icon(
-                      onPressed: () {
-                        grupoController.importarCSV(curso.id!);
-                      },
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Adjuntar archivo de grupos (.csv)"),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: accentButtonColor,
-                        side: BorderSide(color: accentButtonColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    // 🟡 AQUÍ REEMPLAZAMOS EL BOTÓN ÚNICO POR LOS DOS BOTONES NUEVOS
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            grupoController.importarCSV(curso.id);
+                          },
+                          icon: const Icon(Icons.upload_file),
+                          label: const Text("Subir grupos por primera vez"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: accentButtonColor,
+                            side: BorderSide(color: accentButtonColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Get.defaultDialog(
+                              title: "Actualizar Grupos",
+                              middleText:
+                                  "Esto borrará la lista actual y cargará la del nuevo archivo. ¿Continuar?",
+                              textConfirm: "Sí, actualizar",
+                              textCancel: "Cancelar",
+                              confirmTextColor: Colors.white,
+                              buttonColor: accentButtonColor,
+                              onConfirm: () {
+                                Get.back();
+                                grupoController.actualizarCursoConNuevoCSV(
+                                  curso.id,
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.sync),
+                          label: const Text("Actualizar lista (.csv)"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.blueGrey,
+                            side: const BorderSide(color: Colors.blueGrey),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   }),
                 ),

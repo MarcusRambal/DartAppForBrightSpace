@@ -25,17 +25,14 @@ class GrupoSourceServiceRoble implements IGrupoSource {
     return token;
   }
 
-  /// 1️⃣ CREAR CATEGORÍA
   @override
   Future<String> createCategoria(String idCurso, String nombre) async {
     final token = await _getValidToken();
-
-    // ✅ URL EXACTA como en cursos
     final uri = Uri.https(baseUrl, '/database/$contract/insert');
 
-    final int idCatManual = DateTime.now().millisecondsSinceEpoch;
+    // 🔥 Ahora lo guardamos 100% como String
+    final String idCatManual = DateTime.now().millisecondsSinceEpoch.toString();
 
-    // ✅ ESTRUCTURA EXACTA como en cursos ("records" como lista)
     final body = jsonEncode({
       "tableName": "Categoria",
       "records": [
@@ -53,37 +50,24 @@ class GrupoSourceServiceRoble implements IGrupoSource {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return idCatManual.toString();
+      return idCatManual;
     } else {
-      logError("ERROR ROBLE CATEGORIA: ${response.body}");
-      throw Exception("Error en Roble al crear categoría: ${response.body}");
+      throw Exception("Error en Roble al crear categoría");
     }
   }
 
-  /// 2️⃣ CREAR GRUPO
+  // 🔥 NUEVO: INSERCIÓN MASIVA
   @override
-  Future<void> createGrupo(
-    String idCat,
-    String nombre,
-    String idGrupo,
-    String correo,
-  ) async {
-    final token = await _getValidToken();
+  Future<void> createGruposBatch(List<Map<String, dynamic>> estudiantes) async {
+    if (estudiantes.isEmpty) return;
 
-    // ✅ URL EXACTA como en cursos
+    final token = await _getValidToken();
     final uri = Uri.https(baseUrl, '/database/$contract/insert');
 
-    // ✅ ESTRUCTURA EXACTA como en cursos ("records" como lista)
     final body = jsonEncode({
       "tableName": "Grupos",
-      "records": [
-        {
-          "idCat": int.parse(idCat),
-          "idGrupo": idGrupo,
-          "nombre": nombre,
-          "Correo": correo,
-        },
-      ],
+      "records":
+          estudiantes, // Enviamos todos los estudiantes en un solo paquete
     });
 
     final response = await httpClient.post(
@@ -96,8 +80,8 @@ class GrupoSourceServiceRoble implements IGrupoSource {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      logError("ERROR ROBLE GRUPOS: ${response.body}");
-      throw Exception("Error al insertar estudiante $correo: ${response.body}");
+      logError("ERROR LOTE GRUPOS: ${response.body}");
+      throw Exception("Error al insertar el lote de estudiantes");
     }
   }
 }

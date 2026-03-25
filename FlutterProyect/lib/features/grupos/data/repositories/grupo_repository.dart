@@ -11,10 +11,7 @@ class GrupoRepository implements IGrupoRepository {
       await grupoSource.createCategoria(idCurso, nombre);
 
   @override
-  Future<void> createGrupo(
-    String idCat,
-    String nombre,
-    String idGrupo,
-    String correo,
-  ) async => await grupoSource.createGrupo(idCat, nombre, idGrupo, correo);
+  Future<void> createGruposBatch(
+    List<Map<String, dynamic>> estudiantes,
+  ) async => await grupoSource.createGruposBatch(estudiantes);
 }

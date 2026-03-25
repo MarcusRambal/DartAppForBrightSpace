@@ -9,7 +9,7 @@ class CursoRepository implements ICursoRepository {
 
   @override
   Future<void> createCurso(String idCurso, String nom) async =>
-      await cursoSource.createCurso( idCurso,  nom);
+      await cursoSource.createCurso(idCurso, nom);
 
   @override
   Future<void> updateCurso(CursoCurso curso, String NomNuevo) async =>
@@ -22,4 +22,12 @@ class CursoRepository implements ICursoRepository {
   Future<List<CursoCurso>> getCursosByProfe() async =>
       await cursoSource.getCursosByProfe();
 
+  @override
+  Future<List<CursoCurso>> getCursosByEstudiante(
+    String emailEstudiante,
+  ) async => await cursoSource.getCursosByEstudiante(emailEstudiante);
+
+  @override
+  Future<void> vaciarContenidoCurso(String idCurso) async =>
+      await cursoSource.vaciarContenidoCurso(idCurso);
 }

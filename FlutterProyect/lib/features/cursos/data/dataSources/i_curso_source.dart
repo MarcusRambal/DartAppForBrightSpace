@@ -8,4 +8,8 @@ abstract class ICursoSource {
   Future<void> deleteCurso(String idCurso);
 
   Future<List<CursoCurso>> getCursosByProfe();
+
+  Future<List<CursoCurso>> getCursosByEstudiante(String emailEstudiante);
+
+  Future<void> vaciarContenidoCurso(String idCurso);
 }

@@ -1,11 +1,6 @@
 abstract class IGrupoSource {
   Future<String> createCategoria(String idCurso, String nombre);
 
-  // Ahora recibe 4 parámetros incluyendo el correo
-  Future<void> createGrupo(
-    String idCat,
-    String nombre,
-    String idGrupo,
-    String correo,
-  );
+  // 🔥 NUEVO: Recibe una lista completa para guardar de un solo golpe
+  Future<void> createGruposBatch(List<Map<String, dynamic>> estudiantes);
 }

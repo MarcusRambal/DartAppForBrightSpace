@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
@@ -17,7 +18,6 @@ class CursoController extends GetxController {
   var isUpdating = false.obs;
   var isDeleting = false.obs;
 
-  // 👈 NUEVO: Cargar los cursos automáticamente al inicializar el controlador
   @override
   void onInit() {
     super.onInit();
@@ -43,41 +43,80 @@ class CursoController extends GetxController {
     try {
       isCreating.value = true;
       await repository.createCurso(idCurso, nombre);
-      Get.snackbar("Éxito", "Curso creado correctamente");
-      await cargarCursos(); // 🔥 Refresca la lista automáticamente
+      Get.snackbar(
+        "Éxito",
+        "Curso creado correctamente",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      await cargarCursos(); // Refresca la lista automáticamente
     } catch (e) {
       logError("Error creando curso: $e");
-      Get.snackbar("Error", "No se pudo crear el curso");
+      Get.snackbar(
+        "Error",
+        "No se pudo crear el curso",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isCreating.value = false;
     }
   }
 
-  // --- ACTUALIZAR CURSO ---
+  // --- ACTUALIZAR NOMBRE DEL CURSO ---
   Future<void> actualizarCurso(CursoCurso curso, String nuevoNombre) async {
     try {
       isUpdating.value = true;
       await repository.updateCurso(curso, nuevoNombre);
-      Get.snackbar("Éxito", "Curso actualizado");
+      Get.snackbar(
+        "Éxito",
+        "Curso actualizado",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
       await cargarCursos();
     } catch (e) {
       logError("Error actualizando curso: $e");
-      Get.snackbar("Error", "No se pudo actualizar");
+      Get.snackbar(
+        "Error",
+        "No se pudo actualizar el nombre",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isUpdating.value = false;
     }
   }
 
-  // --- ELIMINAR CURSO ---
+  // --- ELIMINAR CURSO (En Cascada) ---
   Future<void> eliminarCurso(String idCurso) async {
     try {
       isDeleting.value = true;
+      Get.snackbar(
+        "Eliminando",
+        "Borrando curso y grupos...",
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
       await repository.deleteCurso(idCurso);
-      Get.snackbar("Éxito", "Curso eliminado");
-      await cargarCursos();
+
+      Get.snackbar(
+        "Éxito",
+        "Curso eliminado correctamente",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      await cargarCursos(); // Refresca la lista de la pantalla
     } catch (e) {
       logError("Error eliminando curso: $e");
-      Get.snackbar("Error", "No se pudo eliminar el curso");
+      Get.snackbar(
+        "Error",
+        "No se pudo eliminar el curso",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isDeleting.value = false;
     }

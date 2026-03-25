@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'student_home_controller.dart'; // Importamos el controlador que acabas de crear
 
 class StudentHomePage extends StatelessWidget {
   final String email;
@@ -11,6 +14,11 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1️⃣ Inyectamos el controlador pasándole el repositorio (que ya está en main.dart) y el email
+    final controller = Get.put(
+      StudentHomeController(cursoRepository: Get.find(), studentEmail: email),
+    );
+
     return Scaffold(
       backgroundColor: backgroundColor,
       body: SafeArea(
@@ -41,34 +49,64 @@ class StudentHomePage extends StatelessWidget {
               _buildSummaryCard(),
               const SizedBox(height: 20),
 
-              // --- LISTA DE CURSOS ---
+              // --- LISTA DE CURSOS (REACTIVA CON ROBLE) ---
               Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    _buildCourseCard(
-                      title: "PROGRAMACIÓN MÓVIL",
-                      subtitle: "MOVIL_202610_1852",
-                      id: "202610_1852 - 202610",
-                      pending: 1,
-                      color: Color(0xFFB8860B),
-                    ),
-                    _buildCourseCard(
-                      title: "DLLO APLICACIONES WEB",
-                      subtitle: "FRONTEND_202610_2085",
-                      id: "202610_2085 - 202610",
-                      pending: 0,
-                      color: Color(0xFFB8860B),
-                    ),
-                    _buildCourseCard(
-                      title: "DISEÑO DEL SOFTWARE",
-                      subtitle: "II_202610_2064",
-                      id: "202610_2064 - 202610",
-                      pending: 2,
-                      color: Color(0xFFB8860B),
-                    ),
-                  ],
-                ),
+                child: Obx(() {
+                  // Mientras carga, mostramos el indicador
+                  if (controller.isLoading.value) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF8B0000),
+                      ),
+                    );
+                  }
+
+                  // Si terminó de cargar y la lista está vacía
+                  if (controller.cursos.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.folder_off, size: 80, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'Aún no estás inscrito en ningún curso.',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Paleta de colores para alternar en las tarjetas
+                  final cardColors = [
+                    const Color(0xFF8B0000), // Rojo Uninorte
+                    const Color(0xFFE6C363), // Dorado
+                    const Color(0xFF2E8B57), // Verde
+                    const Color(0xFF4682B4), // Azul
+                  ];
+
+                  // Dibujamos la lista con los cursos reales
+                  return ListView.builder(
+                    itemCount: controller.cursos.length,
+                    itemBuilder: (context, index) {
+                      final curso = controller.cursos[index];
+                      // Alternamos los colores usando el índice
+                      final color = cardColors[index % cardColors.length];
+
+                      return _buildCourseCard(
+                        color,
+                        curso.nombre, // Nombre real del curso
+                        "Curso Activo", // Subtítulo
+                        "NRC: ${curso.id}", // Usamos el ID como NRC
+                        0, // Evaluaciones (por ahora 0)
+                      );
+                    },
+                  );
+                }),
               ),
             ],
           ),
@@ -77,71 +115,80 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  // Widget tarjeta superior de evaluaciones
+  // --- WIDGETS PRIVADOS DE DISEÑO (Se mantienen intactos) ---
+
   Widget _buildSummaryCard() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: primaryGold,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            "EVALUACIONES",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildSummaryItem("Realizadas", "12"),
-              _buildSummaryItem("Pendientes", "3"),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Evaluaciones pendientes",
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              SizedBox(height: 5),
+              Text(
+                "3 Tareas",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: primaryGold.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.assignment, color: primaryGold, size: 30),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  // Widget tarjetas de cursos
-  Widget _buildCourseCard({
-    required String title,
-    required String subtitle,
-    required String id,
-    required int pending,
-    required Color color,
-  }) {
+  Widget _buildCourseCard(
+    Color color,
+    String title,
+    String subtitle,
+    String id,
+    int pending,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: primaryGold,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Color imagen curso
+          // Banda de color superior
           Container(
             height: 100,
             decoration: BoxDecoration(
@@ -152,7 +199,7 @@ class StudentHomePage extends StatelessWidget {
               ),
             ),
           ),
-          // Informacion del curso
+          // Información del curso
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
