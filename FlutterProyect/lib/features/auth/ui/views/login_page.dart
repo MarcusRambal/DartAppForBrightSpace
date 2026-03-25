@@ -13,8 +13,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final controllerEmail = TextEditingController();
-  final controllerPassword = TextEditingController();
+ final controllerPassword = TextEditingController(text: 'ThePassword!1.');
   final AuthenticationController authenticationController = Get.find();
+  bool _obscurePassword = true;
 
   Future<void> _login(String email, String password) async {
     final cleanEmail = controllerEmail.text.trim().toLowerCase();
@@ -117,47 +118,53 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          TextFormField(
-                            controller: controllerPassword,
-                            decoration: const InputDecoration(
-                              labelText: "Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                              ),
-                              floatingLabelStyle: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            obscureText: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter password";
-                              } else if (value.length < 6) {
-                                return "Password must have at least 6 characters";
-                              }
-                              return null;
-                            },
-                            onFieldSubmitted: (value) async {
-                              if (_formKey.currentState!.validate()) {
-                                await _login(
-                                  controllerEmail.text,
-                                  controllerPassword.text,
-                                );
-                              }
-                            },
-                          ),
+TextFormField(
+  controller: controllerPassword,
+  obscureText: _obscurePassword,
+  decoration: InputDecoration(
+    labelText: "Password",
+    border: const OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+    ),
+    floatingLabelStyle: const TextStyle(
+      color: Colors.grey,
+      fontWeight: FontWeight.bold,
+    ),
+    focusedBorder: const OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      borderSide: BorderSide(
+        color: Colors.grey,
+        width: 2,
+      ),
+    ),
+    suffixIcon: IconButton(
+      icon: Icon(
+        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+      ),
+      onPressed: () {
+        setState(() {
+          _obscurePassword = !_obscurePassword;
+        });
+      },
+    ),
+  ),
+  validator: (value) {
+    if (value == null || value.isEmpty) {
+      return "Enter password";
+    } else if (value.length < 6) {
+      return "Password must have at least 6 characters";
+    }
+    return null;
+  },
+  onFieldSubmitted: (value) async {
+    if (_formKey.currentState!.validate()) {
+      await _login(
+        controllerEmail.text,
+        controllerPassword.text,
+      );
+    }
+  },
+),
                           const SizedBox(height: 20),
                           Row(
                             children: [
