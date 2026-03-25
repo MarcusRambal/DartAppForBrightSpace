@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../../../core/i_local_preferences.dart';
 import '../../domain/entities/curso_curso.dart';
 import 'i_curso_source.dart';
+import '../../domain/entities/curso_matriculado.dart';
 
 class CursoSourceServiceRoble implements ICursoSource {
   final http.Client httpClient;
@@ -97,11 +98,14 @@ class CursoSourceServiceRoble implements ICursoSource {
     }
   }
 
-  // 🟣 READ (Para Estudiantes)
+  // 🟣 READ (Para Estudiantes - AGRUPADO POR NRC)
   @override
-  Future<List<CursoCurso>> getCursosByEstudiante(String emailEstudiante) async {
+  Future<List<CursoMatriculado>> getCursosByEstudiante(
+    String emailEstudiante,
+  ) async {
     final token = await _getValidToken();
 
+    // 1. Buscamos TODOS los grupos a los que pertenece el correo
     final uriGrupos = Uri.https(baseUrl, '/database/$contract/read', {
       'tableName': 'Grupos',
       'Correo': emailEstudiante,
@@ -116,45 +120,67 @@ class CursoSourceServiceRoble implements ICursoSource {
       List<dynamic> grupos = jsonDecode(respGrupos.body);
       if (grupos.isEmpty) return [];
 
-      Set<String> idCats = grupos.map((g) => g['idCat'].toString()).toSet();
-      List<CursoCurso> listaCursos = [];
+      // 🧠 EL MAPA MÁGICO: Agrupa cursos usando el idCurso (NRC) como llave
+      Map<String, CursoMatriculado> mapaCursos = {};
 
-      for (String idCat in idCats) {
+      for (var grupo in grupos) {
+        String idCatStr = grupo['idCat'].toString();
+        String nombreGrupo = grupo['nombre'].toString();
+
+        // 2. Buscamos a qué categoría pertenece este grupo
         final uriCat = Uri.https(baseUrl, '/database/$contract/read', {
           'tableName': 'Categoria',
-          'idcat': idCat,
+          'idcat': idCatStr,
         });
-
         final respCat = await httpClient.get(
           uriCat,
           headers: {'Authorization': 'Bearer $token'},
         );
 
         if (respCat.statusCode == 200) {
-          List<dynamic> categoria = jsonDecode(respCat.body);
-          if (categoria.isNotEmpty) {
-            String nrc = categoria[0]['idCurso'].toString();
+          List<dynamic> categoriaJson = jsonDecode(respCat.body);
+          if (categoriaJson.isNotEmpty) {
+            String idCurso = categoriaJson[0]['idCurso'].toString();
+            String nombreCategoria = categoriaJson[0]['nombre'].toString();
 
-            final uriCurso = Uri.https(baseUrl, '/database/$contract/read', {
-              'tableName': 'Cursos',
-              'idcurso': nrc,
-            });
+            // 3. Si es la primera vez que vemos este NRC, descargamos la info del Curso
+            if (!mapaCursos.containsKey(idCurso)) {
+              final uriCurso = Uri.https(baseUrl, '/database/$contract/read', {
+                'tableName': 'Cursos',
+                'idcurso': idCurso,
+              });
+              final respCurso = await httpClient.get(
+                uriCurso,
+                headers: {'Authorization': 'Bearer $token'},
+              );
 
-            final respCurso = await httpClient.get(
-              uriCurso,
-              headers: {'Authorization': 'Bearer $token'},
-            );
-
-            if (respCurso.statusCode == 200) {
-              List<dynamic> cursoJson = jsonDecode(respCurso.body);
-              if (cursoJson.isNotEmpty) {
-                listaCursos.add(CursoCurso.fromJson(cursoJson[0]));
+              if (respCurso.statusCode == 200) {
+                List<dynamic> cursoJson = jsonDecode(respCurso.body);
+                if (cursoJson.isNotEmpty) {
+                  mapaCursos[idCurso] = CursoMatriculado(
+                    curso: CursoCurso.fromJson(cursoJson[0]),
+                    grupos: [], // Inicializamos la lista de grupos vacía
+                  );
+                }
               }
+            }
+
+            // 4. Guardamos la "Categoría + Grupo" dentro del curso correspondiente
+            if (mapaCursos.containsKey(idCurso)) {
+              mapaCursos[idCurso]!.grupos.add(
+                CategoriaGrupo(
+                  idCat: idCatStr, // 🔥 NUEVO: Guardamos el ID secreto
+                  categoriaNombre: nombreCategoria,
+                  grupoNombre: nombreGrupo,
+                ),
+              );
             }
           }
         }
       }
-      return listaCursos;
+
+      // Devolvemos la lista limpia y agrupada
+      return mapaCursos.values.toList();
     } else {
       throw Exception("Error al buscar los cursos del estudiante");
     }
@@ -290,5 +316,33 @@ class CursoSourceServiceRoble implements ICursoSource {
 
     // 2. Borramos el curso usando su PK (idcurso)
     await _deleteByPK('Cursos', 'idcurso', idCurso, token);
+  }
+
+  // 🟢 READ: Obtener compañeros de un grupo específico
+  @override
+  Future<List<String>> getCompanerosDeGrupo(
+    String idCat,
+    String nombreGrupo,
+  ) async {
+    final token = await _getValidToken();
+
+    final uri = Uri.https(baseUrl, '/database/$contract/read', {
+      'tableName': 'Grupos',
+      'idCat': idCat,
+      'nombre': nombreGrupo, // Filtramos directamente por el nombre del grupo
+    });
+
+    final response = await httpClient.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      // Extraemos solo los correos de los integrantes
+      return data.map((estudiante) => estudiante['Correo'].toString()).toList();
+    } else {
+      throw Exception("Error al obtener compañeros");
+    }
   }
 }

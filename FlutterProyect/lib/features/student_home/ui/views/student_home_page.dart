@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'student_home_controller.dart'; // Importamos el controlador que acabas de crear
+import '../../../../features/cursos/domain/entities/curso_matriculado.dart';
+import 'student_course_details_page.dart';
 
 class StudentHomePage extends StatelessWidget {
   final String email;
@@ -97,13 +99,7 @@ class StudentHomePage extends StatelessWidget {
                       // Alternamos los colores usando el índice
                       final color = cardColors[index % cardColors.length];
 
-                      return _buildCourseCard(
-                        color,
-                        curso.nombre, // Nombre real del curso
-                        "Curso Activo", // Subtítulo
-                        "NRC: ${curso.id}", // Usamos el ID como NRC
-                        0, // Evaluaciones (por ahora 0)
-                      );
+                      return _buildCourseCard(curso, color);
                     },
                   );
                 }),
@@ -165,76 +161,110 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseCard(
-    Color color,
-    String title,
-    String subtitle,
-    String id,
-    int pending,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Banda de color superior
-          Container(
-            height: 100,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+  Widget _buildCourseCard(CursoMatriculado cursoMatriculado, Color color) {
+    return GestureDetector(
+      onTap: () {
+        // 🔥 Navegamos a la nueva pantalla pasando la información
+        Get.to(
+          () => StudentCourseDetailsPage(cursoMatriculado: cursoMatriculado),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 15, // Banda superior un poco más delgada
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
             ),
-          ),
-          // Información del curso
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cursoMatriculado.curso.nombre,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                  Text(
+                    "NRC: ${cursoMatriculado.curso.id}",
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
-                ),
-                Text(
-                  id,
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Evaluaciones pendientes: $pending.",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                  const SizedBox(height: 15),
+                  const Divider(),
+                  const SizedBox(height: 10),
+
+                  // 🔴 AQUÍ DIBUJAMOS LOS GRUPOS AGRUPADOS
+                  const Text(
+                    "Tus Asignaciones:",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  ...cursoMatriculado.grupos.map((grupo) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, size: 16, color: color),
+                          const SizedBox(width: 8),
+                          Text(
+                            "${grupo.categoriaNombre}: ",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(grupo.grupoNombre),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+
+                  const SizedBox(height: 15),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "Evaluaciones pendientes: ${cursoMatriculado.evaluacionesPendientes}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.red.shade900,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

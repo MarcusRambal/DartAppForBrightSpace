@@ -3,6 +3,7 @@ import 'package:loggy/loggy.dart';
 
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
 import '../../../../features/cursos/domain/repositories/i_curso_repository.dart';
+import '../../../../features/cursos/domain/entities/curso_matriculado.dart';
 
 class StudentHomeController extends GetxController {
   final ICursoRepository cursoRepository;
@@ -14,7 +15,7 @@ class StudentHomeController extends GetxController {
   });
 
   // Variables reactivas (Observables)
-  var cursos = <CursoCurso>[].obs;
+  var cursos = <CursoMatriculado>[].obs;
   var isLoading = true.obs;
 
   @override

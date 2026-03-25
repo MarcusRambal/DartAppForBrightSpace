@@ -1,6 +1,7 @@
 import '../../domain/entities/curso_curso.dart';
 import '../../domain/repositories/i_curso_repository.dart';
 import '../dataSources/i_curso_source.dart';
+import '../../domain/entities/curso_matriculado.dart';
 
 class CursoRepository implements ICursoRepository {
   late ICursoSource cursoSource;
@@ -23,11 +24,17 @@ class CursoRepository implements ICursoRepository {
       await cursoSource.getCursosByProfe();
 
   @override
-  Future<List<CursoCurso>> getCursosByEstudiante(
+  Future<List<CursoMatriculado>> getCursosByEstudiante(
     String emailEstudiante,
   ) async => await cursoSource.getCursosByEstudiante(emailEstudiante);
 
   @override
   Future<void> vaciarContenidoCurso(String idCurso) async =>
       await cursoSource.vaciarContenidoCurso(idCurso);
+
+  @override
+  Future<List<String>> getCompanerosDeGrupo(
+    String idCat,
+    String nombreGrupo,
+  ) async => await cursoSource.getCompanerosDeGrupo(idCat, nombreGrupo);
 }
