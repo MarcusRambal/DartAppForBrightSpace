@@ -15,4 +15,8 @@ abstract class ICursoSource {
   Future<void> vaciarContenidoCurso(String idCurso);
 
   Future<List<String>> getCompanerosDeGrupo(String idCat, String nombreGrupo);
+
+  Future<List<Map<String, dynamic>>> getCategoriasByCurso(String idCurso);
+
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat);
 }

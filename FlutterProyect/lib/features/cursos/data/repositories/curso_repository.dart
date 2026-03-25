@@ -37,4 +37,14 @@ class CursoRepository implements ICursoRepository {
     String idCat,
     String nombreGrupo,
   ) async => await cursoSource.getCompanerosDeGrupo(idCat, nombreGrupo);
+
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriasByCurso(
+    String idCurso,
+  ) async => await cursoSource.getCategoriasByCurso(idCurso);
+
+  @override
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(
+    String idCat,
+  ) async => await cursoSource.getDatosDeGruposPorCategoria(idCat);
 }

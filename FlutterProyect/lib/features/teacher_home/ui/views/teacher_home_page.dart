@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'teacher_course_details_page.dart';
 
 import '../../../../features/cursos/ui/viewsmodels/curso_controller.dart';
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
@@ -243,170 +244,182 @@ class TeacherHomePage extends StatelessWidget {
 
   // 5️⃣ La tarjeta de curso ahora recibe el objeto completo y muestra el botón del CSV
   Widget _buildCourseCard(CursoCurso curso, Color colorBanner) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 60,
-            decoration: BoxDecoration(
-              color: colorBanner,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+    // 🔥 ENVOLVEMOS TODO EN ESTO:
+    return GestureDetector(
+      onTap: () {
+        // Al tocar, navegamos a la página de detalles pasando el curso actual
+        Get.to(() => TeacherCourseDetailsPage(curso: curso));
+      },
+      child: Container(
+        // Este es tu Container original
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: colorBanner,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 🔴 AQUÍ INYECTAMOS EL BOTÓN DE ELIMINAR (Papelera)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        curso.nombre,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🔴 AQUÍ INYECTAMOS EL BOTÓN DE ELIMINAR (Papelera)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          curso.nombre,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Color(0xFF8B0000)),
-                      onPressed: () {
-                        Get.defaultDialog(
-                          title: "Eliminar Curso",
-                          middleText:
-                              "¿Estás seguro? Se perderán todos los grupos.",
-                          textConfirm: "Sí, borrar",
-                          textCancel: "Cancelar",
-                          confirmTextColor: Colors.white,
-                          buttonColor: const Color(0xFF8B0000),
-                          onConfirm: () {
-                            Get.back();
-                            cursoController.eliminarCurso(curso.id);
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                Text(
-                  "Código: ${curso.id}",
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 15),
-
-                // 6️⃣ Botón para adjuntar el CSV (AHORA FUNCIONAL CON ANIMACIÓN) 🔥
-                SizedBox(
-                  width: double.infinity,
-                  child: Obx(() {
-                    if (grupoController.isImporting.value) {
-                      return OutlinedButton(
-                        onPressed: null, // Deshabilita el botón mientras carga
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Color(0xFF8B0000),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: accentButtonColor,
-                              ),
+                        onPressed: () {
+                          Get.defaultDialog(
+                            title: "Eliminar Curso",
+                            middleText:
+                                "¿Estás seguro? Se perderán todos los grupos.",
+                            textConfirm: "Sí, borrar",
+                            textCancel: "Cancelar",
+                            confirmTextColor: Colors.white,
+                            buttonColor: const Color(0xFF8B0000),
+                            onConfirm: () {
+                              Get.back();
+                              cursoController.eliminarCurso(curso.id);
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "Código: ${curso.id}",
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // 6️⃣ Botón para adjuntar el CSV (AHORA FUNCIONAL CON ANIMACIÓN) 🔥
+                  SizedBox(
+                    width: double.infinity,
+                    child: Obx(() {
+                      if (grupoController.isImporting.value) {
+                        return OutlinedButton(
+                          onPressed:
+                              null, // Deshabilita el botón mientras carga
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                grupoController.importProgress.value,
-                                style: TextStyle(
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                   color: accentButtonColor,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  grupoController.importProgress.value,
+                                  style: TextStyle(
+                                    color: accentButtonColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      // 🟡 AQUÍ REEMPLAZAMOS EL BOTÓN ÚNICO POR LOS DOS BOTONES NUEVOS
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              grupoController.importarCSV(curso.id);
+                            },
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text("Subir grupos por primera vez"),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: accentButtonColor,
+                              side: BorderSide(color: accentButtonColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              Get.defaultDialog(
+                                title: "Actualizar Grupos",
+                                middleText:
+                                    "Esto borrará la lista actual y cargará la del nuevo archivo. ¿Continuar?",
+                                textConfirm: "Sí, actualizar",
+                                textCancel: "Cancelar",
+                                confirmTextColor: Colors.white,
+                                buttonColor: accentButtonColor,
+                                onConfirm: () {
+                                  Get.back();
+                                  grupoController.actualizarCursoConNuevoCSV(
+                                    curso.id,
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.sync),
+                            label: const Text("Actualizar lista (.csv)"),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.blueGrey,
+                              side: const BorderSide(color: Colors.blueGrey),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
-                    }
-
-                    // 🟡 AQUÍ REEMPLAZAMOS EL BOTÓN ÚNICO POR LOS DOS BOTONES NUEVOS
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            grupoController.importarCSV(curso.id);
-                          },
-                          icon: const Icon(Icons.upload_file),
-                          label: const Text("Subir grupos por primera vez"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: accentButtonColor,
-                            side: BorderSide(color: accentButtonColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        OutlinedButton.icon(
-                          onPressed: () {
-                            Get.defaultDialog(
-                              title: "Actualizar Grupos",
-                              middleText:
-                                  "Esto borrará la lista actual y cargará la del nuevo archivo. ¿Continuar?",
-                              textConfirm: "Sí, actualizar",
-                              textCancel: "Cancelar",
-                              confirmTextColor: Colors.white,
-                              buttonColor: accentButtonColor,
-                              onConfirm: () {
-                                Get.back();
-                                grupoController.actualizarCursoConNuevoCSV(
-                                  curso.id,
-                                );
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.sync),
-                          label: const Text("Actualizar lista (.csv)"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.blueGrey,
-                            side: const BorderSide(color: Colors.blueGrey),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              ],
+                    }),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

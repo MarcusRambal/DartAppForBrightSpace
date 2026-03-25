@@ -345,4 +345,52 @@ class CursoSourceServiceRoble implements ICursoSource {
       throw Exception("Error al obtener compañeros");
     }
   }
+
+  // 🟢 Obtener todas las categorías de un curso específico
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriasByCurso(
+    String idCurso,
+  ) async {
+    final token = await _getValidToken();
+
+    final uri = Uri.https(baseUrl, '/database/$contract/read', {
+      'tableName': 'Categoria',
+      'idCurso': idCurso,
+    });
+
+    final response = await httpClient.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception("Error al obtener las categorías del curso");
+    }
+  }
+
+  // 🟢 Obtener todos los registros de la tabla Grupos para una categoría
+  @override
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(
+    String idCat,
+  ) async {
+    final token = await _getValidToken();
+
+    final uri = Uri.https(baseUrl, '/database/$contract/read', {
+      'tableName': 'Grupos',
+      'idCat': idCat,
+    });
+
+    final response = await httpClient.get(
+      uri,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception("Error al obtener los integrantes de la categoría");
+    }
+  }
 }
