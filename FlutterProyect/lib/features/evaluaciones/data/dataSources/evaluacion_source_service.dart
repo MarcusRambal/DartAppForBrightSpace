@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/evaluacion_entity.dart';
+import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_entity.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:loggy/loggy.dart';
@@ -113,6 +114,81 @@ class EvaluacionSourceService implements IEvaluacionSource {
       }
     } catch (e) {
       logError("Error en getEvaluacionesByProfe: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> createRespuestas(List<RespuestaEntity> respuestas) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/insert');
+
+      // 🔥 Generar IDs manuales
+      final records = respuestas.map((r) {
+        return {
+          "idRespuesta":
+              DateTime.now().millisecondsSinceEpoch.toString() +
+              r.idPregunta, // para evitar duplicados
+          "idEvaluacion": r.idEvaluacion,
+          "idEvaluador": r.idEvaluador,
+          "idEvaluado": r.idEvaluado,
+          "idPregunta": r.idPregunta,
+          "tipo": r.tipo,
+          "valor_comentario": r.valorComentario,
+        };
+      }).toList();
+
+      final response = await httpClient.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({"tableName": "Respuesta", "records": records}),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception("Error al crear respuestas: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en createRespuestas: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> yaEvaluo(
+    String idEvaluacion,
+    String idEvaluador,
+    String idEvaluado,
+  ) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "Respuesta",
+        "idEvaluacion": idEvaluacion,
+        "idEvaluador": idEvaluador,
+        "idEvaluado": idEvaluado,
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> records = data['data'];
+
+        return records.isNotEmpty;
+      } else {
+        throw Exception("Error al validar evaluación");
+      }
+    } catch (e) {
+      logError("Error en yaEvaluo: $e");
       rethrow;
     }
   }

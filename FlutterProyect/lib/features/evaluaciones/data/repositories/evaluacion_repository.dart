@@ -1,4 +1,5 @@
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/evaluacion_entity.dart';
+import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_entity.dart';
 
 import '../../domain/repositories/i_evaluacion_repository.dart';
 import '../dataSources/i_evaluacion_source.dart';
@@ -23,4 +24,16 @@ class EvluacionRepository implements IEvaluacionRepository {
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(
     String idCategoria,
   ) async => await evaluacionSource.getEvaluacionesByProfe(idCategoria);
+
+  @override
+  Future<void> createRespuestas(List<RespuestaEntity> respuestas) async =>
+      await evaluacionSource.createRespuestas(respuestas);
+
+  @override
+  Future<bool> yaEvaluo(
+    String idEvaluacion,
+    String idEvaluador,
+    String idEvaluado,
+  ) async =>
+      await evaluacionSource.yaEvaluo(idEvaluacion, idEvaluador, idEvaluado);
 }
