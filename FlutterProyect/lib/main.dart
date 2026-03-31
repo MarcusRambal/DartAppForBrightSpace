@@ -27,6 +27,11 @@ import 'features/grupos/data/repositories/grupo_repository.dart';
 import 'features/grupos/domain/repositories/i_grupo_repository.dart';
 import 'features/grupos/ui/viewmodels/grupo_import_controller.dart';
 
+import 'features/evaluaciones/data/dataSources/evaluacion_source_service.dart';
+import 'features/evaluaciones/data/dataSources/i_evaluacion_source.dart';
+import 'features/evaluaciones/data/repositories/evaluacion_repository.dart';
+import 'features/evaluaciones/domain/repositories/i_evaluacion_repository.dart';
+import 'features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -105,6 +110,29 @@ void main() async {
     () => GrupoImportController(repository: Get.find<IGrupoRepository>()),
     fenix: true,
   );
+  // 📝 EVALUACIONES
+
+// DataSource
+Get.lazyPut<IEvaluacionSource>(
+  () => EvaluacionSourceService(
+    client: Get.find<http.Client>(tag: 'apiClient'),
+  ),
+  fenix: true,
+);
+
+// Repository
+Get.lazyPut<IEvaluacionRepository>(
+  () => EvluacionRepository(Get.find<IEvaluacionSource>()),
+  fenix: true,
+);
+
+// Controller
+Get.lazyPut(
+  () => EvaluacionController(
+    repository: Get.find<IEvaluacionRepository>(),
+  ),
+  fenix: true,
+);
   runApp(const MyApp());
 }
 

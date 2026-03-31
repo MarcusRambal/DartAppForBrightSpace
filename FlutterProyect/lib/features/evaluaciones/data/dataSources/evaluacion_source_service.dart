@@ -130,7 +130,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
         return {
           "idRespuesta":
               DateTime.now().millisecondsSinceEpoch.toString() +
-              r.idPregunta, // para evitar duplicados
+              r.idPregunta + r.idEvaluacion+r.idEvaluado+r.idEvaluador, // para evitar duplicados
           "idEvaluacion": r.idEvaluacion,
           "idEvaluador": r.idEvaluador,
           "idEvaluado": r.idEvaluado,
