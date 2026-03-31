@@ -20,5 +20,7 @@ class EvluacionRepository implements IEvaluacionRepository {
   );
 
   @override
-  Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria,) async => await evaluacionSource.getEvaluacionesByProfe();
+  Future<List<EvaluacionEntity>> getEvaluacionesByProfe(
+    String idCategoria,
+  ) async => await evaluacionSource.getEvaluacionesByProfe(idCategoria);
 }
