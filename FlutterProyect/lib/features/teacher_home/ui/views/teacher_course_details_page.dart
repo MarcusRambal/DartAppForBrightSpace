@@ -1,7 +1,9 @@
+//FlutterProyect/lib/features/teacher_home/ui/views/teacher_course_details_page.dart:
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
 import 'teacher_course_details_controller.dart';
+import '../../../../features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 
 class TeacherCourseDetailsPage extends StatelessWidget {
   final CursoCurso curso;
@@ -11,6 +13,10 @@ class TeacherCourseDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(
       TeacherCourseDetailsController(repository: Get.find()),
+    );
+
+    final evaluacionController = Get.put(
+      EvaluacionController(repository: Get.find()),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -23,6 +29,12 @@ class TeacherCourseDetailsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =>
+            _showOptionsBottomSheet(context, evaluacionController, controller),
+        backgroundColor: primaryRed,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: backgroundColor,
@@ -66,6 +78,216 @@ class TeacherCourseDetailsPage extends StatelessWidget {
           ],
         );
       }),
+    );
+  }
+
+  void _showOptionsBottomSheet(
+    BuildContext context,
+    EvaluacionController evaluacionController,
+    TeacherCourseDetailsController controller,
+  ) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Wrap(
+          children: [
+            const Text(
+              "Opciones",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 40),
+            ListTile(
+              leading: const Icon(Icons.assignment),
+              title: const Text("Crear evaluación"),
+              onTap: () {
+                Get.back();
+                _showCreateEvaluacionDialog(
+                  context,
+                  evaluacionController,
+                  controller,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCreateEvaluacionDialog(
+    BuildContext context,
+    EvaluacionController evaluacionController,
+    TeacherCourseDetailsController controller,
+  ) {
+    final nombreController = TextEditingController();
+    final tipoOptions = ["publico", "privado"];
+    String? tipoSeleccionado;
+
+    final fechaInicioController = TextEditingController();
+    final fechaFinController = TextEditingController();
+
+    DateTime? fechaInicio;
+    DateTime? fechaFin;
+
+    String? selectedCategoriaId;
+
+    final formKey = GlobalKey<FormState>();
+
+    Future<void> pickDateTime(bool isInicio) async {
+      final date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2024),
+        lastDate: DateTime(2100),
+      );
+
+      if (date == null) return;
+
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (time == null) return;
+
+      final finalDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+
+      final formatted =
+          "${finalDateTime.year}-${finalDateTime.month.toString().padLeft(2, '0')}-${finalDateTime.day.toString().padLeft(2, '0')} "
+          "${finalDateTime.hour.toString().padLeft(2, '0')}:${finalDateTime.minute.toString().padLeft(2, '0')}";
+
+      if (isInicio) {
+        fechaInicio = finalDateTime;
+        fechaInicioController.text = formatted;
+      } else {
+        fechaFin = finalDateTime;
+        fechaFinController.text = formatted;
+      }
+    }
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Nueva Evaluación"),
+        content: Form(
+          key: formKey,
+          child: Obx(() {
+            if (controller.isLoadingCategorias.value) {
+              return const SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedCategoriaId,
+                  items: controller.categorias.map((cat) {
+                    return DropdownMenuItem<String>(
+                      value: cat['idcat'].toString(),
+                      child: Text(cat['nombre'] ?? 'Sin nombre'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    selectedCategoriaId = value;
+                  },
+                  decoration: const InputDecoration(labelText: "Categoría"),
+                  validator: (v) =>
+                      v == null ? "Selecciona una categoría" : null,
+                ),
+                const SizedBox(height: 10),
+
+                TextFormField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(
+                    labelText: "Nombre del examen",
+                  ),
+                  validator: (v) => v!.isEmpty ? "Requerido" : null,
+                ),
+                const SizedBox(height: 10),
+
+                DropdownButtonFormField<String>(
+                  value: tipoSeleccionado,
+                  items: tipoOptions.map((tipo) {
+                    return DropdownMenuItem(value: tipo, child: Text(tipo));
+                  }).toList(),
+                  onChanged: (value) {
+                    tipoSeleccionado = value;
+                  },
+                  decoration: const InputDecoration(labelText: "Tipo"),
+                  validator: (v) => v == null ? "Selecciona un tipo" : null,
+                ),
+                const SizedBox(height: 10),
+
+                TextFormField(
+                  controller: fechaInicioController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: "Fecha inicio",
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () => pickDateTime(true),
+                  validator: (v) => v!.isEmpty ? "Requerido" : null,
+                ),
+                const SizedBox(height: 10),
+
+                TextFormField(
+                  controller: fechaFinController,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: "Fecha fin",
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
+                  onTap: () => pickDateTime(false),
+                  validator: (v) => v!.isEmpty ? "Requerido" : null,
+                ),
+              ],
+            );
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Cancelar"),
+          ),
+          Obx(() {
+            if (evaluacionController.isCreating.value) {
+              return const CircularProgressIndicator();
+            }
+
+            return FilledButton(
+              onPressed: () {
+                print("BOTON PRESIONADO");
+                print(fechaFinController.text);
+
+                if (formKey.currentState!.validate()) {
+                  evaluacionController.crearEvaluacion(
+                    selectedCategoriaId!,
+                    tipoSeleccionado!,
+                    fechaInicioController.text,
+                    fechaFinController.text,
+                    nombreController.text,
+                  );
+
+                  Get.back(); // ahora sí, después de crear
+                }
+              },
+              child: const Text("Crear"),
+            );
+          }),
+        ],
+      ),
     );
   }
 

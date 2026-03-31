@@ -14,6 +14,7 @@ abstract class IEvaluacionRepository {
     String tipo,
     String fechaCreacion,
     String fechaFinalizacion,
+    String nom,
   );
 
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);

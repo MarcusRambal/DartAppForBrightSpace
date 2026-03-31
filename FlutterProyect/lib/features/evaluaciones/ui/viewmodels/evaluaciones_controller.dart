@@ -5,6 +5,7 @@ import 'package:loggy/loggy.dart';
 import '../../domain/entities/evaluacion_entity.dart';
 import '../../domain/entities/respuesta_entity.dart';
 import '../../domain/repositories/i_evaluacion_repository.dart';
+
 class EvaluacionController extends GetxController {
   final IEvaluacionRepository repository;
 
@@ -25,12 +26,14 @@ class EvaluacionController extends GetxController {
     super.onInit();
   }
 
-  // --- CARGAR EVALUACIONES ---
+  // --- CARGAR EVALUACIONES (INDEPENDIENTE) ---
   Future<void> cargarEvaluaciones(String idCategoria) async {
     try {
       isLoading.value = true;
+
       final result = await repository.getEvaluacionesByProfe(idCategoria);
       evaluaciones.value = result;
+
     } catch (e) {
       logError("Error cargando evaluaciones: $e");
       Get.snackbar("Error", "No se pudieron cargar las evaluaciones");
@@ -39,12 +42,13 @@ class EvaluacionController extends GetxController {
     }
   }
 
-  // --- CREAR EVALUACION ---
+  // --- CREAR EVALUACION (SIN RECARGA AUTOMATICA) ---
   Future<void> crearEvaluacion(
     String idCategoria,
     String tipo,
     String fechaCreacion,
     String fechaFinalizacion,
+    String nom,
   ) async {
     try {
       isCreating.value = true;
@@ -54,6 +58,7 @@ class EvaluacionController extends GetxController {
         tipo,
         fechaCreacion,
         fechaFinalizacion,
+        nom,
       );
 
       Get.snackbar(
@@ -63,7 +68,8 @@ class EvaluacionController extends GetxController {
         colorText: Colors.white,
       );
 
-      await cargarEvaluaciones(idCategoria);
+      // ❌ YA NO SE LLAMA cargarEvaluaciones AQUÍ
+
     } catch (e) {
       logError("Error creando evaluación: $e");
       Get.snackbar(
@@ -87,7 +93,7 @@ class EvaluacionController extends GetxController {
     respuestas.clear();
   }
 
-  // --- ENVIAR RESPUESTAS (CUESTIONARIO COMPLETO) ---
+  // --- ENVIAR RESPUESTAS ---
   Future<void> enviarRespuestas() async {
     try {
       isSending.value = true;

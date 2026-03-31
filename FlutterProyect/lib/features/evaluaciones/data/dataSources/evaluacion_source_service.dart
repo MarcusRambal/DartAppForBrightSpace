@@ -34,8 +34,10 @@ class EvaluacionSourceService implements IEvaluacionSource {
     String tipo,
     String fechaCreacion,
     String fechaFinalizacion,
+    String nom,
   ) async {
     try {
+      print("entre");
       final token = await _getValidToken();
 
       final url = Uri.https(baseUrl, '/database/$contract/insert');
@@ -51,7 +53,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "tableName": "Evaluacion",
+          "tableName": "evaluacion",
           "records": [
             {
               "idEvaluacion": idEvaluacion,
@@ -59,11 +61,13 @@ class EvaluacionSourceService implements IEvaluacionSource {
               "tipo": tipo,
               "fechaCreacion": fechaCreacion,
               "fechaFinalizacion": fechaFinalizacion,
+              "nom": nom,
             },
           ],
         }),
       );
-
+      print("STATUS: ${response.statusCode}");
+      print("BODY: ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return idEvaluacion;
       } else {
@@ -83,7 +87,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
       final token = await _getValidToken();
 
       final url = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "Evaluacion",
+        "tableName": "evaluacion",
         "idCategoria": idCategoria,
       });
 
@@ -106,6 +110,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
                 'tipo': e['tipo'],
                 'fechaCreacion': e['fechaCreacion'],
                 'fechaFinalizacion': e['fechaFinalizacion'],
+                'nom': e['nom'],
               }),
             )
             .toList();
@@ -130,7 +135,10 @@ class EvaluacionSourceService implements IEvaluacionSource {
         return {
           "idRespuesta":
               DateTime.now().millisecondsSinceEpoch.toString() +
-              r.idPregunta + r.idEvaluacion+r.idEvaluado+r.idEvaluador, // para evitar duplicados
+              r.idPregunta +
+              r.idEvaluacion +
+              r.idEvaluado +
+              r.idEvaluador, // para evitar duplicados
           "idEvaluacion": r.idEvaluacion,
           "idEvaluador": r.idEvaluador,
           "idEvaluado": r.idEvaluado,

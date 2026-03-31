@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/teacher_home/ui/views/teacher_home_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'teacher_course_details_page.dart';

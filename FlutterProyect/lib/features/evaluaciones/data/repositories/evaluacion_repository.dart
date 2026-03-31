@@ -13,11 +13,13 @@ class EvluacionRepository implements IEvaluacionRepository {
     String tipo,
     String fechaCreacion,
     String fechaFinalizacion,
+    String nom,
   ) async => await evaluacionSource.createEvaluacion(
     idCategoria,
     tipo,
     fechaCreacion,
     fechaFinalizacion,
+    nom
   );
 
   @override

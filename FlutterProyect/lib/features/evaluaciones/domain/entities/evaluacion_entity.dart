@@ -2,6 +2,7 @@ class EvaluacionEntity {
   final String? id;
   final String idCategoria;
   final String tipo;
+  final String nom;
   final DateTime fechaCreacion;
   final DateTime fechaFinalizacion;
 
@@ -11,5 +12,6 @@ class EvaluacionEntity {
     required this.tipo,
     required this.fechaCreacion,
     required this.fechaFinalizacion,
+    required this.nom,
   });
 }
