@@ -174,28 +174,35 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
 
   @override
   Future<bool> validate(String email, String validationCode) async {
-    final response = await httpClient.post(
+    // 1. Usamos 'http.post' (estándar) para evitar que el interceptor inyecte tokens
+    // en una ruta pública, evitando así el 401 accidental.
+    final response = await http.post(
       Uri.parse("$baseUrl/verify-email"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        "email": email, // Assuming validationCode is the email
+        "email": email,
         "code": validationCode,
       }),
     );
 
-    logInfo(response.statusCode);
+    logInfo("Verify Status: ${response.statusCode}");
+
     if (response.statusCode == 201) {
-      return Future.value(true);
-    } else {
-      final Map<String, dynamic> errorBody = json.decode(response.body);
-      final String errorMessage = errorBody['message'];
-      logError(
-        "verifyEmail endpoint got error code ${response.statusCode} $errorMessage for email: $email",
-      );
-      return Future.error('Error code ${response.statusCode}');
+      return true;
     }
+
+    final Map<String, dynamic> errorBody = json.decode(response.body);
+    final String errorMessage = errorBody['message'] ?? "";
+
+    if (response.statusCode == 400 && errorMessage.contains("ya ha sido verificado")) {
+      logInfo("El usuario ya estaba verificado, procedemos como éxito.");
+      return true;
+    }
+
+    logError("verifyEmail error ${response.statusCode}: $errorMessage");
+    return Future.error(errorMessage);
   }
 
   //IMPORTANTE
@@ -377,6 +384,11 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
           print("Campo '$key' → valor: $value, tipo: ${value.runtimeType}");
         });
       }
+
+      if (decodedJson.isEmpty) {
+        return Future.error('No se encontró el usuario en la tabla Users (Lista vacía)');
+      }
+
       List<AuthenticationUser> users = List<AuthenticationUser>.from(
         decodedJson.map((x) => AuthenticationUser.fromJson(x)),
       );

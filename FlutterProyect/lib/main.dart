@@ -33,12 +33,18 @@ import 'features/evaluaciones/data/dataSources/i_evaluacion_source.dart';
 import 'features/evaluaciones/data/repositories/evaluacion_repository.dart';
 import 'features/evaluaciones/domain/repositories/i_evaluacion_repository.dart';
 import 'features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
+import 'features/shared/domain/services/i_notification_service.dart';
+import 'features/shared/infrastructure/services/notification_service.dart';
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
 
   await dotenv.load(fileName: ".env");
+
+  Get.lazyPut<INotificationService>(() => NotificationService(), fenix: true);
 
   // 🔐 Storage (donde se guarda el token)
   Get.lazyPut<ILocalPreferences>(() => LocalPreferencesSecured(), fenix: true);
@@ -71,7 +77,10 @@ void main() async {
 
   // Controller (sin cambios)
   Get.lazyPut(
-    () => AuthenticationController(repository: Get.find<IAuthRepository>()),
+        () => AuthenticationController(
+      repository: Get.find<IAuthRepository>(),
+      notificationService: Get.find<INotificationService>(),
+    ),
     fenix: true,
   );
   // 📚 CURSOS

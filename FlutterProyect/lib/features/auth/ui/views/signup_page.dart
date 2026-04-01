@@ -21,21 +21,16 @@ class _SignUpPageState extends State<SignUpPage> {
     logInfo('_signup $email $password');
     try {
       await authenticationController.signUp(email, password, name);
-      Get.back();
-      Get.snackbar(
+      authenticationController.notificationService.showSuccess(
         "Sign Up",
-        "User created successfully. Check your email.",
-        icon: const Icon(Icons.check_circle, color: Colors.green),
-        snackPosition: SnackPosition.BOTTOM,
+        "Revisa tu correo para verificar tu cuenta.",
       );
 
     } catch (err) {
       logError('SignUp error $err');
-      Get.snackbar(
+      authenticationController.notificationService.showError(
         "Error",
         err.toString(),
-        icon: const Icon(Icons.error, color: Colors.red),
-        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }

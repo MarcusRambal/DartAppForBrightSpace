@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loggy/loggy.dart';
 import '../viewsmodels/authentication_controller.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -12,13 +13,40 @@ class VerificationPage extends StatefulWidget {
 class _VerificationPageState extends State<VerificationPage> {
   final controllerCode = TextEditingController();
   final AuthenticationController authController = Get.find();
-
   late String email;
-
   @override
   void initState() {
     super.initState();
-    email = Get.arguments ?? authController.userEmail.value;
+    email = authController.userEmail.value;
+  }
+
+  Future<void> _validate(String code) async {
+
+    logInfo('_verify code: $code for email: $email');
+
+    // Validación básica local
+    if (code.length < 6) {
+      authController.notificationService.showError(
+          "Error",
+          "El código debe tener al menos 6 caracteres"
+      );
+      return;
+    }
+
+    try {
+      await authController.validateCode(email, code);
+      authController.notificationService.showSuccess(
+        "¡Cuenta Verificada!",
+        "Tu correo ha sido validado. Ya puedes ingresar.",
+      );
+
+    } catch (err) {
+      logError('Verification error $err');
+      authController.notificationService.showError(
+        "Error de Verificación",
+        err.toString(),
+      );
+    }
   }
 
   @override
@@ -61,12 +89,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   ? const CircularProgressIndicator(color: Color.fromARGB(255, 218, 165, 33))
                   : ElevatedButton(
                 onPressed: () async {
-                  try {
-                    // Usamos la variable email local o la del controlador
-                    await authController.validateCode(email, controllerCode.text);
-                  } catch (e) {
-                    Get.snackbar("Error", e.toString(), backgroundColor: Colors.red[100]);
-                  }
+                  await _validate(controllerCode.text);
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 218, 165, 33),

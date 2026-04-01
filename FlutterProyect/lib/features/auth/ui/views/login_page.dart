@@ -24,18 +24,14 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await authenticationController.login(cleanEmail, password);
-      Get.snackbar(
-        "Login",
-        "User logged successfully",
-        icon: const Icon(Icons.check_circle, color: Colors.green),
-        snackPosition: SnackPosition.BOTTOM,
+      authenticationController.notificationService.showSuccess(
+        "Log in",
+        "Inicio de sesion exitoso.",
       );
     } catch (err) {
-      Get.snackbar(
+      authenticationController.notificationService.showError(
         "Error",
         err.toString(),
-        icon: const Icon(Icons.error, color: Colors.red),
-        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }

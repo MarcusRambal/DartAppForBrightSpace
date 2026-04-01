@@ -2,29 +2,31 @@ import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 import '../../domain/entities/authentication_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
+import '../../../shared/domain/services/i_notification_service.dart';
+
 
 class AuthenticationController extends GetxController {
   final IAuthRepository repository;
+  final INotificationService notificationService;
 
-  AuthenticationController({required this.repository});
+  AuthenticationController({
+    required this.repository,
+    required this.notificationService,
+  });
 
-  // --- ESTADOS REACTIVOS PARA CENTRAL.DART ---
+  // --- ESTADOS REACTIVOS ---
   var isLogged = false.obs;
   var isWaitingVerification = false.obs;
   var isLoading = false.obs;
   var isRegistering = false.obs;
 
-  // --- USUARIO LOGUEADO ---
-  var loggedUser =
-      Rxn<AuthenticationUser>(); // <- Usuario actual con info completa
-
-  // Variables para persistencia temporal
+  var loggedUser = Rxn<AuthenticationUser>();
   var userEmail = ''.obs;
   String? _tempPassword;
   String? _tempName;
   var verificationCode = ''.obs;
 
-  // --- NAVEGACION ENTRE VISTAS ---
+  // --- NAVEGACIÓN ---
   void goToSignUp() {
     isWaitingVerification.value = false;
     isRegistering.value = true;
@@ -47,44 +49,31 @@ class AuthenticationController extends GetxController {
 
       isRegistering.value = false;
       isWaitingVerification.value = true;
+
+      notificationService.showInfo("Registro", "Código enviado a $email");
     } catch (e) {
       logError("Error en signUp: $e");
+      notificationService.showError("Error", "No se pudo realizar el registro");
       rethrow;
     } finally {
       isLoading.value = false;
     }
   }
 
-  // --- VALIDACION DE CODIGO ---
+  // --- VALIDACIÓN DE CÓDIGO ---
   Future<bool> validateCode(String email, String code) async {
     try {
       isLoading.value = true;
-
-      // Validar código
       await repository.validate(email, code);
-
-      // Refrescar token y agregar usuario a la tabla (estudiante por defecto)
-      //try {
-      //  await repository.addUser(email);
-      //} catch (e) {
-      //  logError("No se pudo agregar el usuario en la tabla: $e");
-      //}
-
-      // Obtener información completa del usuario recién agregado
-      try {
-        loggedUser.value = await repository.getLoggedUser();
-        isLogged.value = true;
-      } catch (e) {
-        logError("No se pudo obtener usuario logueado después de validar: $e");
-      }
 
       isWaitingVerification.value = false;
 
-      Get.snackbar(
-        "¡Cuenta Verificada!",
-        "Tu correo ha sido validado. Ya puedes ingresar.",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      if (_tempPassword != null) {
+        await login(email, _tempPassword!);
+      } else {
+        goToLogin();
+        notificationService.showInfo("Verificado", "Por favor inicia sesión.");
+      }
 
       return true;
     } catch (e) {
@@ -94,38 +83,23 @@ class AuthenticationController extends GetxController {
       isLoading.value = false;
     }
   }
-
   // --- LOGIN ---
   Future<void> login(String email, String password) async {
     try {
       isLoading.value = true;
-
-      // --- 1️⃣ Login normal ---
       await repository.login(email, password);
 
-      // --- 2️⃣ Revisar si el usuario ya existe ---
-      bool userExists = false;
+      // Lógica de "Agregar si no existe"
       try {
-        final users = await repository.getUsers(); // obtiene todos los usuarios
-        userExists = users.any((u) => u.email == email); // verifica por email
-      } catch (e) {
-        logError("No se pudo obtener la lista de usuarios: $e");
-        // Si falla la verificación, opcional: podrías continuar o detener
-      }
-
-      // --- 3️⃣ Solo agregar si no existe ---
-      if (!userExists) {
-        try {
+        final users = await repository.getUsers();
+        if (!users.any((u) => u.email == email)) {
           await repository.addUser(email);
-          logInfo("Usuario agregado a la tabla Users: $email");
-        } catch (e) {
-          logError("No se pudo agregar el usuario en la tabla: $e");
+          logInfo("Usuario nuevo guardado: $email");
         }
-      } else {
-        logInfo("Usuario ya existe en la tabla Users: $email");
+      } catch (e) {
+        logWarning("Error no crítico al verificar/agregar usuario: $e");
       }
 
-      // --- 4️⃣ Obtener usuario logueado después del login ---
       loggedUser.value = await repository.getLoggedUser();
       isLogged.value = true;
     } catch (e) {
@@ -140,57 +114,36 @@ class AuthenticationController extends GetxController {
   Future<void> logout() async {
     try {
       isLoading.value = true;
-
-      // Intentar logout en backend (pero no depender de esto)
       try {
         await repository.logOut();
-      } catch (e) {
-        logWarning("Logout falló en backend, pero se cerrará localmente");
-      }
+      } catch (_) {}
 
-      // 🔥 IMPORTANTE: limpiar estado
+      // Limpiar estados
       isLogged.value = false;
       loggedUser.value = null;
-
-      // Resetear flujo
       isRegistering.value = false;
       isWaitingVerification.value = false;
 
-      Get.snackbar(
-        "Sesión cerrada",
-        "Has cerrado sesión correctamente",
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      logError("Error en logout: $e");
-
-      Get.snackbar(
-        "Error",
-        "No se pudo cerrar sesión",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      notificationService.showSuccess("Sesión", "Has cerrado sesión");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // --- REENVIAR CODIGO ---
+  // --- REENVIAR CÓDIGO ---
   Future<void> resendCode() async {
     if (_tempPassword == null || _tempName == null) {
-      Get.snackbar("Error", "Datos perdidos, intenta registrarte de nuevo.");
+      notificationService.showError("Error", "Datos de registro perdidos. Intenta de nuevo.");
       return;
     }
     try {
       isLoading.value = true;
       await repository.signUp(userEmail.value, _tempPassword!, _tempName!);
-      Get.snackbar("Éxito", "Nuevo código enviado a ${userEmail.value}");
+      notificationService.showSuccess("Éxito", "Código reenviado");
     } catch (e) {
-      logError("Error al reenviar: $e");
-      Get.snackbar("Error", e.toString());
+      notificationService.showError("Error", "No se pudo reenviar el código");
     } finally {
       isLoading.value = false;
     }
   }
-
-  void onCodeChanged(String code) => verificationCode.value = code;
 }
