@@ -5,6 +5,7 @@ import '../../../../../core/i_local_preferences.dart';
 import '../../../evaluaciones/domain/entities/evaluacion_entity.dart';
 import '../../../student_home/ui/views/student_course_details_controller.dart';
 import '../../../evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
+import '../../../evaluaciones/ui/views/responder_evaluacion_page.dart';
 
 class EvaluacionDetailPage extends StatefulWidget {
   final EvaluacionEntity evaluacion;
@@ -17,8 +18,7 @@ class EvaluacionDetailPage extends StatefulWidget {
   });
 
   @override
-  State<EvaluacionDetailPage> createState() =>
-      _EvaluacionDetailPageState();
+  State<EvaluacionDetailPage> createState() => _EvaluacionDetailPageState();
 }
 
 class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
@@ -49,12 +49,9 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
   }
 
   Future<void> _cargarEstadoEvaluaciones() async {
-    final lista =
-        controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
+    final lista = controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
-    final companeros = lista
-        .where((correo) => correo != miCorreo)
-        .toList();
+    final companeros = lista.where((correo) => correo != miCorreo).toList();
 
     final futures = companeros.map((correo) async {
       final ya = await evaluacionController.yaEvaluo(
@@ -77,22 +74,15 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
   Widget build(BuildContext context) {
     // 🔥 Mientras carga el usuario
     if (miCorreo == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final lista =
-        controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
+    final lista = controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
-    final companeros = lista
-        .where((correo) => correo != miCorreo)
-        .toList();
+    final companeros = lista.where((correo) => correo != miCorreo).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.evaluacion.nom),
-      ),
+      appBar: AppBar(title: Text(widget.evaluacion.nom)),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: companeros.length,
@@ -113,15 +103,21 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : yaEvaluado
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : ElevatedButton(
-                          onPressed: () {
-                            print("Evaluar a $correo");
+                  ? const Icon(Icons.check_circle, color: Colors.green)
+                  : ElevatedButton(
+                      onPressed: () async {
+                        await Get.to(
+                          () => ResponderEvaluacionPage(
+                            evaluacion: widget.evaluacion,
+                            evaluadoCorreo: correo,
+                          ),
+                        );
 
-                            // 🔥 aquí luego mandas a responder preguntas
-                          },
-                          child: const Text("Evaluar"),
-                        ),
+                        // 🔥 recargar estado al volver
+                        await _cargarEstadoEvaluaciones();
+                      },
+                      child: const Text("Evaluar"),
+                    ),
             ),
           );
         },

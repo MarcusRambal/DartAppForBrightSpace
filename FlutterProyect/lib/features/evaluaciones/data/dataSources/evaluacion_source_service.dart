@@ -248,7 +248,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
       final token = await _getValidToken();
 
       final url = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "pregunta",
+        "tableName": "Pregunta",
       });
 
       final response = await httpClient.get(
