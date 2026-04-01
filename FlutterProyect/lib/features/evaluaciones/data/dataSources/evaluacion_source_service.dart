@@ -1,5 +1,7 @@
+//FlutterProyect/lib/features/evaluaciones/data/dataSources/evaluacion_source_service.dart
 import 'dart:convert';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/evaluacion_entity.dart';
+import 'package:flutter_prueba/features/evaluaciones/domain/entities/pregunta_entity.dart';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_entity.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -9,6 +11,7 @@ import 'package:http/http.dart' as http;
 import '../../../../../core/i_local_preferences.dart';
 import 'i_evaluacion_source.dart';
 import '../models/evaluacion_model.dart';
+import '../models/pregunta_model.dart';
 
 class EvaluacionSourceService implements IEvaluacionSource {
   final http.Client httpClient;
@@ -235,6 +238,44 @@ class EvaluacionSourceService implements IEvaluacionSource {
     } catch (e) {
       print("🔥 ERROR DETECTADO: $e");
       logError("Error en yaEvaluo: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<PreguntaEntity>> getPreguntas() async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "pregunta",
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // 🔥 CORRECCIÓN AQUÍ
+        final List<dynamic> records = data;
+
+        return records
+            .map(
+              (e) => PreguntaModel.fromJson({
+                'idPregunta': int.tryParse(e['idPregunta'].toString()) ?? 0,
+                'tipo': e['tipo'],
+                'pregunta': e['pregunta'],
+              }),
+            )
+            .toList();
+      } else {
+        throw Exception("Error al obtener preguntas: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en getEvaluacionesByProfe: $e");
       rethrow;
     }
   }

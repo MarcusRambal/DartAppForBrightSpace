@@ -1,5 +1,6 @@
 import '../entities/evaluacion_entity.dart';
 import '../entities/respuesta_entity.dart';
+import '../entities/pregunta_entity.dart';
 
 abstract class IEvaluacionRepository {
   Future<void> createRespuestas(List<RespuestaEntity> respuestas);
@@ -18,4 +19,5 @@ abstract class IEvaluacionRepository {
   );
 
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
+  Future<List<PreguntaEntity>> getPreguntas();
 }

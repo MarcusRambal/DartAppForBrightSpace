@@ -1,9 +1,12 @@
+// FlutterProyect/lib/features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
 import '../../domain/entities/evaluacion_entity.dart';
 import '../../domain/entities/respuesta_entity.dart';
+import '../../domain/entities/pregunta_entity.dart'; // 🔥 IMPORTANTE
 import '../../domain/repositories/i_evaluacion_repository.dart';
 
 class EvaluacionController extends GetxController {
@@ -13,7 +16,10 @@ class EvaluacionController extends GetxController {
 
   // --- ESTADOS REACTIVOS ---
   var evaluaciones = <EvaluacionEntity>[].obs;
+  var preguntas = <PreguntaEntity>[].obs; // 🔥 NUEVO
+
   var isLoading = false.obs;
+  var isLoadingPreguntas = false.obs; // 🔥 NUEVO
 
   var isCreating = false.obs;
   var isSending = false.obs;
@@ -26,7 +32,7 @@ class EvaluacionController extends GetxController {
     super.onInit();
   }
 
-  // --- CARGAR EVALUACIONES (INDEPENDIENTE) ---
+  // --- CARGAR EVALUACIONES ---
   Future<void> cargarEvaluaciones(String idCategoria) async {
     try {
       isLoading.value = true;
@@ -42,7 +48,23 @@ class EvaluacionController extends GetxController {
     }
   }
 
-  // --- CREAR EVALUACION (SIN RECARGA AUTOMATICA) ---
+  // 🔥 --- NUEVO: CARGAR PREGUNTAS ---
+  Future<void> cargarPreguntas() async {
+    try {
+      isLoadingPreguntas.value = true;
+
+      final result = await repository.getPreguntas();
+      preguntas.value = result;
+
+    } catch (e) {
+      logError("Error cargando preguntas: $e");
+      Get.snackbar("Error", "No se pudieron cargar las preguntas");
+    } finally {
+      isLoadingPreguntas.value = false;
+    }
+  }
+
+  // --- CREAR EVALUACION ---
   Future<void> crearEvaluacion(
     String idCategoria,
     String tipo,
@@ -68,8 +90,6 @@ class EvaluacionController extends GetxController {
         colorText: Colors.white,
       );
 
-      // ❌ YA NO SE LLAMA cargarEvaluaciones AQUÍ
-
     } catch (e) {
       logError("Error creando evaluación: $e");
       Get.snackbar(
@@ -83,17 +103,15 @@ class EvaluacionController extends GetxController {
     }
   }
 
-  // --- AGREGAR RESPUESTA EN MEMORIA ---
+  // --- RESPUESTAS ---
   void agregarRespuesta(RespuestaEntity respuesta) {
     respuestas.add(respuesta);
   }
 
-  // --- LIMPIAR RESPUESTAS ---
   void limpiarRespuestas() {
     respuestas.clear();
   }
 
-  // --- ENVIAR RESPUESTAS ---
   Future<void> enviarRespuestas() async {
     try {
       isSending.value = true;
@@ -128,7 +146,6 @@ class EvaluacionController extends GetxController {
     String idEvaluado,
   ) async {
     try {
-      
       return await repository.yaEvaluo(
         idEvaluacion,
         idEvaluador,
@@ -139,5 +156,4 @@ class EvaluacionController extends GetxController {
       return false;
     }
   }
-  
 }

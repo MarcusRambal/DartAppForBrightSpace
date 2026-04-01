@@ -1,6 +1,7 @@
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_entity.dart';
 
 import '../../domain/entities/evaluacion_entity.dart';
+import '../../domain/entities/pregunta_entity.dart';
 import '../../data/models/respuesta_model.dart';
 
 abstract class IEvaluacionSource {
@@ -13,6 +14,7 @@ abstract class IEvaluacionSource {
   );
 
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
+  Future<List<PreguntaEntity>> getPreguntas();
   Future<void> createRespuestas(List<RespuestaEntity> respuestas);
 
   Future<bool> yaEvaluo(
