@@ -2,7 +2,7 @@ import '../../domain/entities/evaluacion_entity.dart';
 
 class EvaluacionModel extends EvaluacionEntity {
   EvaluacionModel({
-    super.id,
+    required super.id,
     required super.idCategoria,
     required super.tipo,
     required super.fechaCreacion,
@@ -12,7 +12,7 @@ class EvaluacionModel extends EvaluacionEntity {
 
   factory EvaluacionModel.fromJson(Map<String, dynamic> json) {
     return EvaluacionModel(
-      id: json['id']?.toString(),
+      id: json['id'].toString(),
       idCategoria: json['idCategoria']?.toString() ?? '',
       nom: json['nom']?.toString() ?? '',
       tipo: json['tipo'],

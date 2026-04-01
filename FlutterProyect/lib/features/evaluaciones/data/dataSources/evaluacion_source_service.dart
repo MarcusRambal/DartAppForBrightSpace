@@ -99,13 +99,13 @@ class EvaluacionSourceService implements IEvaluacionSource {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        final List<dynamic> records = data['data'];
+        // 🔥 CORRECCIÓN AQUÍ
+        final List<dynamic> records = data;
 
         return records
             .map(
               (e) => EvaluacionModel.fromJson({
-                // 🔥 Adaptamos el JSON al model
-                'id': e['idEvaluacion'],
+                'id': int.tryParse(e['idEvaluacion'].toString()) ?? 0,
                 'idCategoria': e['idCategoria'],
                 'tipo': e['tipo'],
                 'fechaCreacion': e['fechaCreacion'],
@@ -174,9 +174,16 @@ class EvaluacionSourceService implements IEvaluacionSource {
   ) async {
     try {
       final token = await _getValidToken();
+      final prefs = Get.find<ILocalPreferences>();
 
+      final idEs = await prefs.getString('userId');
+      final correoEs = await prefs.getString('email');
+      print("correo");
+      print(correoEs);
+      if (idEs == null) throw Exception("Usuario no autenticado");
+      idEvaluador = idEs;
       final url = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "Respuesta",
+        "tableName": "respuesta",
         "idEvaluacion": idEvaluacion,
         "idEvaluador": idEvaluador,
         "idEvaluado": idEvaluado,
@@ -187,15 +194,46 @@ class EvaluacionSourceService implements IEvaluacionSource {
         headers: {'Authorization': 'Bearer $token'},
       );
 
+      print("========== RESPONSE ==========");
+      print(response.body);
+      print("STATUS: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> records = data['data'];
 
-        return records.isNotEmpty;
+        print("TIPO data: ${data.runtimeType}");
+        print("DATA: $data");
+
+        // 🔥 Aquí validamos TODO
+        if (data is List) {
+          print("ES UNA LISTA");
+          return data.isNotEmpty;
+        } else if (data is Map) {
+          print("ES UN MAP");
+          print("CLAVES: ${data.keys}");
+
+          if (data.containsKey('data')) {
+            print("data['data']: ${data['data']}");
+            print("TIPO data['data']: ${data['data'].runtimeType}");
+
+            final inner = data['data'];
+
+            if (inner is List) {
+              return inner.isNotEmpty;
+            } else {
+              throw Exception("data['data'] no es lista");
+            }
+          } else {
+            throw Exception("No existe la clave 'data'");
+          }
+        } else {
+          throw Exception("Formato desconocido");
+        }
       } else {
-        throw Exception("Error al validar evaluación");
+        throw Exception("Error al validar evaluación: ${response.body}");
       }
     } catch (e) {
+      print("🔥 ERROR DETECTADO: $e");
       logError("Error en yaEvaluo: $e");
       rethrow;
     }

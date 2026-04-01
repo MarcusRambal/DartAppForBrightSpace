@@ -128,6 +128,7 @@ class EvaluacionController extends GetxController {
     String idEvaluado,
   ) async {
     try {
+      
       return await repository.yaEvaluo(
         idEvaluacion,
         idEvaluador,
@@ -138,4 +139,5 @@ class EvaluacionController extends GetxController {
       return false;
     }
   }
+  
 }

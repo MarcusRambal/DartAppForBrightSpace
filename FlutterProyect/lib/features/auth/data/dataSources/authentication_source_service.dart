@@ -58,6 +58,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
       await sharedPreferences.setString('token', token);
       await sharedPreferences.setString('refreshToken', refreshToken);
       await sharedPreferences.setString('userId', data['user']['id']);
+      await sharedPreferences.setString('email', data['user']['email']); // 🔥 NUEVO
       logInfo(
         "Token: $token"
         "\nRefresh Token: $refreshToken",
