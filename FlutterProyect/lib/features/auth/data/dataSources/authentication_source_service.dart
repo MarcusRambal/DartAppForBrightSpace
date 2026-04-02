@@ -36,7 +36,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
 
   @override
   Future<void> login(String email, String password) async {
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse("$baseUrl/login"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -81,7 +81,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
     logInfo("Signing up with validation");
     endpoint = "$baseUrl/signup";
 
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse(endpoint),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -174,9 +174,8 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
 
   @override
   Future<bool> validate(String email, String validationCode) async {
-    // 1. Usamos 'http.post' (estándar) para evitar que el interceptor inyecte tokens
-    // en una ruta pública, evitando así el 401 accidental.
-    final response = await http.post(
+
+    final response = await httpClient.post(
       Uri.parse("$baseUrl/verify-email"),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -215,7 +214,7 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
       return Future.value(false);
     }
 
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse("$baseUrl/refresh-token"),
       headers: <String, String>{'Content-Type': 'application/json'},
       body: jsonEncode(<String, String>{'refreshToken': refreshToken}),
@@ -310,9 +309,13 @@ class AuthenticationSourceServiceRoble implements IAuthenticationSource {
 
     if (token == null) {
       logInfo("No hay token, intentando refrescar...");
-      final refreshed = await refreshToken();
-      if (!refreshed) {
-        logError("No se pudo refrescar el token antes de agregar usuario");
+      try {
+        final refreshed = await refreshToken();
+        if (!refreshed) {
+          return Future.error('No se pudo obtener token');
+        }
+      } catch (e) {
+        logError("Error durante el refresh: $e");
         return Future.error('No se pudo obtener token');
       }
       token = await sharedPreferences.getString('token');
