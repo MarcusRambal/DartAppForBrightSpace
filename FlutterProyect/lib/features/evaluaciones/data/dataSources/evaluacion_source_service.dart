@@ -157,9 +157,11 @@ class EvaluacionSourceService implements IEvaluacionSource {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({"tableName": "Respuesta", "records": records}),
+        body: jsonEncode({"tableName": "respuesta", "records": records}),
       );
 
+      print("STATUS: ${response.statusCode}");
+      print("BODY: ${response.body}");
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception("Error al crear respuestas: ${response.body}");
       }
