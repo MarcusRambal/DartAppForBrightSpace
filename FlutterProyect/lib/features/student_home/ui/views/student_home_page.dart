@@ -272,7 +272,7 @@ class StudentHomePage extends StatelessWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: primaryGold,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -280,7 +280,7 @@ class StudentHomePage extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Colors.red.shade900,
+                        color: Colors.black,
                       ),
                     ),
                   ),

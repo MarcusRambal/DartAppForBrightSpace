@@ -8,6 +8,7 @@ import '../dataSources/i_evaluacion_source.dart';
 class EvluacionRepository implements IEvaluacionRepository {
   final IEvaluacionSource evaluacionSource;
   EvluacionRepository(this.evaluacionSource);
+
   @override
   Future<String> createEvaluacion(
     String idCategoria,
@@ -15,12 +16,14 @@ class EvluacionRepository implements IEvaluacionRepository {
     String fechaCreacion,
     String fechaFinalizacion,
     String nom,
+    bool esPrivada,
   ) async => await evaluacionSource.createEvaluacion(
     idCategoria,
     tipo,
     fechaCreacion,
     fechaFinalizacion,
     nom,
+    esPrivada,
   );
 
   @override

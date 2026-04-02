@@ -19,116 +19,256 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   late StudentCourseDetailsController controller;
   late EvaluacionController evaluacionController;
 
+  // 🔥 PALETA DE COLORES
+  final Color backgroundColor = const Color(0xFFF4F5EF); // Crema
+  final Color primaryBlue = const Color(0xFF1A365D); // Azul Marino
+  final Color goldAccent = const Color(0xFFE6C363); // Dorado
+
   @override
   void initState() {
     super.initState();
-
     controller = Get.put(
       StudentCourseDetailsController(cursoRepository: Get.find()),
     );
-
     evaluacionController = Get.find<EvaluacionController>();
 
-    // 🔥 Cargar compañeros
     controller.cargarCompaneros(widget.grupo.idCat, widget.grupo.grupoNombre);
-
-    // 🔥 Cargar evaluaciones
     evaluacionController.cargarEvaluaciones(widget.grupo.idCat);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.grupo.categoriaNombre)),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        title: const Text(
+          "Detalles del Grupo",
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: backgroundColor,
+        foregroundColor: primaryBlue, // Íconos y texto de la barra en azul
+      ),
       body: Obx(() {
-        // 🔄 Loading compañeros
         if (controller.isLoadingCategoria[widget.grupo.idCat] == true) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: primaryBlue));
         }
 
-        final companeros =
+        final listaCompaneros =
             controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
-        final evaluaciones = evaluacionController.evaluaciones;
-
         return ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
-            // 👥 INTEGRANTES
-            const Text(
-              "Integrantes",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: companeros.length,
-              itemBuilder: (context, index) {
-                final correo = companeros[index];
-
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text(correo),
-                );
-              },
-            ),
-
-            const SizedBox(height: 30),
-
-            // 📝 EVALUACIONES
-            ExpansionTile(
-              title: const Text(
-                "Evaluaciones",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // --- SECCIÓN: COMPAÑEROS ---
+            Text(
+              "Compañeros",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: primaryBlue,
+                letterSpacing: 0.5,
               ),
-              children: [
-                Obx(() {
-                  if (evaluacionController.isLoading.value) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  if (evaluaciones.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text("No hay evaluaciones disponibles"),
-                    );
-                  }
-
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: evaluaciones.length,
-                    itemBuilder: (context, index) {
-                      final eval = evaluaciones[index];
-
-                      return ListTile(
-                        title: Text(eval.nom),
-                        subtitle: Text("Tipo: ${eval.tipo}"),
-                        trailing: const Icon(Icons.arrow_forward_ios),
-                        onTap: () {
-                          Get.to(
-                            () => EvaluacionDetailPage(
-                              evaluacion: eval,
-                              grupo: widget.grupo,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                }),
-              ],
             ),
+            const SizedBox(height: 15),
+
+            if (listaCompaneros.isEmpty)
+              _buildEmptyState("No hay compañeros asignados.", Icons.group_off),
+
+            ...listaCompaneros.map((correo) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryBlue.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: primaryBlue.withOpacity(0.1),
+                    child: Icon(Icons.person, color: primaryBlue),
+                  ),
+                  title: Text(
+                    correo,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+
+            const SizedBox(height: 35),
+
+            // --- SECCIÓN: EVALUACIONES ---
+            Text(
+              "Evaluaciones",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: primaryBlue,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            Obx(() {
+              final evaluaciones = evaluacionController.evaluaciones;
+              // 🔥 EL FILTRO LÓGICO SE MANTIENE INTACTO
+              final evaluacionesPublicas = evaluaciones
+                  .where((e) => !e.esPrivada)
+                  .toList();
+
+              if (evaluacionController.isLoading.value) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: CircularProgressIndicator(color: goldAccent),
+                  ),
+                );
+              }
+
+              if (evaluacionesPublicas.isEmpty) {
+                return _buildEmptyState(
+                  "No hay evaluaciones disponibles en este momento.",
+                  Icons.assignment_outlined,
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: evaluacionesPublicas.length,
+                itemBuilder: (context, index) {
+                  final eval = evaluacionesPublicas[index];
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryBlue.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: goldAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.assignment_turned_in,
+                          color: goldAccent,
+                        ),
+                      ),
+                      title: Text(
+                        eval.nom,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            // 🔥 ETIQUETA ESTILO "BADGE"
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryBlue.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                eval.tipo,
+                                style: TextStyle(
+                                  color: primaryBlue,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      trailing: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: backgroundColor,
+                        ),
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: primaryBlue,
+                        ),
+                      ),
+                      onTap: () {
+                        Get.to(
+                          () => EvaluacionDetailPage(
+                            evaluacion: eval,
+                            grupo: widget.grupo,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            }),
+            const SizedBox(height: 30), // Espacio extra al final
           ],
         );
       }),
+    );
+  }
+
+  // Widget reutilizable para cuando no hay datos (se ve mucho mejor que un texto plano)
+  Widget _buildEmptyState(String message, IconData icon) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryBlue.withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 40, color: primaryBlue.withOpacity(0.3)),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: primaryBlue.withOpacity(0.6), fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 }

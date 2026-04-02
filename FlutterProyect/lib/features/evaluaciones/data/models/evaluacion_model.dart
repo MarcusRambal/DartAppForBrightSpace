@@ -8,6 +8,7 @@ class EvaluacionModel extends EvaluacionEntity {
     required super.fechaCreacion,
     required super.fechaFinalizacion,
     required super.nom,
+    required super.esPrivada,
   });
 
   factory EvaluacionModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +19,7 @@ class EvaluacionModel extends EvaluacionEntity {
       tipo: json['tipo'],
       fechaCreacion: DateTime.parse(json['fechaCreacion']),
       fechaFinalizacion: DateTime.parse(json['fechaFinalizacion']),
+      esPrivada: json['esPrivada'] as bool,
     );
   }
 

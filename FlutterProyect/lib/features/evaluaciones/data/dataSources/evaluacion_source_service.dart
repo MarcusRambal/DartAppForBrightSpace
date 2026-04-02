@@ -38,6 +38,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
     String fechaCreacion,
     String fechaFinalizacion,
     String nom,
+    bool esPrivada,
   ) async {
     try {
       print("entre");
@@ -61,7 +62,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
             {
               "idEvaluacion": idEvaluacion,
               "idCategoria": idCategoria,
-              "tipo": tipo,
+              "tipo": esPrivada ? "Privada" : tipo,
               "fechaCreacion": fechaCreacion,
               "fechaFinalizacion": fechaFinalizacion,
               "nom": nom,
@@ -114,6 +115,7 @@ class EvaluacionSourceService implements IEvaluacionSource {
                 'fechaCreacion': e['fechaCreacion'],
                 'fechaFinalizacion': e['fechaFinalizacion'],
                 'nom': e['nom'],
+                'esPrivada': e['tipo'] == 'Privada',
               }),
             )
             .toList();

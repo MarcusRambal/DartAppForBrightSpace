@@ -39,7 +39,6 @@ class EvaluacionController extends GetxController {
 
       final result = await repository.getEvaluacionesByProfe(idCategoria);
       evaluaciones.value = result;
-
     } catch (e) {
       logError("Error cargando evaluaciones: $e");
       Get.snackbar("Error", "No se pudieron cargar las evaluaciones");
@@ -55,7 +54,6 @@ class EvaluacionController extends GetxController {
 
       final result = await repository.getPreguntas();
       preguntas.value = result;
-
     } catch (e) {
       logError("Error cargando preguntas: $e");
       Get.snackbar("Error", "No se pudieron cargar las preguntas");
@@ -71,6 +69,7 @@ class EvaluacionController extends GetxController {
     String fechaCreacion,
     String fechaFinalizacion,
     String nom,
+    bool esPrivada,
   ) async {
     try {
       isCreating.value = true;
@@ -81,6 +80,7 @@ class EvaluacionController extends GetxController {
         fechaCreacion,
         fechaFinalizacion,
         nom,
+        esPrivada,
       );
 
       Get.snackbar(
@@ -89,7 +89,6 @@ class EvaluacionController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-
     } catch (e) {
       logError("Error creando evaluación: $e");
       Get.snackbar(
@@ -146,11 +145,7 @@ class EvaluacionController extends GetxController {
     String idEvaluado,
   ) async {
     try {
-      return await repository.yaEvaluo(
-        idEvaluacion,
-        idEvaluador,
-        idEvaluado,
-      );
+      return await repository.yaEvaluo(idEvaluacion, idEvaluador, idEvaluado);
     } catch (e) {
       logError("Error validando evaluación: $e");
       return false;

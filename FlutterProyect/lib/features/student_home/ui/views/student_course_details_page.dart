@@ -12,8 +12,6 @@ class StudentCourseDetailsPage extends StatelessWidget {
   const StudentCourseDetailsPage({super.key, required this.cursoMatriculado});
 
   final Color primaryGold = const Color(0xFFE6C363);
-  final Color darkRed = const Color(0xFF8B0000);
-
   @override
   Widget build(BuildContext context) {
     // Inyectamos el controlador de esta pantalla
@@ -42,7 +40,7 @@ class StudentCourseDetailsPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: darkRed,
+                color: primaryGold,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Column(
@@ -100,7 +98,7 @@ class StudentCourseDetailsPage extends StatelessWidget {
                     subtitle: Text(
                       "Asignación: ${grupo.grupoNombre}",
                       style: TextStyle(
-                        color: darkRed,
+                        color: primaryGold,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

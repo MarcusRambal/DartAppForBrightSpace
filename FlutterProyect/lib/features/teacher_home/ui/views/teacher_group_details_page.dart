@@ -15,7 +15,8 @@ class TeacherGroupDetailsPage extends StatefulWidget {
   });
 
   @override
-  State<TeacherGroupDetailsPage> createState() => _TeacherGroupDetailsPageState();
+  State<TeacherGroupDetailsPage> createState() =>
+      _TeacherGroupDetailsPageState();
 }
 
 class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
@@ -37,84 +38,292 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 Definimos los colores de la paleta
+    const Color backgroundColor = Color(0xFFF4F5EF); // Crema
+    const Color primaryBlue = Color(0xFF1A365D); // Azul Marino
+    const Color goldAccent = Color(0xFFE6C363); // Dorado
+
     return Scaffold(
-      appBar: AppBar(title: Text(widget.nombreCategoria)),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Obx(() {
-          final gruposMap = controller.datosGrupos[widget.categoriaId] ?? {};
-          final grupos = gruposMap.keys.toList();
-          final isLoadingGrupos = controller.loadingDetalleCategoria[widget.categoriaId] ?? true;
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: backgroundColor,
+        foregroundColor: primaryBlue, // Texto y flecha en azul marino
+        centerTitle: true,
+        title: Text(
+          widget.nombreCategoria,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      body: Obx(() {
+        // 🔥 AQUÍ ESTÁ TU LÓGICA ORIGINAL INTACTA
+        final gruposMap = controller.datosGrupos[widget.categoriaId] ?? {};
+        final grupos = gruposMap.keys.toList();
+        final isLoadingGrupos =
+            controller.loadingDetalleCategoria[widget.categoriaId] ?? true;
 
-          if (isLoadingGrupos || evaluacionController.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        if (isLoadingGrupos || evaluacionController.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: primaryBlue),
+          );
+        }
 
-          return ListView(
-            children: [
-              // 👥 GRUPOS
-              ExpansionTile(
-                title: const Text(
-                  "Grupos",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          children: [
+            // 👥 SECCIÓN: GRUPOS E INTEGRANTES
+            const Text(
+              "Grupos",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: primaryBlue,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            if (grupos.isEmpty)
+              _buildEmptyState(
+                "No hay grupos disponibles.",
+                Icons.group_off,
+                primaryBlue,
+              ),
+
+            ...grupos.map((grupoNombre) {
+              final integrantes = List<String>.from(
+                gruposMap[grupoNombre] ?? [],
+              );
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryBlue.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                children: grupos.map((grupoNombre) {
-                  final integrantes = List<String>.from(gruposMap[grupoNombre] ?? []);
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: ExpansionTile(
-                      title: Text(grupoNombre, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      children: integrantes
-                          .map((i) => ListTile(
-                                leading: const Icon(Icons.person),
-                                title: Text(i),
-                              ))
-                          .toList(),
+                child: Theme(
+                  // Quitamos las líneas divisorias que trae por defecto el ExpansionTile
+                  data: Theme.of(
+                    context,
+                  ).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: primaryBlue.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.group,
+                        color: primaryBlue,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      grupoNombre,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: primaryBlue,
+                      ),
+                    ),
+                    children: integrantes
+                        .map(
+                          (i) => ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 0,
+                            ),
+                            leading: const Icon(
+                              Icons.person,
+                              color: primaryBlue,
+                              size: 18,
+                            ),
+                            title: Text(
+                              i,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              );
+            }).toList(),
+
+            const SizedBox(height: 35),
+
+            // 📝 SECCIÓN: EVALUACIONES
+            const Text(
+              "Evaluaciones",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: primaryBlue,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            Obx(() {
+              final evals = evaluacionController.evaluaciones;
+
+              if (evals.isEmpty) {
+                return _buildEmptyState(
+                  "No hay evaluaciones creadas.",
+                  Icons.assignment_outlined,
+                  primaryBlue,
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: evals.length,
+                itemBuilder: (context, index) {
+                  final e = evals[index];
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryBlue.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: goldAccent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.assignment_turned_in,
+                          color: goldAccent,
+                        ),
+                      ),
+                      title: Text(
+                        e.nom,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            // 🏷️ ETIQUETA DE TIPO (General)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryBlue.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                e.tipo,
+                                style: const TextStyle(
+                                  color: primaryBlue,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // 🔒 ETIQUETA DE ESTADO (Privada / Pública) PARA EL PROFESOR
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: e.esPrivada
+                                    ? Colors.red.withOpacity(0.1)
+                                    : Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    e.esPrivada ? Icons.lock : Icons.public,
+                                    size: 12,
+                                    color: e.esPrivada
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    e.esPrivada ? "Privada" : "Pública",
+                                    style: TextStyle(
+                                      color: e.esPrivada
+                                          ? Colors.red
+                                          : Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
-                }).toList(),
-              ),
+                },
+              );
+            }),
+            const SizedBox(height: 30),
+          ],
+        );
+      }),
+    );
+  }
 
-              const SizedBox(height: 30),
-
-              // 📝 EVALUACIONES
-              ExpansionTile(
-                initiallyExpanded: true,
-                title: const Text(
-                  "Evaluaciones",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                children: [
-                  Obx(() {
-                    final evals = evaluacionController.evaluaciones;
-                    if (evals.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Text("No hay evaluaciones disponibles"),
-                      );
-                    }
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: evals.length,
-                      itemBuilder: (context, index) {
-                        final e = evals[index];
-                        return ListTile(
-                          title: Text(e.nom),
-                          subtitle: Text("Tipo: ${e.tipo}"),
-                          leading: const Icon(Icons.assignment),
-                          // 🔹 Teacher no navega a otra página
-                        );
-                      },
-                    );
-                  }),
-                ],
-              ),
-            ],
-          );
-        }),
+  // Widget auxiliar para cuando las listas están vacías
+  Widget _buildEmptyState(String message, IconData icon, Color primaryBlue) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryBlue.withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 40, color: primaryBlue.withOpacity(0.3)),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: primaryBlue.withOpacity(0.6), fontSize: 14),
+          ),
+        ],
       ),
     );
   }

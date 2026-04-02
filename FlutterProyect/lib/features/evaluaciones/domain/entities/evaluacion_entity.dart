@@ -5,6 +5,7 @@ class EvaluacionEntity {
   final String nom;
   final DateTime fechaCreacion;
   final DateTime fechaFinalizacion;
+  final bool esPrivada;
 
   EvaluacionEntity({
     required this.id,
@@ -13,5 +14,6 @@ class EvaluacionEntity {
     required this.fechaCreacion,
     required this.fechaFinalizacion,
     required this.nom,
+    required this.esPrivada,
   });
 }

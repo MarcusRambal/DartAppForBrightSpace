@@ -49,45 +49,47 @@ class _ResponderEvaluacionPageState extends State<ResponderEvaluacionPage> {
     setState(() {});
   }
 
-void seleccionarOpcion(int valor) {
-  final pregunta = controller.preguntas[index];
-  final idPreguntaStr = pregunta.idPregunta.toString();
+  void seleccionarOpcion(int valor) {
+    final pregunta = controller.preguntas[index];
+    final idPreguntaStr = pregunta.idPregunta.toString();
 
-  // 🔹 Buscar si ya existe respuesta para esta pregunta
-  final indexExistente = respuestasTemp.indexWhere((r) => r.idPregunta == idPreguntaStr);
-
-  if (indexExistente != -1) {
-    // 🔹 Si existe, actualizar el valor
-    respuestasTemp[indexExistente] = RespuestaEntity(
-      idEvaluacion: widget.evaluacion.id.toString(),
-      idEvaluador: miId!,
-      idEvaluado: widget.evaluadoCorreo,
-      idPregunta: idPreguntaStr,
-      tipo: pregunta.tipo,
-      valorComentario: valor.toString(),
+    // 🔹 Buscar si ya existe respuesta para esta pregunta
+    final indexExistente = respuestasTemp.indexWhere(
+      (r) => r.idPregunta == idPreguntaStr,
     );
-  } else {
-    // 🔹 Si no existe, agregar nueva
-    respuestasTemp.add(
-      RespuestaEntity(
+
+    if (indexExistente != -1) {
+      // 🔹 Si existe, actualizar el valor
+      respuestasTemp[indexExistente] = RespuestaEntity(
         idEvaluacion: widget.evaluacion.id.toString(),
         idEvaluador: miId!,
         idEvaluado: widget.evaluadoCorreo,
         idPregunta: idPreguntaStr,
         tipo: pregunta.tipo,
         valorComentario: valor.toString(),
-      ),
-    );
-  }
+      );
+    } else {
+      // 🔹 Si no existe, agregar nueva
+      respuestasTemp.add(
+        RespuestaEntity(
+          idEvaluacion: widget.evaluacion.id.toString(),
+          idEvaluador: miId!,
+          idEvaluado: widget.evaluadoCorreo,
+          idPregunta: idPreguntaStr,
+          tipo: pregunta.tipo,
+          valorComentario: valor.toString(),
+        ),
+      );
+    }
 
-  // 🔹 Actualizamos el índice solo si no es la última pregunta
-  if (index < controller.preguntas.length - 1) {
-    index++;
-  }
+    // 🔹 Actualizamos el índice solo si no es la última pregunta
+    if (index < controller.preguntas.length - 1) {
+      index++;
+    }
 
-  // 🔹 Refrescar UI siempre para activar el botón si es la última
-  setState(() {});
-}
+    // 🔹 Refrescar UI siempre para activar el botón si es la última
+    setState(() {});
+  }
 
   Future<void> finalizarEvaluacion() async {
     try {
@@ -110,14 +112,19 @@ void seleccionarOpcion(int valor) {
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 Definimos el color crema
+    const Color backgroundColor = Color(0xFFF4F5EF);
+
     if (controller.isLoadingPreguntas.value || miId == null) {
       return const Scaffold(
+        backgroundColor: backgroundColor, // 👈 Fondo crema
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (controller.preguntas.isEmpty) {
       return const Scaffold(
+        backgroundColor: backgroundColor, // 👈 Fondo crema
         body: Center(child: Text("No hay preguntas")),
       );
     }
@@ -125,8 +132,12 @@ void seleccionarOpcion(int valor) {
     final pregunta = controller.preguntas[index];
 
     return Scaffold(
+      backgroundColor: backgroundColor, // 👈 Fondo crema principal
       appBar: AppBar(
         title: Text("Evaluando a ${widget.evaluadoCorreo}"),
+        backgroundColor: backgroundColor, // 👈 AppBar crema
+        elevation: 0, // 👈 Sin sombra
+        foregroundColor: Colors.black, // 👈 Texto e íconos negros
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -161,8 +172,10 @@ void seleccionarOpcion(int valor) {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: ElevatedButton(
-                  onPressed: respuestasTemp.any(
-                          (r) => r.idPregunta == pregunta.idPregunta.toString())
+                  onPressed:
+                      respuestasTemp.any(
+                        (r) => r.idPregunta == pregunta.idPregunta.toString(),
+                      )
                       ? finalizarEvaluacion
                       : null,
                   style: ElevatedButton.styleFrom(
