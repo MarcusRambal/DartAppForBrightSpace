@@ -83,6 +83,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           const SizedBox(height: 20),
                           // Dentro de tu Column, arriba del TextFormField del Email
                           TextFormField(
+                            key: const Key('signUpNameField'),
                             controller: controllerName,
                             decoration: const InputDecoration(
                               labelText: "Name",
@@ -103,6 +104,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
+                            key: const Key('signUpEmailField'),
                             keyboardType: TextInputType.emailAddress,
                             controller: controllerEmail,
                             decoration: const InputDecoration(
@@ -138,6 +140,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
+                            key: const Key('signUpPasswordField'),
                             controller: controllerPassword,
                             decoration: const InputDecoration(
                               labelText: "Password",
@@ -186,6 +189,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             children: [
                               Expanded(
                                 child: FilledButton.tonal(
+                                  key: const Key('signUpSubmitButton'),
                                   onPressed: () async {
                                     FocusScope.of(
                                       context,
@@ -224,6 +228,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           const SizedBox(height: 15),
                           TextButton(
+                            key: const Key('signUpBackToLoginButton'),
                             onPressed: () {
                               authenticationController.goToLogin();
                             },

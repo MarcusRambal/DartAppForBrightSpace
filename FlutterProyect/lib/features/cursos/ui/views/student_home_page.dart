@@ -12,6 +12,7 @@ class StudentHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('studentHomeScaffold'),
       backgroundColor: backgroundColor,
       body: SafeArea(
         child: Padding(
@@ -22,11 +23,18 @@ class StudentHomePage extends StatelessWidget {
               // Header
               const SizedBox(height: 20),
               Row(
+                key: const Key('studentHomeHeader'),
                 children: [
-                  Image.asset('assets/images/ulogo.png', width: 50, height: 50),
+                  Image.asset(
+                    'assets/images/ulogo.png',
+                    width: 50,
+                    height: 50,
+                    key: const Key('studentHomeLogo'),
+                  ),
                   const SizedBox(width: 15),
                   const Text(
                     "Bienvenido",
+                    key: Key('studentHomeWelcomeText'),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -44,28 +52,32 @@ class StudentHomePage extends StatelessWidget {
               // --- LISTA DE CURSOS ---
               Expanded(
                 child: ListView(
+                  key: const Key('studentHomeCourseList'),
                   physics: const BouncingScrollPhysics(),
                   children: [
                     _buildCourseCard(
+                      key: const Key('courseCard_0'),
                       title: "PROGRAMACIÓN MÓVIL",
                       subtitle: "MOVIL_202610_1852",
                       id: "202610_1852 - 202610",
                       pending: 1,
-                      color: Color(0xFFB8860B),
+                      color: const Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
+                      key: const Key('courseCard_1'),
                       title: "DLLO APLICACIONES WEB",
                       subtitle: "FRONTEND_202610_2085",
                       id: "202610_2085 - 202610",
                       pending: 0,
-                      color: Color(0xFFB8860B),
+                      color: const Color(0xFFB8860B),
                     ),
                     _buildCourseCard(
+                      key: const Key('courseCard_2'),
                       title: "DISEÑO DEL SOFTWARE",
                       subtitle: "II_202610_2064",
                       id: "202610_2064 - 202610",
                       pending: 2,
-                      color: Color(0xFFB8860B),
+                      color: const Color(0xFFB8860B),
                     ),
                   ],
                 ),
@@ -80,6 +92,7 @@ class StudentHomePage extends StatelessWidget {
   // Widget tarjeta superior de evaluaciones
   Widget _buildSummaryCard() {
     return Container(
+      key: const Key('studentHomeSummaryCard'),
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -96,8 +109,8 @@ class StudentHomePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem("Realizadas", "12"),
-              _buildSummaryItem("Pendientes", "3"),
+              _buildSummaryItem("Realizadas", "12", const Key('summaryItem_realizadas')),
+              _buildSummaryItem("Pendientes", "3", const Key('summaryItem_pendientes')),
             ],
           ),
         ],
@@ -105,8 +118,9 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryItem(String label, String value) {
+  Widget _buildSummaryItem(String label, String value, Key key) {
     return Column(
+      key: key,
       children: [
         Text(label, style: const TextStyle(fontSize: 12)),
         Text(
@@ -119,6 +133,7 @@ class StudentHomePage extends StatelessWidget {
 
   // Widget tarjetas de cursos
   Widget _buildCourseCard({
+    required Key key,
     required String title,
     required String subtitle,
     required String id,
@@ -126,6 +141,7 @@ class StudentHomePage extends StatelessWidget {
     required Color color,
   }) {
     return Container(
+      key: key,
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: primaryGold,
