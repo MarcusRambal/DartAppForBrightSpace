@@ -71,7 +71,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
-            // 👥 SECCIÓN: GRUPOS E INTEGRANTES
+            // 👥 SECCIÓN: GRUPOS E COMPAÑEROS
             const Text(
               "Grupos",
               style: TextStyle(
