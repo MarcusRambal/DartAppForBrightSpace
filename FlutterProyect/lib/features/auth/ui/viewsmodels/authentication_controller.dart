@@ -102,8 +102,10 @@ class AuthenticationController extends GetxController {
 
       loggedUser.value = await repository.getLoggedUser();
       isLogged.value = true;
-    } catch (e) {
+    } catch (e, stackTrace) { // Añade stackTrace para ver dónde falló el mapeo
       logError("Error en login: $e");
+      print("STDOUT ERROR: $e"); // Esto saldrá en la consola de flutter test
+      print("STACKTRACE: $stackTrace");
       rethrow;
     } finally {
       isLoading.value = false;
