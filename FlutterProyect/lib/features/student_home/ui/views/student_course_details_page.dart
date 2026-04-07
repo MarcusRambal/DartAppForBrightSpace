@@ -20,8 +20,10 @@ class StudentCourseDetailsPage extends StatelessWidget {
     );
 
     return Scaffold(
+      key: const Key('studentCourseDetailsScaffold'),
       backgroundColor: const Color(0xFFF4F5EF),
       appBar: AppBar(
+        key: const Key('studentCourseDetailsAppBar'),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -31,12 +33,15 @@ class StudentCourseDetailsPage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
+        key: const Key('studentCourseDetailsScrollView'),
         padding: const EdgeInsets.all(20),
         child: Column(
+          key: const Key('studentCourseDetailsMainColumn'),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // --- HEADER DEL CURSO ---
             Container(
+              key: const Key('studentCourseDetailsHeader'),
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -44,10 +49,12 @@ class StudentCourseDetailsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Column(
+                key: const Key('studentCourseDetailsHeaderColumn'),
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     cursoMatriculado.curso.nombre,
+                    key: const Key('studentCourseDetailsName'),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -57,6 +64,7 @@ class StudentCourseDetailsPage extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     "NRC: ${cursoMatriculado.curso.id}",
+                    key: const Key('studentCourseDetailsNrc'),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.8),
                       fontSize: 16,
@@ -70,26 +78,31 @@ class StudentCourseDetailsPage extends StatelessWidget {
             // --- LISTA DE GRUPOS INTERACTIVA ---
             const Text(
               "Tus Grupos de Trabajo",
+              key: Key('studentCourseDetailsGroupsTitle'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 15),
 
             ...cursoMatriculado.grupos.map((grupo) {
               return Card(
+                key: Key('groupCardOuter_${grupo.idCat}'),
                 margin: const EdgeInsets.only(bottom: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
                 elevation: 2,
                 child: Card(
+                  key: Key('groupCardInner_${grupo.idCat}'),
                   margin: const EdgeInsets.only(bottom: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 2,
                   child: ListTile(
+                    key: Key('groupListTile_${grupo.idCat}'),
                     title: Text(
                       grupo.categoriaNombre,
+                      key: Key('groupTitle_${grupo.idCat}'),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -97,12 +110,16 @@ class StudentCourseDetailsPage extends StatelessWidget {
                     ),
                     subtitle: Text(
                       "Asignación: ${grupo.grupoNombre}",
+                      key: Key('groupSubtitle_${grupo.idCat}'),
                       style: TextStyle(
                         color: primaryGold,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      key: Key('groupArrowIcon_${grupo.idCat}'),
+                    ),
                     onTap: () {
                       Get.to(() => GroupDetailsPage(grupo: grupo));
                     },

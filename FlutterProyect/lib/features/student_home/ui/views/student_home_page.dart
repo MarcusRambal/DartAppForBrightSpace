@@ -24,6 +24,7 @@ class StudentHomePage extends StatelessWidget {
     final authController = Get.find<AuthenticationController>();
 
     return Scaffold(
+      key: const Key('studentHomeScaffold'),
       backgroundColor: backgroundColor,
       body: SafeArea(
         child: Padding(
@@ -34,13 +35,20 @@ class StudentHomePage extends StatelessWidget {
               // Header
               const SizedBox(height: 20),
               Row(
+                key: const Key('studentHomeHeaderRow'),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/ulogo.png', width: 50, height: 50),
+                  Image.asset(
+                    'assets/images/ulogo.png',
+                    width: 50,
+                    height: 50,
+                    key: const Key('studentHomeLogo'),
+                  ),
                   const SizedBox(width: 15),
                   const Expanded(
                     child: Text(
                       'Bienvenido',
+                      key: Key('studentHomeWelcomeText'),
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -51,6 +59,7 @@ class StudentHomePage extends StatelessWidget {
 
                   // 🔥 BOTÓN DE LOGOUT
                   IconButton(
+                    key: const Key('studentHomeLogoutButton'),
                     icon: const Icon(Icons.logout, color: Colors.black),
                     onPressed: () {
                       Get.defaultDialog(
@@ -82,6 +91,7 @@ class StudentHomePage extends StatelessWidget {
                   if (controller.isLoading.value) {
                     return const Center(
                       child: CircularProgressIndicator(
+                        key: Key('studentHomeLoadingIndicator'),
                         color: Color(0xFF8B0000),
                       ),
                     );
@@ -91,12 +101,19 @@ class StudentHomePage extends StatelessWidget {
                   if (controller.cursos.isEmpty) {
                     return Center(
                       child: Column(
+                        key: const Key('studentHomeEmptyCursosColumn'),
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.folder_off, size: 80, color: Colors.grey),
+                          Icon(
+                            Icons.folder_off,
+                            size: 80,
+                            color: Colors.grey,
+                            key: Key('studentHomeEmptyIcon'),
+                          ),
                           SizedBox(height: 16),
                           Text(
                             'Aún no estás inscrito en ningún curso.',
+                            key: Key('studentHomeEmptyText'),
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.black54,
@@ -117,6 +134,7 @@ class StudentHomePage extends StatelessWidget {
 
                   // Dibujamos la lista con los cursos reales
                   return ListView.builder(
+                    key: const Key('studentHomeCoursesListView'),
                     itemCount: controller.cursos.length,
                     itemBuilder: (context, index) {
                       final curso = controller.cursos[index];
@@ -139,6 +157,7 @@ class StudentHomePage extends StatelessWidget {
 
   Widget _buildSummaryCard() {
     return Container(
+      key: const Key('studentHomeSummaryCard'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -155,6 +174,7 @@ class StudentHomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
+            key: const Key('studentHomeSummaryTextColumn'),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               Text(
@@ -173,6 +193,7 @@ class StudentHomePage extends StatelessWidget {
             ],
           ),
           Container(
+            key: const Key('studentHomeSummaryIconContainer'),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: primaryGold.withOpacity(0.2),
@@ -187,6 +208,7 @@ class StudentHomePage extends StatelessWidget {
 
   Widget _buildCourseCard(CursoMatriculado cursoMatriculado, Color color) {
     return GestureDetector(
+      key: Key('courseGestureDetector_${cursoMatriculado.curso.id}'),
       onTap: () {
         // 🔥 Navegamos a la nueva pantalla pasando la información
         Get.to(
@@ -194,6 +216,7 @@ class StudentHomePage extends StatelessWidget {
         );
       },
       child: Container(
+        key: Key('courseCardContainer_${cursoMatriculado.curso.id}'),
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -210,6 +233,7 @@ class StudentHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              key: Key('courseCardColorBand_${cursoMatriculado.curso.id}'),
               height: 15, // Banda superior un poco más delgada
               decoration: BoxDecoration(
                 color: color,
@@ -226,6 +250,7 @@ class StudentHomePage extends StatelessWidget {
                 children: [
                   Text(
                     cursoMatriculado.curso.nombre,
+                    key: Key('courseName_${cursoMatriculado.curso.id}'),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -233,6 +258,7 @@ class StudentHomePage extends StatelessWidget {
                   ),
                   Text(
                     "NRC: ${cursoMatriculado.curso.id}",
+                    key: Key('courseNrc_${cursoMatriculado.curso.id}'),
                     style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                   const SizedBox(height: 15),
@@ -250,6 +276,7 @@ class StudentHomePage extends StatelessWidget {
                   const SizedBox(height: 8),
                   ...cursoMatriculado.grupos.map((grupo) {
                     return Padding(
+                      key: Key('groupRow_${cursoMatriculado.curso.id}_${grupo.idCat}'),
                       padding: const EdgeInsets.only(bottom: 6.0),
                       child: Row(
                         children: [
@@ -267,6 +294,7 @@ class StudentHomePage extends StatelessWidget {
 
                   const SizedBox(height: 15),
                   Container(
+                    key: Key('pendingEvaluationsContainer_${cursoMatriculado.curso.id}'),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
@@ -277,7 +305,7 @@ class StudentHomePage extends StatelessWidget {
                     ),
                     child: Text(
                       "Evaluaciones pendientes: ${cursoMatriculado.evaluacionesPendientes}",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                         color: Colors.black,

@@ -1,4 +1,3 @@
-//FlutterProyect/lib/features/student_home/ui/views/EvaluacionDetailPage.dart:
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -78,6 +77,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
     if (miCorreo == null) {
       return const Scaffold(
+        key: Key('evaluacionDetailLoadingScaffold'),
         backgroundColor: backgroundColor,
         body: Center(child: CircularProgressIndicator()),
       );
@@ -95,8 +95,10 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     final bool estaDisponible = !noHaIniciado && !yaCerro;
 
     return Scaffold(
+      key: const Key('evaluacionDetailScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('evaluacionDetailAppBar'),
         title: Text(widget.evaluacion.nom),
         backgroundColor: backgroundColor,
         elevation: 0,
@@ -107,15 +109,21 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
           // 📢 AVISOS DE ESTADO
           if (noHaIniciado)
             _buildStatusBanner(
-              "Esta evaluación iniciará a las ${widget.evaluacion.fechaCreacion.hour}:${widget.evaluacion.fechaCreacion.minute.toString().padLeft(2, '0')}",
-              Colors.orange,
+              key: const Key('evaluacionStatusBanner_noIniciado'),
+              text: "Esta evaluación iniciará a las ${widget.evaluacion.fechaCreacion.hour}:${widget.evaluacion.fechaCreacion.minute.toString().padLeft(2, '0')}",
+              color: Colors.orange,
             ),
 
           if (yaCerro)
-            _buildStatusBanner("Esta evaluación ha cerrado.", Colors.red),
+            _buildStatusBanner(
+              key: const Key('evaluacionStatusBanner_cerrado'),
+              text: "Esta evaluación ha cerrado.",
+              color: Colors.red,
+            ),
 
           Expanded(
             child: ListView.builder(
+              key: const Key('evaluacionCompanerosList'),
               padding: const EdgeInsets.all(20),
               itemCount: companeros.length,
               itemBuilder: (context, index) {
@@ -123,10 +131,11 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                 final yaEvaluado = estadoEvaluacion[correo];
 
                 return Card(
+                  key: Key('companeroCard_$correo'),
                   margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
                     leading: const Icon(Icons.person),
-                    title: Text(correo),
+                    title: Text(correo, key: Key('companeroText_$correo')),
                     trailing: _buildTrailingAction(
                       yaEvaluado,
                       noHaIniciado,
@@ -145,8 +154,9 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
   // --- WIDGETS DE APOYO PARA LIMPIAR EL CÓDIGO ---
 
-  Widget _buildStatusBanner(String text, Color color) {
+  Widget _buildStatusBanner({required Key key, required String text, required Color color}) {
     return Container(
+      key: key,
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       color: color.withOpacity(0.1),
@@ -165,20 +175,26 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     String correo,
   ) {
     if (yaEvaluado == null) {
-      return const SizedBox(
+      return SizedBox(
+        key: Key('loadingAction_$correo'),
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2),
+        child: const CircularProgressIndicator(strokeWidth: 2),
       );
     }
 
     if (yaEvaluado) {
-      return const Icon(Icons.check_circle, color: Colors.green);
+      return Icon(
+        key: Key('checkAction_$correo'),
+        Icons.check_circle, 
+        color: Colors.green
+      );
     }
 
     // Si no ha iniciado o ya cerró, mostramos el candado
     if (noHaIniciado || yaCerro) {
       return Icon(
+        key: Key('lockAction_$correo'),
         noHaIniciado ? Icons.watch_later_outlined : Icons.lock_outline,
         color: noHaIniciado ? Colors.orange : Colors.red,
       );
@@ -186,6 +202,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
     // Si todo está ok, mostramos el botón
     return ElevatedButton(
+      key: Key('evaluarButton_$correo'),
       onPressed: () async {
         await Get.to(
           () => ResponderEvaluacionPage(
