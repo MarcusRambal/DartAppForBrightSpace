@@ -2,7 +2,6 @@ import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_e
 
 import '../../domain/entities/evaluacion_entity.dart';
 import '../../domain/entities/pregunta_entity.dart';
-import '../../data/models/respuesta_model.dart';
 
 abstract class IEvaluacionSource {
   Future<String> createEvaluacion(
