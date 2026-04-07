@@ -35,7 +35,9 @@ class StudentHomeController extends GetxController {
       cursos.assignAll(fetchedCursos);
     } catch (e) {
       logError("Error buscando cursos del estudiante: $e");
-      Get.snackbar('Error', 'No se pudieron cargar tus cursos.');
+      if(!Get.testMode) {
+        Get.snackbar('Error', 'No se pudieron cargar tus cursos.');
+      }
     } finally {
       isLoading.value = false;
     }

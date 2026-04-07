@@ -1,4 +1,3 @@
-//FlutterProyect/lib/features/student_home/ui/views/GroupDetailsPage.dart:
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -39,8 +38,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('groupDetailsScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('groupDetailsAppBar'),
         title: const Text(
           "Detalles del Grupo",
           style: TextStyle(fontWeight: FontWeight.w700),
@@ -52,18 +53,25 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       ),
       body: Obx(() {
         if (controller.isLoadingCategoria[widget.grupo.idCat] == true) {
-          return Center(child: CircularProgressIndicator(color: primaryBlue));
+          return Center(
+            child: CircularProgressIndicator(
+              key: const Key('groupDetailsLoadingCompaneros'),
+              color: primaryBlue,
+            ),
+          );
         }
 
         final listaCompaneros =
             controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
         return ListView(
+          key: const Key('groupDetailsMainList'),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
             // --- SECCIÓN: COMPAÑEROS ---
             Text(
               "Compañeros",
+              key: const Key('groupDetailsCompanerosTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -74,10 +82,15 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             const SizedBox(height: 15),
 
             if (listaCompaneros.isEmpty)
-              _buildEmptyState("No hay compañeros asignados.", Icons.group_off),
+              _buildEmptyState(
+                key: const Key('groupDetailsEmptyCompaneros'),
+                message: "No hay compañeros asignados.",
+                icon: Icons.group_off,
+              ),
 
             ...listaCompaneros.map((correo) {
               return Container(
+                key: Key('companeroCard_$correo'),
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -115,6 +128,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             // --- SECCIÓN: EVALUACIONES ---
             Text(
               "Evaluaciones",
+              key: const Key('groupDetailsEvaluacionesTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -135,19 +149,24 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
-                    child: CircularProgressIndicator(color: goldAccent),
+                    child: CircularProgressIndicator(
+                      key: const Key('groupDetailsLoadingEvaluaciones'),
+                      color: goldAccent,
+                    ),
                   ),
                 );
               }
 
               if (evaluacionesPublicas.isEmpty) {
                 return _buildEmptyState(
-                  "No hay evaluaciones disponibles en este momento.",
-                  Icons.assignment_outlined,
+                  key: const Key('groupDetailsEmptyEvaluaciones'),
+                  message: "No hay evaluaciones disponibles en este momento.",
+                  icon: Icons.assignment_outlined,
                 );
               }
 
               return ListView.builder(
+                key: const Key('groupDetailsEvaluacionesList'),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: evaluacionesPublicas.length,
@@ -155,6 +174,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   final eval = evaluacionesPublicas[index];
 
                   return Container(
+                    key: Key('evaluationCard_${eval.id}'),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -249,8 +269,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   // Widget reutilizable para cuando no hay datos (se ve mucho mejor que un texto plano)
-  Widget _buildEmptyState(String message, IconData icon) {
+  Widget _buildEmptyState({required Key key, required String message, required IconData icon}) {
     return Container(
+      key: key,
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(

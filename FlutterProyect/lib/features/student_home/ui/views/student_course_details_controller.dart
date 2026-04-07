@@ -26,7 +26,9 @@ class StudentCourseDetailsController extends GetxController {
       companerosPorCategoria[idCat] = companeros;
     } catch (e) {
       logError("Error buscando compañeros: $e");
-      Get.snackbar('Error', 'No pudimos cargar a tus compañeros');
+      if(!Get.testMode) {
+        Get.snackbar('Error', 'No pudimos cargar a tus compañeros');
+      }
     } finally {
       isLoadingCategoria[idCat] = false;
     }
