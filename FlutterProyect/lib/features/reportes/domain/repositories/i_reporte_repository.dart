@@ -111,6 +111,14 @@ abstract class IReporteRepository {
   Future<List<ReporteGrupalPorEvaluacionEntity>>
   getReportesGrupalesPorEvaluacion(String idEvaluacion);
 
+  Future<ReporteGrupalPorCategoriaEntity> getReporteGrupalPorCategoria(
+    String idCategoria,
+    String idGrupo,
+  );
+  Future<ReporteGrupalPorEvaluacionEntity> getReporteGrupalPorEvaluacion(
+    String idEvaluacion,
+    String idGrupo,
+  );
   //Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
   //Future<List<PreguntaEntity>> getPreguntas();
 }

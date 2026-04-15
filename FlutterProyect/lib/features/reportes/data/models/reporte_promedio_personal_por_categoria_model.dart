@@ -2,13 +2,15 @@ import '../../domain/entities/reportePromedioPersonalPorCategoria_entity.dart';
 
 class ReportePromedioPersonalPorCategoriaModel {
   final String idReportePromedioPersonal;
-  final String idReportePersonal;
+  final String idEstudiante;
+  final String idCategoria;
   final String nota;
   final String idCurso;
 
   ReportePromedioPersonalPorCategoriaModel({
     required this.idReportePromedioPersonal,
-    required this.idReportePersonal,
+    required this.idEstudiante,
+    required this.idCategoria,
     required this.nota,
     required this.idCurso,
   });
@@ -19,7 +21,8 @@ class ReportePromedioPersonalPorCategoriaModel {
   ) {
     return ReportePromedioPersonalPorCategoriaModel(
       idReportePromedioPersonal: json['idReportePromedioPersonal'],
-      idReportePersonal: json['idReportePersonal'],
+      idEstudiante: json['idEstudiante'],
+      idCategoria: json['idCategoria'],
       nota: json['nota'],
       idCurso: json['idCurso'],
     );
@@ -29,7 +32,8 @@ class ReportePromedioPersonalPorCategoriaModel {
   Map<String, dynamic> toJson() {
     return {
       'idReportePromedioPersonal': idReportePromedioPersonal,
-      'idReportePersonal': idReportePersonal,
+      'idEstudiante': idEstudiante,
+      'idCategoria': idCategoria,
       'nota': nota,
       'idCurso': idCurso,
     };
@@ -39,7 +43,8 @@ class ReportePromedioPersonalPorCategoriaModel {
   ReportePromedioPersonalPorCategoriaEntity toEntity() {
     return ReportePromedioPersonalPorCategoriaEntity(
       idReportePromedioPersonal: idReportePromedioPersonal,
-      idReportePersonal: idReportePersonal,
+      idEstudiante: idEstudiante,
+      idCategoria: idCategoria,
       nota: nota,
       idCurso: idCurso,
     );
@@ -51,7 +56,8 @@ class ReportePromedioPersonalPorCategoriaModel {
   ) {
     return ReportePromedioPersonalPorCategoriaModel(
       idReportePromedioPersonal: entity.idReportePromedioPersonal,
-      idReportePersonal: entity.idReportePersonal,
+      idEstudiante: entity.idEstudiante,
+      idCategoria: entity.idCategoria,
       nota: entity.nota,
       idCurso: entity.idCurso,
     );

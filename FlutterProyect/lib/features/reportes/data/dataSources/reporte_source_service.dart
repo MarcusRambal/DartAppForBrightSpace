@@ -394,6 +394,140 @@ class ReporteSourceService implements IReporteSource {
     }
   }
 
+  //NUEVOOOOOOO
+  @override
+  Future<ReporteGrupalPorCategoriaModel> getReporteGrupalPorCategoria(
+    String idCategoria,
+    String idGrupo,
+  ) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "reporteGrupalPorCategoria",
+        "idCategoria": idCategoria,
+        "idGrupo": idGrupo,
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> records = jsonDecode(response.body);
+
+        if (records.isEmpty) {
+          throw Exception("No existe el reporte");
+        }
+
+        final e = records.first;
+
+        return ReporteGrupalPorCategoriaModel.fromJson({
+          'idReporteGrupal': e['idReporteGrupalPorCategoria'],
+          'idCategoria': e['idCategoria'],
+          'idGrupo': e['idGrupo'],
+          'nota': e['nota'],
+          'idCurso': e['idCurso'],
+        });
+      } else {
+        throw Exception("Error: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en getReporteGrupalPorCategoria: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ReporteGrupalPorEvaluacionModel> getReporteGrupalPorEvaluacion(
+    String idEvaluacion,
+    String idGrupo,
+  ) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "reporteGrupalPorEvaluacion",
+        "idEvaluacion": idEvaluacion,
+        "idGrupo": idGrupo,
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> records = jsonDecode(response.body);
+
+        if (records.isEmpty) {
+          throw Exception("No existe el reporte");
+        }
+
+        final e = records.first;
+
+        return ReporteGrupalPorEvaluacionModel.fromJson({
+          'idReporteGrupal': e['idReporteGrupalPorEvaluacion'],
+          'idEvaluacion': e['idEvaluacion'],
+          'idGrupo': e['idGrupo'],
+          'nota': e['nota'],
+        });
+      } else {
+        throw Exception("Error: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en getReporteGrupalPorEvaluacion: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ReportePromedioPersonalPorCategoriaModel>
+  getReportePromedioPersonalPorCategoria(
+    String idCategoria,
+    String idEstudiante,
+  ) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "reportePromedioPersonalPorCategoria",
+        "idCategoria": idCategoria,
+        "idEstudiante": idEstudiante,
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> records = jsonDecode(response.body);
+
+        if (records.isEmpty) {
+          throw Exception("No existe el reporte promedio");
+        }
+
+        final e = records.first;
+
+        return ReportePromedioPersonalPorCategoriaModel.fromJson({
+          'idReportePromedioPersonal':
+              e['idReportePromedioPersonalPorCategoria'],
+          'idCategoria': e['idCategoria'],
+          'idEstudiante': e['idEstudiante'],
+          'nota': e['nota'],
+          'idCurso': e['idCurso'],
+        });
+      } else {
+        throw Exception("Error: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en getReportePromedioPersonalPorCategoria: $e");
+      rethrow;
+    }
+  }
+
   @override
   Future<List<ReporteGrupalPorCategoriaModel>> getReportesGrupalesPorCategoria(
     String idCategoria,
@@ -635,35 +769,11 @@ class ReporteSourceService implements IReporteSource {
     try {
       final token = await _getValidToken();
 
-      // 🔍 1. Buscar el registro para obtener el ID real
-      final urlGet = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "reporteGrupalPorCategoria", // ⚠️ revisar nombre tabla
-        "idCategoria": idCategoria, // ⚠️ revisar columna
-        "idGrupo": idGrupo, // ⚠️ revisar columna
-        // "idCurso": idCurso, // ⚠️ opcional: agrégalo si el backend lo requiere
-      });
+      // 🔥 USAR TU GET
+      final reporte = await getReporteGrupalPorCategoria(idCategoria, idGrupo);
 
-      final responseGet = await httpClient.get(
-        urlGet,
-        headers: {'Authorization': 'Bearer $token'},
-      );
+      final String idReporteGrupalEncontrado = reporte.idReporteGrupal;
 
-      if (responseGet.statusCode != 200) {
-        throw Exception("Error al buscar reporte: ${responseGet.body}");
-      }
-
-      final List<dynamic> records = jsonDecode(responseGet.body);
-
-      if (records.isEmpty) {
-        throw Exception("No se encontró el reporte grupal");
-      }
-
-      final e = records.first;
-
-      final String idReporteGrupalEncontrado = e['idReporteGrupalPorCategoria']
-          .toString(); // ⚠️ revisar nombre campo
-
-      // ✏️ 2. Hacer el UPDATE usando el ID encontrado
       final urlUpdate = Uri.https(baseUrl, '/database/$contract/update');
 
       final responseUpdate = await httpClient.put(
@@ -673,12 +783,10 @@ class ReporteSourceService implements IReporteSource {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "tableName": "reporteGrupalPorCategoria", // ⚠️ revisar tabla
-          "idColumn": "idReporteGrupalPorCategoria", // ⚠️ revisar ID
+          "tableName": "reporteGrupalPorCategoria",
+          "idColumn": "idReporteGrupalPorCategoria",
           "idValue": idReporteGrupalEncontrado,
-          "updates": {
-            "nota": nota, // 🔥 solo actualizamos la nota
-          },
+          "updates": {"nota": nota},
         }),
       );
 
@@ -701,39 +809,14 @@ class ReporteSourceService implements IReporteSource {
     try {
       final token = await _getValidToken();
 
-      // 🔍 1. Buscar el registro
-      final urlGet = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "reporteGrupalPorEvaluacion", // ⚠️ revisar nombre tabla
-        "idEvaluacion": idEvaluacion, // ⚠️ revisar columna
-        "idGrupo": idGrupo, // ⚠️ revisar columna
-      });
-
-      final responseGet = await httpClient.get(
-        urlGet,
-        headers: {'Authorization': 'Bearer $token'},
+      // 🔥 USAR TU GET
+      final reporte = await getReporteGrupalPorEvaluacion(
+        idEvaluacion,
+        idGrupo,
       );
 
-      if (responseGet.statusCode != 200) {
-        throw Exception("Error al buscar reporte: ${responseGet.body}");
-      }
+      final String idReporteGrupalEncontrado = reporte.idReporteGrupal;
 
-      final List<dynamic> records = jsonDecode(responseGet.body);
-
-      if (records.isEmpty) {
-        throw Exception("No se encontró el reporte grupal por evaluación");
-      }
-
-      final e = records.first;
-
-      final String idReporteGrupalEncontrado = e['idReporteGrupalPorEvaluacion']
-          .toString(); // ⚠️ revisar nombre campo
-
-      // ⚠️ opcional: validar duplicados
-      // if (records.length > 1) {
-      //   throw Exception("Más de un reporte encontrado");
-      // }
-
-      // ✏️ 2. Update solo nota
       final urlUpdate = Uri.https(baseUrl, '/database/$contract/update');
 
       final responseUpdate = await httpClient.put(
@@ -743,8 +826,8 @@ class ReporteSourceService implements IReporteSource {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "tableName": "reporteGrupalPorEvaluacion", // ⚠️ revisar tabla
-          "idColumn": "idReporteGrupalPorEvaluacion", // ⚠️ revisar ID
+          "tableName": "reporteGrupalPorEvaluacion",
+          "idColumn": "idReporteGrupalPorEvaluacion",
           "idValue": idReporteGrupalEncontrado,
           "updates": {"nota": nota},
         }),
@@ -878,39 +961,15 @@ class ReporteSourceService implements IReporteSource {
     try {
       final token = await _getValidToken();
 
-      // 🔍 1. Buscar directamente en la MISMA tabla
-      final urlGet = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName":
-            "reportePromedioPersonalPorCategoria", // ⚠️ revisar nombre tabla
-        "idCategoria": idCategoria, // ⚠️ revisar columna
-        "idEstudiante": idEstudiante, // ⚠️ revisar columna
-        // "idCurso": idCurso, // ⚠️ opcional si el backend lo requiere
-      });
-
-      final responseGet = await httpClient.get(
-        urlGet,
-        headers: {'Authorization': 'Bearer $token'},
+      // 🔥 USAR TU GET
+      final reporte = await getReportePromedioPersonalPorCategoria(
+        idCategoria,
+        idEstudiante,
       );
 
-      if (responseGet.statusCode != 200) {
-        throw Exception(
-          "Error al buscar reporte promedio: ${responseGet.body}",
-        );
-      }
-
-      final List<dynamic> records = jsonDecode(responseGet.body);
-
-      if (records.isEmpty) {
-        throw Exception("No se encontró el reporte promedio");
-      }
-
-      final e = records.first;
-
       final String idReportePromedioEncontrado =
-          e['idReportePromedioPersonalPorCategoria']
-              .toString(); // ⚠️ revisar nombre campo
+          reporte.idReportePromedioPersonal;
 
-      // ✏️ 2. UPDATE en la misma tabla
       final urlUpdate = Uri.https(baseUrl, '/database/$contract/update');
 
       final responseUpdate = await httpClient.put(
@@ -920,9 +979,8 @@ class ReporteSourceService implements IReporteSource {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "tableName":
-              "reportePromedioPersonalPorCategoria", // ⚠️ revisar tabla
-          "idColumn": "idReportePromedioPersonalPorCategoria", // ⚠️ revisar ID
+          "tableName": "reportePromedioPersonalPorCategoria",
+          "idColumn": "idReportePromedioPersonalPorCategoria",
           "idValue": idReportePromedioEncontrado,
           "updates": {"nota": nota},
         }),

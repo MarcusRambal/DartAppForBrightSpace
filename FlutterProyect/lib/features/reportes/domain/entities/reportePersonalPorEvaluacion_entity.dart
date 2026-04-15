@@ -2,10 +2,10 @@ class ReportePersonalPorEvaluacionEntity {
   final String idReportePersonal;
   final String idEvaluacion;
   final String idEstudiante;
-  final double notaPuntualidad;
-  final double notaContribucion;
-  final double notaActitud;
-  final double notaCompromiso;
+  final String notaPuntualidad;
+  final String notaContribucion;
+  final String notaActitud;
+  final String notaCompromiso;
 
   ReportePersonalPorEvaluacionEntity({
     required this.idReportePersonal,

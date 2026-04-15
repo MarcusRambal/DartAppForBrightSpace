@@ -81,21 +81,23 @@ class ReportesRepository implements IReporteRepository {
 
   @override
   Future<void> createReportePromedioPersonalPorCategoria(
-    String idReportePersonal,
+    String idCategoria,
+    String idEstudiante,
     String nota,
     String idCurso,
   ) async {
     await reporteSource.createReportePromedioPersonalPorCategoria(
-      idReportePersonal: idReportePersonal,
+      idCategoria: idCategoria,
+      idEstudiante: idEstudiante,
       nota: nota,
-      idCurso:idCurso,
+      idCurso: idCurso,
     );
   }
 
   // GET INDIVIDUALES
   @override
   Future<ReportePersonalPorCategoriaEntity>
-      getReportePersonalPorCategoriaEntity(
+  getReportePersonalPorCategoriaEntity(
     String idEstudiante,
     String idCategoria,
   ) async {
@@ -109,7 +111,7 @@ class ReportesRepository implements IReporteRepository {
 
   @override
   Future<ReportePersonalPorEvaluacionEntity>
-      getReportePersonalPorEvaluacionEntity(
+  getReportePersonalPorEvaluacionEntity(
     String idEstudiante,
     String idEvaluacion,
   ) async {
@@ -123,26 +125,30 @@ class ReportesRepository implements IReporteRepository {
 
   // GET LISTAS
   @override
-  Future<List<ReporteGrupalPorCategoriaEntity>>
-      getReportesGrupalesPorCategoria(String idCategoria) async {
-    final models =
-        await reporteSource.getReportesGrupalesPorCategoria(idCategoria);
+  Future<List<ReporteGrupalPorCategoriaEntity>> getReportesGrupalesPorCategoria(
+    String idCategoria,
+  ) async {
+    final models = await reporteSource.getReportesGrupalesPorCategoria(
+      idCategoria,
+    );
 
     return models.map((e) => e.toEntity()).toList();
   }
 
   @override
   Future<List<ReporteGrupalPorEvaluacionEntity>>
-      getReportesGrupalesPorEvaluacion(String idEvaluacion) async {
-    final models =
-        await reporteSource.getReportesGrupalesPorEvaluacion(idEvaluacion);
+  getReportesGrupalesPorEvaluacion(String idEvaluacion) async {
+    final models = await reporteSource.getReportesGrupalesPorEvaluacion(
+      idEvaluacion,
+    );
 
     return models.map((e) => e.toEntity()).toList();
   }
 
   @override
-  Future<List<ReporteGrupalPorCategoriaEntity>>
-      getReportesGrupalesTodos(String idCurso) async {
+  Future<List<ReporteGrupalPorCategoriaEntity>> getReportesGrupalesTodos(
+    String idCurso,
+  ) async {
     final models = await reporteSource.getReportesGrupalesTodos(idCurso);
 
     return models.map((e) => e.toEntity()).toList();
@@ -150,27 +156,29 @@ class ReportesRepository implements IReporteRepository {
 
   @override
   Future<List<ReportePersonalPorCategoriaEntity>>
-      getReportesPersonalPorCategoriaEntity(String idCategoria) async {
-    final models =
-        await reporteSource.getReportesPersonalPorCategoria(idCategoria);
+  getReportesPersonalPorCategoriaEntity(String idCategoria) async {
+    final models = await reporteSource.getReportesPersonalPorCategoria(
+      idCategoria,
+    );
 
     return models.map((e) => e.toEntity()).toList();
   }
 
   @override
   Future<List<ReportePersonalPorEvaluacionEntity>>
-      getReportesPersonalPorEvaluacionEntity(String idEvaluacion) async {
-    final models =
-        await reporteSource.getReportesPersonalPorEvaluacion(idEvaluacion);
+  getReportesPersonalPorEvaluacionEntity(String idEvaluacion) async {
+    final models = await reporteSource.getReportesPersonalPorEvaluacion(
+      idEvaluacion,
+    );
 
     return models.map((e) => e.toEntity()).toList();
   }
 
   @override
   Future<List<ReportePromedioPersonalPorCategoriaEntity>>
-      getReportesPromedioPersonalCategoriaTodos(String idCurso) async {
-    final models =
-        await reporteSource.getReportesPromedioPersonalCategoriaTodos(idCurso);
+  getReportesPromedioPersonalCategoriaTodos(String idCurso) async {
+    final models = await reporteSource
+        .getReportesPromedioPersonalCategoriaTodos(idCurso);
 
     return models.map((e) => e.toEntity()).toList();
   }
@@ -254,16 +262,56 @@ class ReportesRepository implements IReporteRepository {
   Future<void> updateReportePromedioPersonalPorCategoria(
     String idReportePromedioPersonal,
     String idEstudiante,
-    String idEvaluacion,
+    String idCategoria,
     String nota,
     String idCurso,
   ) async {
     await reporteSource.updateReportePromedioPersonalPorCategoria(
       idReportePromedioPersonal: idReportePromedioPersonal,
       idEstudiante: idEstudiante,
-      idEvaluacion: idEvaluacion,
+      idCategoria: idCategoria,
       nota: nota,
-      idCurso:idCurso,
+      idCurso: idCurso,
     );
+  }
+
+  @override
+  Future<ReporteGrupalPorCategoriaEntity> getReporteGrupalPorCategoria(
+    String idCategoria,
+    String idGrupo,
+  ) async {
+    final model = await reporteSource.getReporteGrupalPorCategoria(
+      idCategoria,
+      idGrupo,
+    );
+
+    return model.toEntity();
+  }
+
+  @override
+  Future<ReporteGrupalPorEvaluacionEntity> getReporteGrupalPorEvaluacion(
+    String idEvaluacion,
+    String idGrupo,
+  ) async {
+    final model = await reporteSource.getReporteGrupalPorEvaluacion(
+      idEvaluacion,
+      idGrupo,
+    );
+
+    return model.toEntity();
+  }
+
+  @override
+  Future<ReportePromedioPersonalPorCategoriaEntity>
+  getReportePromedioPersonalPorCategoria(
+    String idCategoria,
+    String idEstudiante,
+  ) async {
+    final model = await reporteSource.getReportePromedioPersonalPorCategoria(
+      idCategoria,
+      idEstudiante,
+    );
+
+    return model.toEntity();
   }
 }

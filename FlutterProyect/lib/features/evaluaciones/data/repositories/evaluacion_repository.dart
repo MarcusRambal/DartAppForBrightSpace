@@ -50,4 +50,12 @@ class EvluacionRepository implements IEvaluacionRepository {
   @override
   Future<List<PreguntaEntity>> getPreguntas() async =>
       await evaluacionSource.getPreguntas();
+
+  @override
+  Future<List<String>> getNotasPorEvaluado(
+    String idEvaluacion,
+    String idEvaluado,
+    String tipo,
+  ) async =>
+      await evaluacionSource.getNotasPorEvaluado(idEvaluacion, idEvaluado, tipo);
 }

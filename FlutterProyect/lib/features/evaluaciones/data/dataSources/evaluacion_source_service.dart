@@ -283,4 +283,40 @@ class EvaluacionSourceService implements IEvaluacionSource {
       rethrow;
     }
   }
+
+  Future<List<String>> getNotasPorEvaluado(
+    String idEvaluacion,
+    String idEvaluado,
+    String tipo,
+  ) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "respuesta", // ⚠️ revisar nombre tabla
+        "idEvaluacion": idEvaluacion, // ⚠️ revisar columna
+        "idEvaluado": idEvaluado, // ⚠️ revisar columna
+        "tipo": tipo, // ⚠️ revisar si este filtro existe en backend
+      });
+
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> records = jsonDecode(response.body);
+
+        return records.map<String>((e) {
+          return e['valor_comentario']
+              .toString(); // ⚠️ revisar si aquí siempre viene la nota
+        }).toList();
+      } else {
+        throw Exception("Error al obtener notas: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en getNotasPorEvaluado: $e");
+      rethrow;
+    }
+  }
 }

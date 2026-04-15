@@ -22,4 +22,9 @@ abstract class IEvaluacionRepository {
 
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
   Future<List<PreguntaEntity>> getPreguntas();
+  Future<List<String>> getNotasPorEvaluado(
+    String idEvaluacion,
+    String idEvaluado,
+    String tipo,
+  );
 }

@@ -12,7 +12,7 @@ abstract class IEvaluacionSource {
     String nom,
     bool esPrivada,
   );
-
+  
   Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
   Future<List<PreguntaEntity>> getPreguntas();
   Future<void> createRespuestas(List<RespuestaEntity> respuestas);
@@ -22,4 +22,9 @@ abstract class IEvaluacionSource {
     String idEvaluador,
     String idEvaluado,
   );
+  Future<List<String>> getNotasPorEvaluado(
+   String idEvaluacion,
+   String idEvaluado,
+   String tipo,
+);
 }

@@ -38,7 +38,8 @@ abstract class IReporteSource {
   });
 
   Future<void> createReportePromedioPersonalPorCategoria({
-    required String idReportePersonal,
+    required String idCategoria,
+    required String idEstudiante,
     required String nota,
     required String idCurso,
   });
@@ -89,35 +90,50 @@ abstract class IReporteSource {
 
   // GET LISTAS
   Future<List<ReportePromedioPersonalPorCategoriaModel>>
-      getReportesPromedioPersonalCategoriaTodos(String idCurso);
+  getReportesPromedioPersonalCategoriaTodos(String idCurso);
 
   Future<List<ReporteGrupalPorCategoriaModel>> getReportesGrupalesTodos(
     String idCurso,
   );
 
   // GET INDIVIDUALES
-  Future<ReportePersonalPorEvaluacionModel>
-      getReportePersonalPorEvaluacion({
+  Future<ReportePersonalPorEvaluacionModel> getReportePersonalPorEvaluacion({
     required String idEstudiante,
     required String idEvaluacion,
   });
 
-  Future<ReportePersonalPorCategoriaModel>
-      getReportePersonalPorCategoria({
+  Future<ReportePersonalPorCategoriaModel> getReportePersonalPorCategoria({
     required String idEstudiante,
     required String idCategoria,
   });
 
   // LISTAS POR CONTEXTO
   Future<List<ReportePersonalPorEvaluacionModel>>
-      getReportesPersonalPorEvaluacion(String idEvaluacion);
+  getReportesPersonalPorEvaluacion(String idEvaluacion);
 
   Future<List<ReportePersonalPorCategoriaModel>>
-      getReportesPersonalPorCategoria(String idCategoria);
+  getReportesPersonalPorCategoria(String idCategoria);
 
-  Future<List<ReporteGrupalPorCategoriaModel>>
-      getReportesGrupalesPorCategoria(String idCategoria);
+  Future<List<ReporteGrupalPorCategoriaModel>> getReportesGrupalesPorCategoria(
+    String idCategoria,
+  );
 
   Future<List<ReporteGrupalPorEvaluacionModel>>
-      getReportesGrupalesPorEvaluacion(String idEvaluacion);
+  getReportesGrupalesPorEvaluacion(String idEvaluacion);
+
+  Future<ReporteGrupalPorCategoriaModel> getReporteGrupalPorCategoria(
+    String idCategoria,
+    String idGrupo,
+  );
+
+  Future<ReporteGrupalPorEvaluacionModel> getReporteGrupalPorEvaluacion(
+    String idEvaluacion,
+    String idGrupo,
+  );
+
+  Future<ReportePromedioPersonalPorCategoriaModel>
+  getReportePromedioPersonalPorCategoria(
+    String idCategoria,
+    String idEstudiante,
+  );
 }
