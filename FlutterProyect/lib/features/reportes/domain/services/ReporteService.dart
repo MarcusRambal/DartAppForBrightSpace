@@ -10,7 +10,11 @@ class ReporteService {
   final IReporteSource reporteSource;
   final ICursoRepository cursoRepository;
 
-  ReporteService(this.evaluacionSource, this.reporteSource,this.cursoRepository);
+  ReporteService(
+    this.evaluacionSource,
+    this.reporteSource,
+    this.cursoRepository,
+  );
 
   // ==============================
   // 🔢 PROMEDIO SEGURO
@@ -32,7 +36,7 @@ class ReporteService {
     required String idEvaluacion,
     required String idEstudiante,
   }) async {
-    final tipos = ["puntualidad", "contribucion", "actitud", "compromiso"];
+    final tipos = ["Puntualidad", "Contribuciones", "Actitud", "Compromiso"];
 
     final Map<String, String> promedios = {};
 
@@ -61,10 +65,10 @@ class ReporteService {
 
     if (evaluaciones.isEmpty) {
       return {
-        "puntualidad": "0",
-        "contribucion": "0",
-        "actitud": "0",
-        "compromiso": "0",
+        "Puntualidad": "0",
+        "Contribuciones": "0",
+        "Actitud": "0",
+        "Compromiso": "0",
       };
     }
 
@@ -96,10 +100,10 @@ class ReporteService {
         lista.isEmpty ? 0 : lista.reduce((a, b) => a + b) / lista.length;
 
     return {
-      "puntualidad": promedio(p).toString(),
-      "contribucion": promedio(c).toString(),
-      "actitud": promedio(a).toString(),
-      "compromiso": promedio(co).toString(),
+      "Puntualidad": promedio(p).toString(),
+      "Contribuciones": promedio(c).toString(),
+      "Actitud": promedio(a).toString(),
+      "Compromiso": promedio(co).toString(),
     };
   }
 
@@ -115,10 +119,10 @@ class ReporteService {
       idEstudiante: idEstudiante,
     );
 
-    final promedioP = promedios["puntualidad"]!;
-    final promedioC = promedios["contribucion"]!;
-    final promedioA = promedios["actitud"]!;
-    final promedioCo = promedios["compromiso"]!;
+    final promedioP = promedios["Puntualidad"]!;
+    final promedioC = promedios["Contribuciones"]!;
+    final promedioA = promedios["Actitud"]!;
+    final promedioCo = promedios["Compromiso"]!;
 
     try {
       // 🔍 1. Intentar obtener el reporte
@@ -164,39 +168,161 @@ class ReporteService {
         idReportePersonal: "",
         idCategoria: idCategoria,
         idEstudiante: idEstudiante,
-        notaPuntualidad: promedios["puntualidad"]!,
-        notaContribucion: promedios["contribucion"]!,
-        notaActitud: promedios["actitud"]!,
-        notaCompromiso: promedios["compromiso"]!,
+        notaPuntualidad: promedios["Puntualidad"]!,
+        notaContribucion: promedios["Contribuciones"]!,
+        notaActitud: promedios["Actitud"]!,
+        notaCompromiso: promedios["Compromiso"]!,
       );
     } catch (e) {
       await reporteSource.createReportePersonalPorCategoria(
         idCategoria: idCategoria,
         idEstudiante: idEstudiante,
-        notaPuntualidad: promedios["puntualidad"]!,
-        notaContribucion: promedios["contribucion"]!,
-        notaActitud: promedios["actitud"]!,
-        notaCompromiso: promedios["compromiso"]!,
+        notaPuntualidad: promedios["Puntualidad"]!,
+        notaContribucion: promedios["Contribuciones"]!,
+        notaActitud: promedios["Actitud"]!,
+        notaCompromiso: promedios["Compromiso"]!,
       );
     }
   }
+
   Future<void> upsertReporteGrupalPorEvaluacion({
-  required String idEvaluacion,
-  required String idCategoria,
-  required String nombreGrupo,
-}) async {
-  final estudiantes = await cursoRepository.getCompanerosDeGrupo(
-    idCategoria,
-    nombreGrupo,
-  );
+    required String idEvaluacion,
+    required String idCategoria,
+    required String nombreGrupo,
+  }) async {
+    final estudiantes = await cursoRepository.getCompanerosDeGrupo(
+      idCategoria,
+      nombreGrupo,
+    );
 
-  final List<double> promediosEstudiantes = [];
+    final List<double> promediosEstudiantes = [];
 
-  for (final correo in estudiantes) {
+    for (final correo in estudiantes) {
+      try {
+        final reporte = await reporteSource.getReportePersonalPorEvaluacion(
+          idEstudiante: correo,
+          idEvaluacion: idEvaluacion,
+        );
+
+        final p = double.tryParse(reporte.notaPuntualidad) ?? 0;
+        final c = double.tryParse(reporte.notaContribucion) ?? 0;
+        final a = double.tryParse(reporte.notaActitud) ?? 0;
+        final co = double.tryParse(reporte.notaCompromiso) ?? 0;
+
+        final promedioEstudiante = (p + c + a + co) / 4;
+
+        promediosEstudiantes.add(promedioEstudiante);
+      } catch (e) {
+        continue;
+      }
+    }
+
+    double promedioGrupo(List<double> lista) {
+      if (lista.isEmpty) return 0;
+      return lista.reduce((a, b) => a + b) / lista.length;
+    }
+
+    final resultado = promedioGrupo(promediosEstudiantes).toString();
+
     try {
-      final reporte = await reporteSource.getReportePersonalPorEvaluacion(
-        idEstudiante: correo,
+      await reporteSource.updateReporteGrupalPorEvaluacion(
+        idReporteGrupal: "",
         idEvaluacion: idEvaluacion,
+        idGrupo: nombreGrupo,
+        nota: resultado,
+      );
+    } catch (e) {
+      await reporteSource.createReporteGrupalPorEvaluacion(
+        idEvaluacion: idEvaluacion,
+        idGrupo: nombreGrupo,
+        nota: resultado,
+      );
+    }
+  }
+
+  Future<void> upsertReporteGrupalPorCategoria({
+    required String idCategoria,
+    required String nombreGrupo,
+    required String idCurso,
+  }) async {
+    final evaluaciones = await evaluacionSource.getEvaluacionesByProfe(
+      idCategoria,
+    );
+
+    if (evaluaciones.isEmpty) {
+      try {
+        await reporteSource.updateReporteGrupalPorCategoria(
+          idReporteGrupal: "",
+          idCategoria: idCategoria,
+          idGrupo: nombreGrupo,
+          nota: "0",
+          idCurso: idCurso,
+        );
+      } catch (e) {
+        await reporteSource.createReporteGrupalPorCategoria(
+          idCategoria: idCategoria,
+          idGrupo: nombreGrupo,
+          nota: "0",
+          idCurso: idCurso,
+        );
+      }
+      return;
+    }
+
+    final List<double> notasGrupales = [];
+
+    for (var eval in evaluaciones) {
+      final idEval = eval.id.toString();
+
+      try {
+        final reporte = await reporteSource.getReporteGrupalPorEvaluacion(
+          idEval,
+          nombreGrupo,
+        );
+
+        final nota = double.tryParse(reporte.nota) ?? 0;
+        notasGrupales.add(nota);
+      } catch (e) {
+        // 🔥 Si no existe reporte → lo ignoras
+        continue;
+      }
+    }
+
+    double promedio(List<double> lista) {
+      if (lista.isEmpty) return 0;
+      return lista.reduce((a, b) => a + b) / lista.length;
+    }
+
+    final resultado = promedio(notasGrupales).toString();
+
+    try {
+      await reporteSource.updateReporteGrupalPorCategoria(
+        idReporteGrupal: "",
+        idCategoria: idCategoria,
+        idGrupo: nombreGrupo,
+        nota: resultado,
+        idCurso: idCurso,
+      );
+    } catch (e) {
+      await reporteSource.createReporteGrupalPorCategoria(
+        idCategoria: idCategoria,
+        idGrupo: nombreGrupo,
+        nota: resultado,
+        idCurso: idCurso,
+      );
+    }
+  }
+
+  Future<void> upsertReportePromedioPersonalPorCategoria({
+    required String idCategoria,
+    required String idEstudiante,
+    required String idCurso,
+  }) async {
+    try {
+      // 🔍 1. Obtener el reporte personal por categoría
+      final reporte = await reporteSource.getReportePersonalPorCategoria(
+        idEstudiante: idEstudiante,
+        idCategoria: idCategoria,
       );
 
       final p = double.tryParse(reporte.notaPuntualidad) ?? 0;
@@ -204,34 +330,29 @@ class ReporteService {
       final a = double.tryParse(reporte.notaActitud) ?? 0;
       final co = double.tryParse(reporte.notaCompromiso) ?? 0;
 
-      final promedioEstudiante = (p + c + a + co) / 4;
+      final promedio = ((p + c + a + co) / 4).toString();
 
-      promediosEstudiantes.add(promedioEstudiante);
+      try {
+        // ✏️ UPDATE
+        await reporteSource.updateReportePromedioPersonalPorCategoria(
+          idReportePromedioPersonal: "",
+          idCategoria: idCategoria,
+          idEstudiante: idEstudiante,
+          nota: promedio,
+          idCurso: idCurso,
+        );
+      } catch (e) {
+        // ➕ CREATE
+        await reporteSource.createReportePromedioPersonalPorCategoria(
+          idCategoria: idCategoria,
+          idEstudiante: idEstudiante,
+          nota: promedio,
+          idCurso: idCurso,
+        );
+      }
     } catch (e) {
-      continue;
+      // 🔥 Si no existe el reporte base → no haces nada
+      return;
     }
   }
-
-  double promedioGrupo(List<double> lista) {
-    if (lista.isEmpty) return 0;
-    return lista.reduce((a, b) => a + b) / lista.length;
-  }
-
-  final resultado = promedioGrupo(promediosEstudiantes).toString();
-
-  try {
-    await reporteSource.updateReporteGrupalPorEvaluacion(
-      idReporteGrupal: "",
-      idEvaluacion: idEvaluacion,
-      idGrupo: nombreGrupo,
-      nota: resultado,
-    );
-  } catch (e) {
-    await reporteSource.createReporteGrupalPorEvaluacion(
-      idEvaluacion: idEvaluacion,
-      idGrupo: nombreGrupo,
-      nota: resultado,
-    );
-  }
-}
 }

@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/student_home/ui/views/EvaluacionDetailPage.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,11 +11,13 @@ import '../../../evaluaciones/ui/views/responder_evaluacion_page.dart';
 class EvaluacionDetailPage extends StatefulWidget {
   final EvaluacionEntity evaluacion;
   final dynamic grupo;
+  final dynamic cursoMatriculado;
 
   const EvaluacionDetailPage({
     super.key,
     required this.evaluacion,
     required this.grupo,
+    required this.cursoMatriculado,
   });
 
   @override
@@ -36,6 +39,14 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
     controller = Get.find<StudentCourseDetailsController>();
     evaluacionController = Get.find<EvaluacionController>();
+
+    // 🔍 DEBUG: inspeccionar grupo
+    print("=========== GRUPO DEBUG ===========");
+    print(widget.grupo);
+    print("idCat: ${widget.grupo.idCat}");
+    print(widget.grupo.grupoNombre);
+    print("===================================");
+    print(widget.cursoMatriculado.curso.id);
 
     _cargarUsuario();
   }
@@ -110,7 +121,8 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
           if (noHaIniciado)
             _buildStatusBanner(
               key: const Key('evaluacionStatusBanner_noIniciado'),
-              text: "Esta evaluación iniciará a las ${widget.evaluacion.fechaCreacion.hour}:${widget.evaluacion.fechaCreacion.minute.toString().padLeft(2, '0')}",
+              text:
+                  "Esta evaluación iniciará a las ${widget.evaluacion.fechaCreacion.hour}:${widget.evaluacion.fechaCreacion.minute.toString().padLeft(2, '0')}",
               color: Colors.orange,
             ),
 
@@ -154,7 +166,11 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
   // --- WIDGETS DE APOYO PARA LIMPIAR EL CÓDIGO ---
 
-  Widget _buildStatusBanner({required Key key, required String text, required Color color}) {
+  Widget _buildStatusBanner({
+    required Key key,
+    required String text,
+    required Color color,
+  }) {
     return Container(
       key: key,
       width: double.infinity,
@@ -186,8 +202,8 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     if (yaEvaluado) {
       return Icon(
         key: Key('checkAction_$correo'),
-        Icons.check_circle, 
-        color: Colors.green
+        Icons.check_circle,
+        color: Colors.green,
       );
     }
 
@@ -208,6 +224,9 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
           () => ResponderEvaluacionPage(
             evaluacion: widget.evaluacion,
             evaluadoCorreo: correo,
+            grupoNombre: widget.grupo.grupoNombre, // 👈 AQUÍ
+            idCat: widget.grupo.idCat,
+            idCurso: widget.cursoMatriculado.curso.id,
           ),
         );
         await _cargarEstadoEvaluaciones();

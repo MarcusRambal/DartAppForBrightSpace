@@ -37,6 +37,11 @@ import 'features/shared/domain/services/i_notification_service.dart';
 import 'features/shared/infrastructure/services/notification_service.dart';
 import 'features/cursos/data/dataSources/local_curso_cache_source.dart';
 
+import 'features/reportes/data/dataSources/i_reporte_source.dart';
+import 'features/reportes/data/dataSources/reporte_source_service.dart';
+import 'features/reportes/domain/services/ReporteService.dart';
+import 'features/reportes/ui/viewsmodels/reporte_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -150,6 +155,33 @@ void main() async {
   // Controller
   Get.lazyPut(
     () => EvaluacionController(repository: Get.find<IEvaluacionRepository>()),
+    fenix: true,
+  );
+
+  // 📊 REPORTES
+
+  // DataSource
+  Get.lazyPut<IReporteSource>(
+    () => ReporteSourceService(client: Get.find<http.Client>(tag: 'apiClient')),
+    fenix: true,
+  );
+
+  // Service
+  Get.lazyPut<ReporteService>(
+    () => ReporteService(
+      Get.find<IEvaluacionSource>(),
+      Get.find<IReporteSource>(),
+      Get.find<ICursoRepository>(),
+    ),
+    fenix: true,
+  );
+
+  // Controller
+  Get.lazyPut(
+    () => ReporteController(
+      reporteService: Get.find<ReporteService>(),
+      reporteSource: Get.find<IReporteSource>(),
+    ),
     fenix: true,
   );
   runApp(const MyApp());

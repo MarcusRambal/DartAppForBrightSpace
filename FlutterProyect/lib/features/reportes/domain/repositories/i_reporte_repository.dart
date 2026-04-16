@@ -119,6 +119,11 @@ abstract class IReporteRepository {
     String idEvaluacion,
     String idGrupo,
   );
+  Future<ReportePromedioPersonalPorCategoriaEntity>
+  getReportePromedioPersonalPorCategoria(
+    String idCategoria,
+    String idEstudiante,
+  );
   //Future<List<EvaluacionEntity>> getEvaluacionesByProfe(String idCategoria);
   //Future<List<PreguntaEntity>> getPreguntas();
 }

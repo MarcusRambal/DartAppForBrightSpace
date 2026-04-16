@@ -284,39 +284,63 @@ class EvaluacionSourceService implements IEvaluacionSource {
     }
   }
 
-  Future<List<String>> getNotasPorEvaluado(
-    String idEvaluacion,
-    String idEvaluado,
-    String tipo,
-  ) async {
-    try {
-      final token = await _getValidToken();
+Future<List<String>> getNotasPorEvaluado(
+  String idEvaluacion,
+  String idEvaluado,
+  String tipo,
+) async {
+  try {
+    print("\n========== getNotasPorEvaluado ==========");
+    print("idEvaluacion: $idEvaluacion");
+    print("idEvaluado: $idEvaluado");
+    print("tipo: $tipo");
 
-      final url = Uri.https(baseUrl, '/database/$contract/read', {
-        "tableName": "respuesta", // ⚠️ revisar nombre tabla
-        "idEvaluacion": idEvaluacion, // ⚠️ revisar columna
-        "idEvaluado": idEvaluado, // ⚠️ revisar columna
-        "tipo": tipo, // ⚠️ revisar si este filtro existe en backend
-      });
+    final token = await _getValidToken();
 
-      final response = await httpClient.get(
-        url,
-        headers: {'Authorization': 'Bearer $token'},
-      );
+    final url = Uri.https(baseUrl, '/database/$contract/read', {
+      "tableName": "respuesta",
+      "idEvaluacion": idEvaluacion,
+      "idEvaluado": idEvaluado,
+      "tipo": tipo,
+    });
 
-      if (response.statusCode == 200) {
-        final List<dynamic> records = jsonDecode(response.body);
+    print("URL: $url");
 
-        return records.map<String>((e) {
-          return e['valor_comentario']
-              .toString(); // ⚠️ revisar si aquí siempre viene la nota
-        }).toList();
-      } else {
-        throw Exception("Error al obtener notas: ${response.body}");
+    final response = await httpClient.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    print("STATUS CODE: ${response.statusCode}");
+    print("BODY RAW: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final List<dynamic> records = jsonDecode(response.body);
+
+      print("CANTIDAD RECORDS: ${records.length}");
+
+      for (var r in records) {
+        print("RECORD: $r");
       }
-    } catch (e) {
-      logError("Error en getNotasPorEvaluado: $e");
-      rethrow;
+
+      final notas = records.map<String>((e) {
+        final valor = e['valor_comentario'];
+        print("VALOR EXTRAIDO: $valor");
+        return valor.toString();
+      }).toList();
+
+      print("NOTAS FINALES: $notas");
+      print("========================================\n");
+
+      return notas;
+    } else {
+      print("❌ ERROR RESPONSE: ${response.body}");
+      throw Exception("Error al obtener notas");
     }
+  } catch (e) {
+    print("❌ EXCEPCIÓN en getNotasPorEvaluado: $e");
+    logError("Error en getNotasPorEvaluado: $e");
+    rethrow;
   }
+}
 }

@@ -121,7 +121,7 @@ class StudentCourseDetailsPage extends StatelessWidget {
                       key: Key('groupArrowIcon_${grupo.idCat}'),
                     ),
                     onTap: () {
-                      Get.to(() => GroupDetailsPage(grupo: grupo));
+                      Get.to(() => GroupDetailsPage(grupo: grupo, cursoMatriculado: cursoMatriculado,));
                     },
                   ),
                 ),

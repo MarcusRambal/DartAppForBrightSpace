@@ -7,15 +7,22 @@ import '../../domain/entities/respuesta_entity.dart';
 import '../../domain/entities/pregunta_entity.dart';
 import '../viewmodels/evaluaciones_controller.dart';
 import '../../../../core/i_local_preferences.dart';
+import '../../../reportes/ui/viewsmodels/reporte_controller.dart';
 
 class ResponderEvaluacionPage extends StatefulWidget {
   final EvaluacionEntity evaluacion;
   final String evaluadoCorreo;
+  final String grupoNombre; // 👈 NUEVO
+  final String idCat;
+  final String idCurso;
 
   const ResponderEvaluacionPage({
     super.key,
     required this.evaluacion,
     required this.evaluadoCorreo,
+    required this.grupoNombre, // 👈 NUEVO
+    required this.idCat,
+    required this.idCurso,
   });
 
   @override
@@ -25,6 +32,7 @@ class ResponderEvaluacionPage extends StatefulWidget {
 
 class _ResponderEvaluacionPageState extends State<ResponderEvaluacionPage> {
   final controller = Get.find<EvaluacionController>();
+  final reporteController = Get.find<ReporteController>();
 
   int index = 0;
   String? miId;
@@ -102,9 +110,25 @@ class _ResponderEvaluacionPageState extends State<ResponderEvaluacionPage> {
       Get.back(result: true);
 
       // 🔹 Enviar respuestas en segundo plano
-      controller.enviarRespuestas().catchError((e) {
-        Get.snackbar("Error", "No se pudo enviar la evaluación: $e");
-      });
+      controller
+          .enviarRespuestas()
+          .then((_) async {
+            try {
+              await reporteController.generarTodo(
+                idEvaluacion: widget.evaluacion.id.toString(),
+                idCategoria: widget.idCat.toString(), // ⚠️ revisa si existe
+                nombreGrupo: widget.grupoNombre.toString(),
+                idEstudiante: widget.evaluadoCorreo.toString(),
+                idCurso: widget.idCurso
+                    .toString(), // ⚠️ si aún no lo tienes, déjalo vacío por ahora
+              );
+            } catch (e) {
+              print("Error generando reportes: $e");
+            }
+          })
+          .catchError((e) {
+            Get.snackbar("Error", "No se pudo enviar la evaluación: $e");
+          });
     } catch (e) {
       Get.snackbar("Error", "No se pudo enviar la evaluación: $e");
     }

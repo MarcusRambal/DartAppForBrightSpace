@@ -7,8 +7,9 @@ import '../../../../features/evaluaciones/ui/viewmodels/evaluaciones_controller.
 
 class GroupDetailsPage extends StatefulWidget {
   final dynamic grupo;
+  final dynamic cursoMatriculado;
 
-  const GroupDetailsPage({super.key, required this.grupo});
+  const GroupDetailsPage({super.key, required this.grupo, required this.cursoMatriculado});
 
   @override
   State<GroupDetailsPage> createState() => _GroupDetailsPageState();
@@ -33,6 +34,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
     controller.cargarCompaneros(widget.grupo.idCat, widget.grupo.grupoNombre);
     evaluacionController.cargarEvaluaciones(widget.grupo.idCat);
+    print("=========== GRUPO DEBUG ===========");
+    print(widget.grupo.grupoNombre);
+    print("===================================");
   }
 
   @override
@@ -253,6 +257,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           () => EvaluacionDetailPage(
                             evaluacion: eval,
                             grupo: widget.grupo,
+                            cursoMatriculado: widget.cursoMatriculado,
                           ),
                         );
                       },
@@ -269,7 +274,11 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   // Widget reutilizable para cuando no hay datos (se ve mucho mejor que un texto plano)
-  Widget _buildEmptyState({required Key key, required String message, required IconData icon}) {
+  Widget _buildEmptyState({
+    required Key key,
+    required String message,
+    required IconData icon,
+  }) {
     return Container(
       key: key,
       width: double.infinity,
