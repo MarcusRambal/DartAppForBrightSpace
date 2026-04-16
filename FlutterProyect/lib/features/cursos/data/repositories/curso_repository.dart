@@ -1,32 +1,65 @@
 import '../../domain/entities/curso_curso.dart';
 import '../../domain/repositories/i_curso_repository.dart';
 import '../dataSources/i_curso_source.dart';
+import '../dataSources/local_curso_cache_source.dart';
 import '../../domain/entities/curso_matriculado.dart';
 
 class CursoRepository implements ICursoRepository {
-  late ICursoSource cursoSource;
+  final ICursoSource cursoSource;
+  final LocalCursoCacheSource cacheSource;
 
-  CursoRepository(this.cursoSource);
-
-  @override
-  Future<void> createCurso(String idCurso, String nom) async =>
-      await cursoSource.createCurso(idCurso, nom);
+  CursoRepository(this.cursoSource, this.cacheSource);
 
   @override
-  Future<void> updateCurso(CursoCurso curso, String NomNuevo) async =>
-      await cursoSource.updateCurso(curso, NomNuevo);
+  Future<void> createCurso(String idCurso, String nom) async {
+    await cursoSource.createCurso(idCurso, nom);
+    await cacheSource.clearCache();
+  }
 
   @override
-  Future<void> deleteCurso(String idCurso) async =>
-      await cursoSource.deleteCurso(idCurso);
-  @override
-  Future<List<CursoCurso>> getCursosByProfe() async =>
-      await cursoSource.getCursosByProfe();
+  Future<void> updateCurso(CursoCurso curso, String NomNuevo) async {
+    await cursoSource.updateCurso(curso, NomNuevo);
+    await cacheSource.clearCache();
+  }
 
+  @override
+  Future<void> deleteCurso(String idCurso) async {
+    await cursoSource.deleteCurso(idCurso);
+    await cacheSource.clearCache();
+  }
+
+  @override
+  Future<List<CursoCurso>> getCursosByProfe() async {
+    // 1. Verificamos caché del Profe
+    if (await cacheSource.isCacheValidProfe()) {
+      try {
+        return await cacheSource.getCachedCursosProfeData();
+      } catch (e) {}
+    }
+    // 2. Traemos de la API y guardamos
+    final remoteCursos = await cursoSource.getCursosByProfe();
+    await cacheSource.cacheCursosProfeData(remoteCursos);
+    return remoteCursos;
+  }
+
+  // 🚀 MAGIA DEL CACHÉ PARA EL ESTUDIANTE
   @override
   Future<List<CursoMatriculado>> getCursosByEstudiante(
     String emailEstudiante,
-  ) async => await cursoSource.getCursosByEstudiante(emailEstudiante);
+  ) async {
+    // 1. Verificamos caché del Estudiante
+    if (await cacheSource.isCacheValidEstudiante()) {
+      try {
+        return await cacheSource.getCachedCursosEstudianteData();
+      } catch (e) {}
+    }
+    // 2. Traemos de la API y guardamos
+    final remoteCursos = await cursoSource.getCursosByEstudiante(
+      emailEstudiante,
+    );
+    await cacheSource.cacheCursosEstudianteData(remoteCursos);
+    return remoteCursos;
+  }
 
   @override
   Future<void> vaciarContenidoCurso(String idCurso) async =>

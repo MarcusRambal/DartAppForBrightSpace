@@ -35,7 +35,7 @@ import 'features/evaluaciones/domain/repositories/i_evaluacion_repository.dart';
 import 'features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 import 'features/shared/domain/services/i_notification_service.dart';
 import 'features/shared/infrastructure/services/notification_service.dart';
-
+import 'features/cursos/data/dataSources/local_curso_cache_source.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +77,7 @@ void main() async {
 
   // Controller (sin cambios)
   Get.lazyPut(
-        () => AuthenticationController(
+    () => AuthenticationController(
       repository: Get.find<IAuthRepository>(),
       notificationService: Get.find<INotificationService>(),
     ),
@@ -85,7 +85,7 @@ void main() async {
   );
   // 📚 CURSOS
 
-  // DataSource (usa el cliente con refresh automático)
+  // DataSource Cursos
   Get.lazyPut<ICursoSource>(
     () => CursoSourceServiceRoble(
       client: Get.find<http.Client>(tag: 'apiClient'),
@@ -93,9 +93,20 @@ void main() async {
     fenix: true,
   );
 
-  // Repository
+  // Registramos la clase del Caché
+  Get.lazyPut<LocalCursoCacheSource>(
+    () => LocalCursoCacheSource(Get.find<ILocalPreferences>()),
+    fenix: true,
+  );
+
+  // Repository Cursos
   Get.lazyPut<ICursoRepository>(
-    () => CursoRepository(Get.find<ICursoSource>()),
+    () => CursoRepository(
+      Get.find<ICursoSource>(),
+      Get.find<
+        LocalCursoCacheSource
+      >(), // 🔥 Le pasamos el caché al repositorio
+    ),
     fenix: true,
   );
 
@@ -122,27 +133,25 @@ void main() async {
   );
   // 📝 EVALUACIONES
 
-// DataSource
-Get.lazyPut<IEvaluacionSource>(
-  () => EvaluacionSourceService(
-    client: Get.find<http.Client>(tag: 'apiClient'),
-  ),
-  fenix: true,
-);
+  // DataSource
+  Get.lazyPut<IEvaluacionSource>(
+    () => EvaluacionSourceService(
+      client: Get.find<http.Client>(tag: 'apiClient'),
+    ),
+    fenix: true,
+  );
 
-// Repository
-Get.lazyPut<IEvaluacionRepository>(
-  () => EvluacionRepository(Get.find<IEvaluacionSource>()),
-  fenix: true,
-);
+  // Repository
+  Get.lazyPut<IEvaluacionRepository>(
+    () => EvluacionRepository(Get.find<IEvaluacionSource>()),
+    fenix: true,
+  );
 
-// Controller
-Get.lazyPut(
-  () => EvaluacionController(
-    repository: Get.find<IEvaluacionRepository>(),
-  ),
-  fenix: true,
-);
+  // Controller
+  Get.lazyPut(
+    () => EvaluacionController(repository: Get.find<IEvaluacionRepository>()),
+    fenix: true,
+  );
   runApp(const MyApp());
 }
 
