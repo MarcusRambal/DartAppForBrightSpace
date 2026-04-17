@@ -7,6 +7,7 @@ import '../../../evaluaciones/domain/entities/evaluacion_entity.dart';
 import '../../../student_home/ui/views/student_course_details_controller.dart';
 import '../../../evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 import '../../../evaluaciones/ui/views/responder_evaluacion_page.dart';
+import 'student_report_page.dart';
 
 class EvaluacionDetailPage extends StatefulWidget {
   final EvaluacionEntity evaluacion;
@@ -83,83 +84,150 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    const Color backgroundColor = Color(0xFFF4F5EF);
     const Color primaryBlue = Color(0xFF1A365D);
-
-    if (miCorreo == null) {
-      return const Scaffold(
-        key: Key('evaluacionDetailLoadingScaffold'),
-        backgroundColor: backgroundColor,
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final lista = controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
-    final companeros = lista.where((correo) => correo != miCorreo).toList();
-
-    // 🕒 OBTENEMOS LA HORA ACTUAL
-    final now = DateTime.now();
-
-    // 🚪 LAS DOS LLAVES DEL CANDADO
-    final bool noHaIniciado = now.isBefore(widget.evaluacion.fechaCreacion);
-    final bool yaCerro = now.isAfter(widget.evaluacion.fechaFinalizacion);
-    final bool estaDisponible = !noHaIniciado && !yaCerro;
+    const Color backgroundColor = Color(0xFFF4F5EF);
 
     return Scaffold(
-      key: const Key('evaluacionDetailScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        key: const Key('evaluacionDetailAppBar'),
-        title: Text(widget.evaluacion.nom),
-        backgroundColor: backgroundColor,
-        elevation: 0,
+        title: const Text(
+          "Detalle de Evaluación",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          // 📢 AVISOS DE ESTADO
-          if (noHaIniciado)
-            _buildStatusBanner(
-              key: const Key('evaluacionStatusBanner_noIniciado'),
-              text:
-                  "Esta evaluación iniciará a las ${widget.evaluacion.fechaCreacion.hour}:${widget.evaluacion.fechaCreacion.minute.toString().padLeft(2, '0')}",
-              color: Colors.orange,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- Información de la Evaluación ---
+            Text(
+              widget.evaluacion.nom,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Inicia: ${widget.evaluacion.fechaCreacion.toString().split('.')[0]}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            Text(
+              "Finaliza: ${widget.evaluacion.fechaFinalizacion.toString().split('.')[0]}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
 
-          if (yaCerro)
-            _buildStatusBanner(
-              key: const Key('evaluacionStatusBanner_cerrado'),
-              text: "Esta evaluación ha cerrado.",
-              color: Colors.red,
-            ),
+            const SizedBox(height: 25),
 
-          Expanded(
-            child: ListView.builder(
-              key: const Key('evaluacionCompanerosList'),
-              padding: const EdgeInsets.all(20),
-              itemCount: companeros.length,
-              itemBuilder: (context, index) {
-                final correo = companeros[index];
-                final yaEvaluado = estadoEvaluacion[correo];
-
-                return Card(
-                  key: Key('companeroCard_$correo'),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: ListTile(
-                    leading: const Icon(Icons.person),
-                    title: Text(correo, key: Key('companeroText_$correo')),
-                    trailing: _buildTrailingAction(
-                      yaEvaluado,
-                      noHaIniciado,
-                      yaCerro,
-                      correo,
+            // 🔥 BOTÓN: Ver Mis Resultados
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Get.to(
+                    () => StudentReportPage(
+                      idEvaluacion: widget.evaluacion.id,
+                      nombreEvaluacion: widget.evaluacion.nom,
                     ),
+                  );
+                },
+                icon: const Icon(Icons.insights, color: Colors.white),
+                label: const Text(
+                  "VER MIS RESULTADOS",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.1,
                   ),
-                );
-              },
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 25),
+            const Divider(thickness: 1, color: Colors.black12),
+            const SizedBox(height: 15),
+
+            const Text(
+              "Compañeros de Grupo",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // --- Lista de compañeros ---
+            Expanded(
+              child: Obx(() {
+                final lista = controller
+                    .companerosPorCategoria[widget.evaluacion.idCategoria];
+
+                if (lista == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: primaryBlue),
+                  );
+                }
+
+                if (lista.isEmpty) {
+                  return const Center(
+                    child: Text("No se encontraron compañeros."),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: lista.length,
+                  itemBuilder: (context, i) {
+                    final correo = lista[i];
+                    // No te evalúas a ti mismo
+                    if (correo == miCorreo) return const SizedBox.shrink();
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: primaryBlue.withOpacity(0.1),
+                          child: const Icon(Icons.person, color: primaryBlue),
+                        ),
+                        title: Text(
+                          correo,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: _buildTrailingAction(
+                          estadoEvaluacion[correo],
+                          widget.evaluacion.fechaCreacion.isAfter(
+                            DateTime.now(),
+                          ),
+                          widget.evaluacion.fechaFinalizacion.isBefore(
+                            DateTime.now(),
+                          ),
+                          correo,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }

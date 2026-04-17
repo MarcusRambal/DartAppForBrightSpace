@@ -284,63 +284,69 @@ class EvaluacionSourceService implements IEvaluacionSource {
     }
   }
 
-Future<List<String>> getNotasPorEvaluado(
-  String idEvaluacion,
-  String idEvaluado,
-  String tipo,
-) async {
-  try {
-    print("\n========== getNotasPorEvaluado ==========");
-    print("idEvaluacion: $idEvaluacion");
-    print("idEvaluado: $idEvaluado");
-    print("tipo: $tipo");
+  @override
+  Future<List<String>> getNotasPorEvaluado(
+    String idEvaluacion,
+    String idEvaluado,
+    String tipo,
+  ) async {
+    try {
+      final token = await _getValidToken();
 
-    final token = await _getValidToken();
+      // ⚠️ FIX ROBLE: Solo pedimos por idEvaluacion para evitar que la API colapse.
+      final url = Uri.https(baseUrl, '/database/$contract/read', {
+        "tableName": "respuesta",
+        "idEvaluacion": idEvaluacion,
+      });
 
-    final url = Uri.https(baseUrl, '/database/$contract/read', {
-      "tableName": "respuesta",
-      "idEvaluacion": idEvaluacion,
-      "idEvaluado": idEvaluado,
-      "tipo": tipo,
-    });
+      final response = await httpClient.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-    print("URL: $url");
+      if (response.statusCode == 200) {
+        final List<dynamic> records = jsonDecode(response.body);
 
-    final response = await httpClient.get(
-      url,
-      headers: {'Authorization': 'Bearer $token'},
-    );
+        // 🔥 MAGIA: Filtramos estrictamente en el teléfono (A prueba de tildes)
+        final misRespuestas = records.where((e) {
+          final dbEvaluado =
+              e['idEvaluado']?.toString().trim().toLowerCase() ?? '';
+          final dbTipo = e['tipo']?.toString().trim().toLowerCase() ?? '';
+          final miTipo = tipo.trim().toLowerCase();
 
-    print("STATUS CODE: ${response.statusCode}");
-    print("BODY RAW: ${response.body}");
+          // 1. Validamos que la nota sea tuya
+          bool esMiCorreo = (dbEvaluado == idEvaluado.trim().toLowerCase());
 
-    if (response.statusCode == 200) {
-      final List<dynamic> records = jsonDecode(response.body);
+          // 2. Validamos la categoría ignorando las tildes al final de la palabra
+          bool esElMismoTipo = false;
 
-      print("CANTIDAD RECORDS: ${records.length}");
+          if (miTipo.contains('contribu') && dbTipo.contains('contribu')) {
+            esElMismoTipo = true;
+          } else if (miTipo.contains('puntuali') &&
+              dbTipo.contains('puntuali')) {
+            esElMismoTipo = true;
+          } else if (miTipo.contains('actitud') && dbTipo.contains('actitud')) {
+            esElMismoTipo = true;
+          } else if (miTipo.contains('compromis') &&
+              dbTipo.contains('compromis')) {
+            esElMismoTipo = true;
+          } else {
+            esElMismoTipo =
+                (dbTipo == miTipo); // Por si acaso hay otras preguntas
+          }
 
-      for (var r in records) {
-        print("RECORD: $r");
+          return esMiCorreo && esElMismoTipo;
+        }).toList();
+
+        return misRespuestas
+            .map<String>((e) => e['valor_comentario'].toString())
+            .toList();
+      } else {
+        throw Exception("Error al obtener respuestas: ${response.body}");
       }
-
-      final notas = records.map<String>((e) {
-        final valor = e['valor_comentario'];
-        print("VALOR EXTRAIDO: $valor");
-        return valor.toString();
-      }).toList();
-
-      print("NOTAS FINALES: $notas");
-      print("========================================\n");
-
-      return notas;
-    } else {
-      print("❌ ERROR RESPONSE: ${response.body}");
-      throw Exception("Error al obtener notas");
+    } catch (e) {
+      logError("Error en getNotasPorEvaluado: $e");
+      return [];
     }
-  } catch (e) {
-    print("❌ EXCEPCIÓN en getNotasPorEvaluado: $e");
-    logError("Error en getNotasPorEvaluado: $e");
-    rethrow;
   }
-}
 }
