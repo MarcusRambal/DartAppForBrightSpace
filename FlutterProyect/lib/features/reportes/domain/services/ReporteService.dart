@@ -4,7 +4,8 @@ import '../../data/dataSources/reporte_source_service.dart';
 import '../../../evaluaciones/data/dataSources/i_evaluacion_source.dart';
 import '../../../evaluaciones/data/dataSources/evaluacion_source_service.dart';
 import '../../../../features/cursos/domain/repositories/i_curso_repository.dart';
-
+import "../../../reportes/data/models/reporte_promedio_personal_por_categoria_model.dart";
+import "../../../reportes/data/models/reporte_grupal_por_categoria_model.dart";
 class ReporteService {
   final IEvaluacionSource evaluacionSource;
   final IReporteSource reporteSource;
@@ -354,5 +355,45 @@ class ReporteService {
       // 🔥 Si no existe el reporte base → no haces nada
       return;
     }
+  }
+
+  Future<List<ReportePromedioPersonalPorCategoriaModel>>
+  obtenerEstudiantesBajoRendimiento(String idCurso) async {
+    final reportes = await reporteSource
+        .getReportesPromedioPersonalCategoriaTodos(idCurso);
+
+    final filtrados = reportes.where((e) {
+      final nota = double.tryParse(e.nota) ?? 0;
+      return nota < 3.3;
+    }).toList();
+
+    filtrados.sort((a, b) {
+      final notaA = double.tryParse(a.nota) ?? 0;
+      final notaB = double.tryParse(b.nota) ?? 0;
+      return notaA.compareTo(notaB);
+    });
+
+    return filtrados;
+  }
+
+  Future<List<ReporteGrupalPorCategoriaModel>> obtenerGruposBajoRendimiento(
+    String idCurso,
+  ) async {
+    final reportes = await reporteSource.getReportesGrupalesPorCategoria(
+      idCurso,
+    );
+
+    final filtrados = reportes.where((e) {
+      final nota = double.tryParse(e.nota) ?? 0;
+      return nota < 3.3;
+    }).toList();
+
+    filtrados.sort((a, b) {
+      final notaA = double.tryParse(a.nota) ?? 0;
+      final notaB = double.tryParse(b.nota) ?? 0;
+      return notaA.compareTo(notaB);
+    });
+
+    return filtrados;
   }
 }

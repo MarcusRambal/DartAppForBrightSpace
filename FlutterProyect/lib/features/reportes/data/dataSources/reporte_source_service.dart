@@ -530,14 +530,14 @@ class ReporteSourceService implements IReporteSource {
 
   @override
   Future<List<ReporteGrupalPorCategoriaModel>> getReportesGrupalesPorCategoria(
-    String idCategoria,
+    String idCurso,
   ) async {
     try {
       final token = await _getValidToken();
 
       final url = Uri.https(baseUrl, '/database/$contract/read', {
         "tableName": "reporteGrupalPorCategoria",
-        "idCategoria": idCategoria,
+        "idCurso": idCurso,
       });
 
       final response = await httpClient.get(
@@ -742,9 +742,9 @@ class ReporteSourceService implements IReporteSource {
         return records.map((e) {
           return ReportePromedioPersonalPorCategoriaModel.fromJson({
             'idReportePromedioPersonal':
-                e['idReportePromedioPersonalPorCategoria'], // ⚠️ revisar
-            'idReportePersonal':
-                e['idReportePersonalPorCategoria'], // ⚠️ revisar FK
+                e['idReportePromedioPersonalPorCategoria'],
+            'idCategoria': e['idCategoria'],
+            'idEstudiante': e['idEstudiante'],
             'nota': e['nota'],
             'idCurso': e['idCurso'],
           });
@@ -994,4 +994,5 @@ class ReporteSourceService implements IReporteSource {
       rethrow;
     }
   }
+  
 }

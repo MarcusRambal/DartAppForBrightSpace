@@ -4,6 +4,8 @@ import 'package:loggy/loggy.dart';
 
 import '../../domain/services/ReporteService.dart';
 import '../../data/dataSources/i_reporte_source.dart';
+import "../../../reportes/data/models/reporte_promedio_personal_por_categoria_model.dart";
+import "../../../reportes/data/models/reporte_grupal_por_categoria_model.dart";
 
 class ReporteController extends GetxController {
   final ReporteService reporteService;
@@ -256,9 +258,7 @@ class ReporteController extends GetxController {
 
   Future<List> getReportesPersonalesPorEvaluacion(String idEvaluacion) async {
     try {
-      return await reporteSource.getReportesPersonalPorEvaluacion(
-        idEvaluacion,
-      );
+      return await reporteSource.getReportesPersonalPorEvaluacion(idEvaluacion);
     } catch (e) {
       logError("Error obteniendo reportes personales por evaluación: $e");
       return [];
@@ -272,6 +272,27 @@ class ReporteController extends GetxController {
       );
     } catch (e) {
       logError("Error obteniendo promedios personales: $e");
+      return [];
+    }
+  }
+
+  Future<List<ReportePromedioPersonalPorCategoriaModel>>
+  getEstudiantesBajoRendimiento(String idCurso) async {
+    try {
+      return await reporteService.obtenerEstudiantesBajoRendimiento(idCurso);
+    } catch (e) {
+      logError("Error obteniendo estudiantes bajo rendimiento: $e");
+      return [];
+    }
+  }
+
+  Future<List<ReporteGrupalPorCategoriaModel>> getGruposBajoRendimiento(
+    String idCurso,
+  ) async {
+    try {
+      return await reporteService.obtenerGruposBajoRendimiento(idCurso);
+    } catch (e) {
+      logError("Error obteniendo grupos bajo rendimiento: $e");
       return [];
     }
   }
