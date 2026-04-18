@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/cursos/ui/viewsmodels/curso_controller.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
@@ -13,6 +14,10 @@ class CursoController extends GetxController {
   // --- ESTADOS REACTIVOS ---
   var cursos = <CursoCurso>[].obs;
   var isLoading = false.obs;
+
+
+//Funcion para la cantidad de cursos
+  int get cantidadCursos => cursos.length;
 
   var isCreating = false.obs;
   var isUpdating = false.obs;
