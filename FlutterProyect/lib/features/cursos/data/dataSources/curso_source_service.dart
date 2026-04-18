@@ -178,7 +178,16 @@ class CursoSourceServiceRoble implements ICursoSource {
           }
         }
       }
-
+      print("===== CURSOS AGRUPADOS =====");
+      mapaCursos.forEach((key, value) {
+        print("CURSO ID: $key");
+        print("NOMBRE: ${value.curso.nombre}");
+        print("GRUPOS:");
+        for (var g in value.grupos) {
+          print(" - ${g.categoriaNombre} | ${g.grupoNombre} | ${g.idCat}");
+        }
+      });
+      print("=============================");
       // Devolvemos la lista limpia y agrupada
       return mapaCursos.values.toList();
     } else {

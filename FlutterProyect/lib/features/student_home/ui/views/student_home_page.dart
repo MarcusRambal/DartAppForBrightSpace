@@ -5,6 +5,7 @@ import 'student_home_controller.dart'; // Importamos el controlador que acabas d
 import '../../../../features/cursos/domain/entities/curso_matriculado.dart';
 import 'student_course_details_page.dart';
 import '../../../../features/auth/ui/viewsmodels/authentication_controller.dart';
+import 'StudentPendingEvaluationsPage.dart';
 
 class StudentHomePage extends StatelessWidget {
   final String email;
@@ -276,7 +277,9 @@ class StudentHomePage extends StatelessWidget {
                   const SizedBox(height: 8),
                   ...cursoMatriculado.grupos.map((grupo) {
                     return Padding(
-                      key: Key('groupRow_${cursoMatriculado.curso.id}_${grupo.idCat}'),
+                      key: Key(
+                        'groupRow_${cursoMatriculado.curso.id}_${grupo.idCat}',
+                      ),
                       padding: const EdgeInsets.only(bottom: 6.0),
                       child: Row(
                         children: [
@@ -293,22 +296,33 @@ class StudentHomePage extends StatelessWidget {
                   }).toList(),
 
                   const SizedBox(height: 15),
-                  Container(
-                    key: Key('pendingEvaluationsContainer_${cursoMatriculado.curso.id}'),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: primaryGold,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "Evaluaciones pendientes: ${cursoMatriculado.evaluacionesPendientes}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: Colors.black,
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        () => StudentPendingEvaluationsPage(
+                          cursoMatriculado: cursoMatriculado,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      key: Key(
+                        'pendingEvaluationsContainer_${cursoMatriculado.curso.id}',
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: primaryGold,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Evaluaciones pendientes",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),

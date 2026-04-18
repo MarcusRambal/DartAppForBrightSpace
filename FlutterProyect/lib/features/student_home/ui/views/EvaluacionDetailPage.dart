@@ -29,9 +29,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
   late StudentCourseDetailsController controller;
   late EvaluacionController evaluacionController;
 
-  // 🔥 Estado local para saber quién ya fue evaluado
   Map<String, bool> estadoEvaluacion = {};
-
   String? miCorreo;
 
   @override
@@ -41,45 +39,80 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     controller = Get.find<StudentCourseDetailsController>();
     evaluacionController = Get.find<EvaluacionController>();
 
-    // 🔍 DEBUG: inspeccionar grupo
-    print("=========== GRUPO DEBUG ===========");
-    print(widget.grupo);
-    print("idCat: ${widget.grupo.idCat}");
-    print(widget.grupo.grupoNombre);
-    print("===================================");
-    print(widget.cursoMatriculado.curso.id);
+    _init();
+  }
 
-    _cargarUsuario();
+  /// 🔥 FLUJO SEGURO
+  Future<void> _init() async {
+    await controller.cargarCompaneros(
+      widget.grupo.idCat,
+      widget.grupo.grupoNombre,
+    );
+
+    await _cargarUsuario();
   }
 
   Future<void> _cargarUsuario() async {
     final prefs = Get.find<ILocalPreferences>();
-
     miCorreo = await prefs.getString('email');
 
     await _cargarEstadoEvaluaciones();
   }
 
   Future<void> _cargarEstadoEvaluaciones() async {
-    final lista = controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
+    print("===== INICIO _cargarEstadoEvaluaciones =====");
 
-    final companeros = lista.where((correo) => correo != miCorreo).toList();
+    final lista =
+        controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
-    final futures = companeros.map((correo) async {
-      final ya = await evaluacionController.yaEvaluo(
-        widget.evaluacion.id,
-        "", // 🔥 ya no necesitas pasar esto realmente
-        correo,
-      );
+    print("LISTA BRUTA: $lista");
+    print("MI CORREO: $miCorreo");
 
-      return MapEntry(correo, ya);
+    final companeros =
+        lista.where((correo) => correo != miCorreo).toList();
+
+    print("COMPANEROS FILTRADOS: $companeros");
+
+    if (companeros.isEmpty) {
+      print("⚠️ NO HAY COMPAÑEROS PARA EVALUAR");
+
+      if (!mounted) return;
+      setState(() {
+        estadoEvaluacion = {};
+      });
+
+      return;
+    }
+
+    final results = await Future.wait(
+      companeros.map((correo) async {
+        try {
+          print("➡️ consultando yaEvaluo: $correo");
+
+          final ya = await evaluacionController.yaEvaluo(
+            widget.evaluacion.id,
+            "",
+            correo,
+          );
+
+          print("✔️ resultado yaEvaluo $correo = $ya");
+
+          return MapEntry(correo, ya);
+        } catch (e) {
+          print("❌ ERROR yaEvaluo $correo: $e");
+          return MapEntry(correo, false);
+        }
+      }),
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      estadoEvaluacion = Map.fromEntries(results);
     });
 
-    final results = await Future.wait(futures);
-
-    estadoEvaluacion = Map.fromEntries(results);
-
-    setState(() {});
+    print("RESULTADOS FINALES: $results");
+    print("===== FIN _cargarEstadoEvaluaciones =====");
   }
 
   @override
@@ -104,7 +137,6 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Información de la Evaluación ---
             Text(
               widget.evaluacion.nom,
               style: const TextStyle(
@@ -122,10 +154,9 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
               "Finaliza: ${widget.evaluacion.fechaFinalizacion.toString().split('.')[0]}",
               style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
-
             const SizedBox(height: 25),
 
-            // 🔥 BOTÓN: Ver Mis Resultados
+            /// 🔥 BOTÓN RESULTADOS
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -143,22 +174,17 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    letterSpacing: 1.1,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryBlue,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
                 ),
               ),
             ),
 
             const SizedBox(height: 25),
-            const Divider(thickness: 1, color: Colors.black12),
+            const Divider(),
             const SizedBox(height: 15),
 
             const Text(
@@ -171,7 +197,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
             ),
             const SizedBox(height: 12),
 
-            // --- Lista de compañeros ---
+            /// 🔥 LISTA
             Expanded(
               child: Obx(() {
                 final lista = controller
@@ -179,7 +205,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
 
                 if (lista == null) {
                   return const Center(
-                    child: CircularProgressIndicator(color: primaryBlue),
+                    child: CircularProgressIndicator(),
                   );
                 }
 
@@ -193,31 +219,22 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                   itemCount: lista.length,
                   itemBuilder: (context, i) {
                     final correo = lista[i];
-                    // No te evalúas a ti mismo
-                    if (correo == miCorreo) return const SizedBox.shrink();
+
+                    if (correo == miCorreo) {
+                      return const SizedBox.shrink();
+                    }
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
                       child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: primaryBlue.withOpacity(0.1),
-                          child: const Icon(Icons.person, color: primaryBlue),
-                        ),
-                        title: Text(
-                          correo,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                        leading: const Icon(Icons.person),
+                        title: Text(correo),
                         trailing: _buildTrailingAction(
                           estadoEvaluacion[correo],
-                          widget.evaluacion.fechaCreacion.isAfter(
-                            DateTime.now(),
-                          ),
-                          widget.evaluacion.fechaFinalizacion.isBefore(
-                            DateTime.now(),
-                          ),
+                          widget.evaluacion.fechaCreacion
+                              .isAfter(DateTime.now()),
+                          widget.evaluacion.fechaFinalizacion
+                              .isBefore(DateTime.now()),
                           correo,
                         ),
                       ),
@@ -232,26 +249,6 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     );
   }
 
-  // --- WIDGETS DE APOYO PARA LIMPIAR EL CÓDIGO ---
-
-  Widget _buildStatusBanner({
-    required Key key,
-    required String text,
-    required Color color,
-  }) {
-    return Container(
-      key: key,
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      color: color.withOpacity(0.1),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
   Widget _buildTrailingAction(
     bool? yaEvaluado,
     bool noHaIniciado,
@@ -259,45 +256,37 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
     String correo,
   ) {
     if (yaEvaluado == null) {
-      return SizedBox(
-        key: Key('loadingAction_$correo'),
+      return const SizedBox(
         width: 20,
         height: 20,
-        child: const CircularProgressIndicator(strokeWidth: 2),
+        child: CircularProgressIndicator(strokeWidth: 2),
       );
     }
 
     if (yaEvaluado) {
-      return Icon(
-        key: Key('checkAction_$correo'),
-        Icons.check_circle,
-        color: Colors.green,
-      );
+      return const Icon(Icons.check_circle, color: Colors.green);
     }
 
-    // Si no ha iniciado o ya cerró, mostramos el candado
     if (noHaIniciado || yaCerro) {
       return Icon(
-        key: Key('lockAction_$correo'),
         noHaIniciado ? Icons.watch_later_outlined : Icons.lock_outline,
         color: noHaIniciado ? Colors.orange : Colors.red,
       );
     }
 
-    // Si todo está ok, mostramos el botón
     return ElevatedButton(
-      key: Key('evaluarButton_$correo'),
-      onPressed: () async {
-        await Get.to(
+      onPressed: () {
+        Get.to(
           () => ResponderEvaluacionPage(
             evaluacion: widget.evaluacion,
             evaluadoCorreo: correo,
-            grupoNombre: widget.grupo.grupoNombre, // 👈 AQUÍ
+            grupoNombre: widget.grupo.grupoNombre,
             idCat: widget.grupo.idCat,
             idCurso: widget.cursoMatriculado.curso.id,
           ),
-        );
-        await _cargarEstadoEvaluaciones();
+        )?.whenComplete(() async {
+          await _cargarEstadoEvaluaciones();
+        });
       },
       child: const Text("Evaluar"),
     );

@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/student_home/ui/views/GroupDetailsPage.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

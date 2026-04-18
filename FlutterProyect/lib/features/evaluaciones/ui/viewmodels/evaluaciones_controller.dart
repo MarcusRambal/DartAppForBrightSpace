@@ -8,7 +8,7 @@ import '../../domain/entities/evaluacion_entity.dart';
 import '../../domain/entities/respuesta_entity.dart';
 import '../../domain/entities/pregunta_entity.dart'; // 🔥 IMPORTANTE
 import '../../domain/repositories/i_evaluacion_repository.dart';
-
+import '../../../student_home/ui/views/student_course_details_controller.dart';
 import '../../../../../core/i_local_preferences.dart';
 
 class EvaluacionController extends GetxController {
@@ -32,6 +32,13 @@ class EvaluacionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+  }
+
+  bool estaVigente(EvaluacionEntity e) {
+    final ahora = DateTime.now();
+
+    return ahora.isAfter(e.fechaCreacion) &&
+        ahora.isBefore(e.fechaFinalizacion);
   }
 
   // --- CARGAR EVALUACIONES ---
@@ -154,37 +161,54 @@ class EvaluacionController extends GetxController {
     }
   }
 
-  Future<void> cargarEvaluacionesIncompletas(
-    String idCategoria,
-    List<String> integrantesGrupo,
-  ) async {
-    try {
-      isLoading.value = true;
+  var evaluacionesIncompletas = <EvaluacionEntity>[].obs;
 
-      final prefs = Get.find<ILocalPreferences>();
-      final miId = await prefs.getString('userId');
+Future<void> cargarEvaluacionesIncompletasPorGrupos(
+  List<dynamic> grupos,
+) async {
+  try {
+    isLoading.value = true;
 
-      if (miId == null) {
-        throw Exception("Usuario no autenticado");
-      }
+    final List<EvaluacionEntity> acumuladas = [];
 
-      final evaluacionesList = await repository.getEvaluacionesByProfe(
-        idCategoria,
+    final prefs = Get.find<ILocalPreferences>();
+    final miId = await prefs.getString('email');
+
+    if (miId == null) {
+      throw Exception("Usuario no autenticado");
+    }
+
+    final cursoController = Get.find<StudentCourseDetailsController>();
+
+    for (final g in grupos) {
+      final idCat = g.idCat.toString();
+      final nombreGrupo = g.grupoNombre.toString();
+
+      // 🔥 OPCIÓN 2: asegurar carga real de compañeros
+      await cursoController.cargarCompaneros(idCat, nombreGrupo);
+
+      // 🔥 IMPORTANTE: esperar lectura estable
+      final companeros = List<String>.from(
+        cursoController.companerosPorCategoria[idCat] ?? [],
       );
 
-      List<EvaluacionEntity> incompletas = [];
+      final evaluacionesList =
+          await repository.getEvaluacionesByProfe(idCat);
 
       for (var evaluacion in evaluacionesList) {
+        if (!estaVigente(evaluacion)) continue;
+
         bool completa = true;
 
-        for (var evaluado in integrantesGrupo) {
-          if (evaluado.trim().toLowerCase() == miId.trim().toLowerCase()) {
+        for (var evaluado in companeros) {
+          if (evaluado.trim().toLowerCase() ==
+              miId.trim().toLowerCase()) {
             continue;
           }
 
           final ya = await repository.yaEvaluo(
             evaluacion.id.toString(),
-            "",
+            miId,
             evaluado,
           );
 
@@ -195,20 +219,18 @@ class EvaluacionController extends GetxController {
         }
 
         if (!completa) {
-          incompletas.add(evaluacion);
+          acumuladas.add(evaluacion);
         }
       }
-
-      // 🔥 CLAVE: actualizar estado reactivo
-      evaluaciones.value = incompletas;
-    } catch (e) {
-      logError("Error cargando evaluaciones incompletas: $e");
-      Get.snackbar(
-        "Error",
-        "No se pudieron cargar las evaluaciones incompletas",
-      );
-    } finally {
-      isLoading.value = false;
     }
+
+    // 🔥 ASIGNACIÓN FINAL (correcta)
+    evaluacionesIncompletas.value = acumuladas;
+  } catch (e) {
+    logError("Error batch incompletas: $e");
+    Get.snackbar("Error", "No se pudieron cargar evaluaciones");
+  } finally {
+    isLoading.value = false;
   }
+}
 }

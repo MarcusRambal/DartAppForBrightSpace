@@ -187,6 +187,8 @@ class EvaluacionSourceService implements IEvaluacionSource {
       final correoEs = await prefs.getString('email');
       print("correo");
       print(correoEs);
+      print("evaluado");
+      print(idEvaluado);
       if (idEs == null) throw Exception("Usuario no autenticado");
       idEvaluador = idEs;
       final url = Uri.https(baseUrl, '/database/$contract/read', {
