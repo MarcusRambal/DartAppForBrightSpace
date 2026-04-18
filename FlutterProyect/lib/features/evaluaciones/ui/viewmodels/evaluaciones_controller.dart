@@ -6,27 +6,30 @@ import 'package:loggy/loggy.dart';
 
 import '../../domain/entities/evaluacion_entity.dart';
 import '../../domain/entities/respuesta_entity.dart';
-import '../../domain/entities/pregunta_entity.dart'; // 🔥 IMPORTANTE
+import '../../domain/entities/pregunta_entity.dart';
 import '../../domain/repositories/i_evaluacion_repository.dart';
-import '../../../student_home/ui/views/student_course_details_controller.dart';
+import '../../../../features/cursos/domain/repositories/i_curso_repository.dart';
 import '../../../../../core/i_local_preferences.dart';
 
 class EvaluacionController extends GetxController {
   final IEvaluacionRepository repository;
+  final ICursoRepository cursoRepository; // 🔥 NUEVO
 
-  EvaluacionController({required this.repository});
+  EvaluacionController({
+    required this.repository,
+    required this.cursoRepository,
+  });
 
   // --- ESTADOS REACTIVOS ---
   var evaluaciones = <EvaluacionEntity>[].obs;
-  var preguntas = <PreguntaEntity>[].obs; // 🔥 NUEVO
+  var preguntas = <PreguntaEntity>[].obs;
 
   var isLoading = false.obs;
-  var isLoadingPreguntas = false.obs; // 🔥 NUEVO
+  var isLoadingPreguntas = false.obs;
 
   var isCreating = false.obs;
   var isSending = false.obs;
 
-  // --- RESPUESTAS EN MEMORIA ---
   var respuestas = <RespuestaEntity>[].obs;
 
   @override
@@ -36,7 +39,6 @@ class EvaluacionController extends GetxController {
 
   bool estaVigente(EvaluacionEntity e) {
     final ahora = DateTime.now();
-
     return ahora.isAfter(e.fechaCreacion) &&
         ahora.isBefore(e.fechaFinalizacion);
   }
@@ -56,7 +58,7 @@ class EvaluacionController extends GetxController {
     }
   }
 
-  // 🔥 --- NUEVO: CARGAR PREGUNTAS ---
+  // --- CARGAR PREGUNTAS ---
   Future<void> cargarPreguntas() async {
     try {
       isLoadingPreguntas.value = true;
@@ -162,11 +164,15 @@ class EvaluacionController extends GetxController {
   }
 
   var evaluacionesIncompletas = <EvaluacionEntity>[].obs;
+  bool _calculandoIncompletas = false;
+  // 🔥 MÉTODO CLAVE (MISMA LÓGICA, SIN OTRO CONTROLLER)
+Future<void> cargarEvaluacionesIncompletasPorGrupos(List<dynamic> grupos) async {
+  // 🔥 evita doble ejecución (causa del error + contador en 0)
+  if (_calculandoIncompletas) return;
 
-Future<void> cargarEvaluacionesIncompletasPorGrupos(
-  List<dynamic> grupos,
-) async {
   try {
+    _calculandoIncompletas = true;
+
     isLoading.value = true;
 
     final List<EvaluacionEntity> acumuladas = [];
@@ -178,19 +184,21 @@ Future<void> cargarEvaluacionesIncompletasPorGrupos(
       throw Exception("Usuario no autenticado");
     }
 
-    final cursoController = Get.find<StudentCourseDetailsController>();
+    final Map<String, List<String>> cacheCompaneros = {};
 
     for (final g in grupos) {
       final idCat = g.idCat.toString();
       final nombreGrupo = g.grupoNombre.toString();
 
-      // 🔥 OPCIÓN 2: asegurar carga real de compañeros
-      await cursoController.cargarCompaneros(idCat, nombreGrupo);
+      if (!cacheCompaneros.containsKey(idCat)) {
+        final companeros = await cursoRepository.getCompanerosDeGrupo(
+          idCat,
+          nombreGrupo,
+        );
+        cacheCompaneros[idCat] = companeros;
+      }
 
-      // 🔥 IMPORTANTE: esperar lectura estable
-      final companeros = List<String>.from(
-        cursoController.companerosPorCategoria[idCat] ?? [],
-      );
+      final companeros = cacheCompaneros[idCat]!;
 
       final evaluacionesList =
           await repository.getEvaluacionesByProfe(idCat);
@@ -224,13 +232,20 @@ Future<void> cargarEvaluacionesIncompletasPorGrupos(
       }
     }
 
-    // 🔥 ASIGNACIÓN FINAL (correcta)
-    evaluacionesIncompletas.value = acumuladas;
+    // 🔥 IMPORTANTE: update seguro fuera del build cycle
+    evaluacionesIncompletas.assignAll(acumuladas);
+
   } catch (e) {
     logError("Error batch incompletas: $e");
-    Get.snackbar("Error", "No se pudieron cargar evaluaciones");
   } finally {
     isLoading.value = false;
+    _calculandoIncompletas = false;
   }
 }
+
+  bool estaCompleta(String evaluacionId) {
+    return !evaluacionesIncompletas.any(
+      (e) => e.id.toString() == evaluacionId.toString(),
+    );
+  }
 }

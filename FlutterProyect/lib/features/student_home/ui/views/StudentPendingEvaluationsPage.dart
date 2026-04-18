@@ -34,23 +34,15 @@ class _StudentPendingEvaluationsPageState
 
     evaluacionController = Get.find<EvaluacionController>();
 
-    // 🔥 FIX CRÍTICO: asegurar que el controller exista
     if (!Get.isRegistered<StudentCourseDetailsController>()) {
-      Get.put(
-        StudentCourseDetailsController(
-          cursoRepository: Get.find(),
-        ),
-      );
+      Get.put(StudentCourseDetailsController(cursoRepository: Get.find()));
     }
 
     final grupos = widget.cursoMatriculado.grupos;
 
-    for (final g in grupos) {
-      print("INIT -> grupo idCat: ${g.idCat} (${g.idCat.runtimeType})");
-      print("INIT -> grupo nombre: ${g.grupoNombre}");
-    }
-
-    evaluacionController.cargarEvaluacionesIncompletasPorGrupos(grupos);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      evaluacionController.cargarEvaluacionesIncompletasPorGrupos(grupos);
+    });
   }
 
   @override
@@ -74,9 +66,7 @@ class _StudentPendingEvaluationsPageState
         }
 
         if (evaluaciones.isEmpty) {
-          return const Center(
-            child: Text("No tienes evaluaciones pendientes"),
-          );
+          return const Center(child: Text("No tienes evaluaciones pendientes"));
         }
 
         return ListView.builder(
@@ -85,8 +75,8 @@ class _StudentPendingEvaluationsPageState
           itemBuilder: (context, index) {
             final eval = evaluaciones[index];
 
-            final List<CategoriaGrupo> grupos =
-                widget.cursoMatriculado.grupos.cast<CategoriaGrupo>();
+            final List<CategoriaGrupo> grupos = widget.cursoMatriculado.grupos
+                .cast<CategoriaGrupo>();
 
             final grupo = grupos.firstWhere(
               (g) => g.idCat.toString() == eval.idCategoria.toString(),
@@ -117,8 +107,8 @@ class _StudentPendingEvaluationsPageState
 
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14),
 
-                onTap: () {
-                  Get.to(
+                onTap: () async {
+                  await Get.to(
                     () => EvaluacionDetailPage(
                       evaluacion: eval,
                       grupo: grupo,
@@ -133,6 +123,15 @@ class _StudentPendingEvaluationsPageState
                         );
                       }
                     }),
+                  );
+
+                  // 🔄 RECARGA AL VOLVER
+                  final grupos = widget.cursoMatriculado.grupos;
+
+                  print("🔄 VOLVI A LA VISTA -> recargando evaluaciones");
+
+                  evaluacionController.cargarEvaluacionesIncompletasPorGrupos(
+                    grupos,
                   );
                 },
               ),

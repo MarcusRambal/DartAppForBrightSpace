@@ -20,7 +20,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
     );
 
     final evaluacionController = Get.put(
-      EvaluacionController(repository: Get.find()),
+      EvaluacionController(repository: Get.find(),cursoRepository: Get.find(),),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

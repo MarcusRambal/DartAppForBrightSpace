@@ -1,27 +1,72 @@
+//FlutterProyect/lib/features/student_home/ui/views/StudentHomePage.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'student_home_controller.dart'; // Importamos el controlador que acabas de crear
+import 'student_home_controller.dart';
 import '../../../../features/cursos/domain/entities/curso_matriculado.dart';
 import 'student_course_details_page.dart';
 import '../../../../features/auth/ui/viewsmodels/authentication_controller.dart';
 import 'StudentPendingEvaluationsPage.dart';
+import "../../../evaluaciones/ui/viewmodels/evaluaciones_controller.dart";
 
-class StudentHomePage extends StatelessWidget {
+class StudentHomePage extends StatefulWidget {
   final String email;
 
   const StudentHomePage({super.key, required this.email});
 
-  // Colores de diseño
+  @override
+  State<StudentHomePage> createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends State<StudentHomePage> {
   final Color primaryGold = const Color(0xFFE6C363);
   final Color backgroundColor = const Color(0xFFF4F5EF);
 
+  late StudentHomeController controller;
+  late EvaluacionController evaluacionController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = Get.put(
+      StudentHomeController(
+        cursoRepository: Get.find(),
+        studentEmail: widget.email,
+      ),
+    );
+
+    evaluacionController = Get.put(
+      EvaluacionController(
+        repository: Get.find(),
+        cursoRepository: Get.find(),
+      ),
+    );
+
+    // 🔥 FUNCIÓN CENTRALIZADA
+    void cargarEvaluacionesPendientes() {
+      final cursos = controller.cursos;
+
+      if (cursos.isNotEmpty) {
+        final grupos = cursos.expand((c) => c.grupos).toList();
+
+        evaluacionController.cargarEvaluacionesIncompletasPorGrupos(grupos);
+      }
+    }
+
+    // 🔥 REACTIVO (cuando cambien cursos)
+    ever(controller.cursos, (_) {
+      cargarEvaluacionesPendientes();
+    });
+
+    // 🔥 INICIAL (PRIMERA VEZ - ESTE ES EL FIX IMPORTANTE)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      cargarEvaluacionesPendientes();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 1️⃣ Inyectamos el controlador pasándole el repositorio (que ya está en main.dart) y el email
-    final controller = Get.put(
-      StudentHomeController(cursoRepository: Get.find(), studentEmail: email),
-    );
     final authController = Get.find<AuthenticationController>();
 
     return Scaffold(
@@ -33,35 +78,25 @@ class StudentHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               const SizedBox(height: 20),
+
               Row(
-                key: const Key('studentHomeHeaderRow'),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'assets/images/ulogo.png',
-                    width: 50,
-                    height: 50,
-                    key: const Key('studentHomeLogo'),
-                  ),
+                  Image.asset('assets/images/ulogo.png', width: 50, height: 50),
                   const SizedBox(width: 15),
                   const Expanded(
                     child: Text(
                       'Bienvenido',
-                      key: Key('studentHomeWelcomeText'),
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
                       ),
                     ),
                   ),
 
-                  // 🔥 BOTÓN DE LOGOUT
                   IconButton(
-                    key: const Key('studentHomeLogoutButton'),
-                    icon: const Icon(Icons.logout, color: Colors.black),
+                    icon: const Icon(Icons.logout),
                     onPressed: () {
                       Get.defaultDialog(
                         title: "Cerrar sesión",
@@ -79,42 +114,28 @@ class StudentHomePage extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 20),
 
-              // --- TARJETA EVALUACIONES ---
               _buildSummaryCard(),
+
               const SizedBox(height: 20),
 
-              // --- LISTA DE CURSOS (REACTIVA CON ROBLE) ---
               Expanded(
                 child: Obx(() {
-                  // Mientras carga, mostramos el indicador
                   if (controller.isLoading.value) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        key: Key('studentHomeLoadingIndicator'),
-                        color: Color(0xFF8B0000),
-                      ),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   }
 
-                  // Si terminó de cargar y la lista está vacía
                   if (controller.cursos.isEmpty) {
-                    return Center(
+                    return const Center(
                       child: Column(
-                        key: const Key('studentHomeEmptyCursosColumn'),
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            Icons.folder_off,
-                            size: 80,
-                            color: Colors.grey,
-                            key: Key('studentHomeEmptyIcon'),
-                          ),
+                        children: [
+                          Icon(Icons.folder_off, size: 80, color: Colors.grey),
                           SizedBox(height: 16),
                           Text(
                             'Aún no estás inscrito en ningún curso.',
-                            key: Key('studentHomeEmptyText'),
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.black54,
@@ -125,21 +146,17 @@ class StudentHomePage extends StatelessWidget {
                     );
                   }
 
-                  // Paleta de colores para alternar en las tarjetas
                   final cardColors = [
-                    const Color(0xFF8B0000), // Rojo Uninorte
-                    const Color(0xFFE6C363), // Dorado
-                    const Color(0xFF2E8B57), // Verde
-                    const Color(0xFF4682B4), // Azul
+                    const Color(0xFF8B0000),
+                    const Color(0xFFE6C363),
+                    const Color(0xFF2E8B57),
+                    const Color(0xFF4682B4),
                   ];
 
-                  // Dibujamos la lista con los cursos reales
                   return ListView.builder(
-                    key: const Key('studentHomeCoursesListView'),
                     itemCount: controller.cursos.length,
                     itemBuilder: (context, index) {
                       final curso = controller.cursos[index];
-                      // Alternamos los colores usando el índice
                       final color = cardColors[index % cardColors.length];
 
                       return _buildCourseCard(curso, color);
@@ -154,53 +171,57 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  // --- WIDGETS PRIVADOS DE DISEÑO (Se mantienen intactos) ---
-
   Widget _buildSummaryCard() {
     return Container(
-      key: const Key('studentHomeSummaryCard'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
-            key: const Key('studentHomeSummaryTextColumn'),
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Evaluaciones pendientes",
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
-              SizedBox(height: 5),
-              Text(
-                "3 Tareas",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
+              const SizedBox(height: 5),
+
+              Obx(() {
+                if (evaluacionController.isLoading.value) {
+                  return const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+
+                final cantidad =
+                    evaluacionController.evaluacionesIncompletas.length;
+
+                return Text(
+                  "$cantidad Tareas",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }),
             ],
           ),
           Container(
-            key: const Key('studentHomeSummaryIconContainer'),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: primaryGold.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.assignment, color: primaryGold, size: 30),
+            child: Icon(Icons.assignment, color: primaryGold),
           ),
         ],
       ),
@@ -209,33 +230,31 @@ class StudentHomePage extends StatelessWidget {
 
   Widget _buildCourseCard(CursoMatriculado cursoMatriculado, Color color) {
     return GestureDetector(
-      key: Key('courseGestureDetector_${cursoMatriculado.curso.id}'),
       onTap: () {
-        // 🔥 Navegamos a la nueva pantalla pasando la información
         Get.to(
           () => StudentCourseDetailsPage(cursoMatriculado: cursoMatriculado),
-        );
+        )?.then((_) {
+          final grupos =
+              controller.cursos.expand((c) => c.grupos).toList();
+
+          evaluacionController
+              .cargarEvaluacionesIncompletasPorGrupos(grupos);
+        });
       },
       child: Container(
-        key: Key('courseCardContainer_${cursoMatriculado.curso.id}'),
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              key: Key('courseCardColorBand_${cursoMatriculado.curso.id}'),
-              height: 15, // Banda superior un poco más delgada
+              height: 15,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: const BorderRadius.only(
@@ -251,7 +270,6 @@ class StudentHomePage extends StatelessWidget {
                 children: [
                   Text(
                     cursoMatriculado.curso.nombre,
-                    key: Key('courseName_${cursoMatriculado.curso.id}'),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -259,27 +277,21 @@ class StudentHomePage extends StatelessWidget {
                   ),
                   Text(
                     "NRC: ${cursoMatriculado.curso.id}",
-                    key: Key('courseNrc_${cursoMatriculado.curso.id}'),
-                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    style: const TextStyle(color: Colors.black54),
                   ),
                   const SizedBox(height: 15),
                   const Divider(),
                   const SizedBox(height: 10),
 
-                  // 🔴 AQUÍ DIBUJAMOS LOS GRUPOS AGRUPADOS
                   const Text(
                     "Tus Asignaciones:",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+
                   const SizedBox(height: 8),
+
                   ...cursoMatriculado.grupos.map((grupo) {
                     return Padding(
-                      key: Key(
-                        'groupRow_${cursoMatriculado.curso.id}_${grupo.idCat}',
-                      ),
                       padding: const EdgeInsets.only(bottom: 6.0),
                       child: Row(
                         children: [
@@ -287,7 +299,8 @@ class StudentHomePage extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             "${grupo.categoriaNombre}: ",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(grupo.grupoNombre),
                         ],
@@ -296,18 +309,22 @@ class StudentHomePage extends StatelessWidget {
                   }).toList(),
 
                   const SizedBox(height: 15),
+
                   GestureDetector(
                     onTap: () {
                       Get.to(
                         () => StudentPendingEvaluationsPage(
                           cursoMatriculado: cursoMatriculado,
                         ),
-                      );
+                      )?.then((_) {
+                        final grupos =
+                            controller.cursos.expand((c) => c.grupos).toList();
+
+                        evaluacionController
+                            .cargarEvaluacionesIncompletasPorGrupos(grupos);
+                      });
                     },
                     child: Container(
-                      key: Key(
-                        'pendingEvaluationsContainer_${cursoMatriculado.curso.id}',
-                      ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
@@ -316,12 +333,11 @@ class StudentHomePage extends StatelessWidget {
                         color: primaryGold,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
+                      child: const Text(
                         "Evaluaciones pendientes",
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          color: Colors.black,
                         ),
                       ),
                     ),

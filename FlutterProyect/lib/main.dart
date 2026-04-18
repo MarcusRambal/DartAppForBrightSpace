@@ -154,7 +154,7 @@ void main() async {
 
   // Controller
   Get.lazyPut(
-    () => EvaluacionController(repository: Get.find<IEvaluacionRepository>()),
+    () => EvaluacionController(repository: Get.find<IEvaluacionRepository>(),cursoRepository: Get.find<ICursoRepository>(),),
     fenix: true,
   );
 
