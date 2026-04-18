@@ -9,6 +9,8 @@ import '../../domain/entities/respuesta_entity.dart';
 import '../../domain/entities/pregunta_entity.dart'; // 🔥 IMPORTANTE
 import '../../domain/repositories/i_evaluacion_repository.dart';
 
+import '../../../../../core/i_local_preferences.dart';
+
 class EvaluacionController extends GetxController {
   final IEvaluacionRepository repository;
 
@@ -149,6 +151,64 @@ class EvaluacionController extends GetxController {
     } catch (e) {
       logError("Error validando evaluación: $e");
       return false;
+    }
+  }
+
+  Future<void> cargarEvaluacionesIncompletas(
+    String idCategoria,
+    List<String> integrantesGrupo,
+  ) async {
+    try {
+      isLoading.value = true;
+
+      final prefs = Get.find<ILocalPreferences>();
+      final miId = await prefs.getString('userId');
+
+      if (miId == null) {
+        throw Exception("Usuario no autenticado");
+      }
+
+      final evaluacionesList = await repository.getEvaluacionesByProfe(
+        idCategoria,
+      );
+
+      List<EvaluacionEntity> incompletas = [];
+
+      for (var evaluacion in evaluacionesList) {
+        bool completa = true;
+
+        for (var evaluado in integrantesGrupo) {
+          if (evaluado.trim().toLowerCase() == miId.trim().toLowerCase()) {
+            continue;
+          }
+
+          final ya = await repository.yaEvaluo(
+            evaluacion.id.toString(),
+            "",
+            evaluado,
+          );
+
+          if (!ya) {
+            completa = false;
+            break;
+          }
+        }
+
+        if (!completa) {
+          incompletas.add(evaluacion);
+        }
+      }
+
+      // 🔥 CLAVE: actualizar estado reactivo
+      evaluaciones.value = incompletas;
+    } catch (e) {
+      logError("Error cargando evaluaciones incompletas: $e");
+      Get.snackbar(
+        "Error",
+        "No se pudieron cargar las evaluaciones incompletas",
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 }
