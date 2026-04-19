@@ -69,9 +69,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     if (isScreenLoading) {
       return Scaffold(
         backgroundColor: backgroundColor,
-        body: Center(
-          child: CircularProgressIndicator(color: primaryBlue),
-        ),
+        body: Center(child: CircularProgressIndicator(color: primaryBlue)),
       );
     }
 
@@ -87,14 +85,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _cargarTodo, // 🔥 recarga completa
-          )
+          ),
         ],
       ),
       body: Obx(() {
         if (controller.isLoadingCategoria[widget.grupo.idCat] == true) {
-          return Center(
-            child: CircularProgressIndicator(color: primaryBlue),
-          );
+          return Center(child: CircularProgressIndicator(color: primaryBlue));
         }
 
         final listaCompaneros =
@@ -105,42 +101,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         return ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
-            // ---------------- COMPAÑEROS ----------------
-            Text(
-              "Compañeros",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: primaryBlue,
-              ),
-            ),
-            const SizedBox(height: 15),
-
-            if (listaCompaneros.isEmpty)
-              _buildEmptyState(
-                message: "No hay compañeros asignados.",
-                icon: Icons.group_off,
-              ),
-
-            ...listaCompaneros.map((correo) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: primaryBlue.withOpacity(0.1),
-                    child: Icon(Icons.person, color: primaryBlue),
-                  ),
-                  title: Text(correo),
-                ),
-              );
-            }),
-
-            const SizedBox(height: 35),
-
             // ---------------- EVALUACIONES ----------------
             Text(
               "Evaluaciones",
@@ -164,8 +124,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                 itemCount: evaluaciones.length,
                 itemBuilder: (context, index) {
                   final eval = evaluaciones[index];
-                  final completa =
-                      evaluacionController.estaCompleta(eval.id);
+                  final completa = evaluacionController.estaCompleta(eval.id);
 
                   final tipo = eval.esPrivada ? "Privada" : "Pública";
 
@@ -186,10 +145,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           color: goldAccent.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          Icons.assignment,
-                          color: goldAccent,
-                        ),
+                        child: Icon(Icons.assignment, color: goldAccent),
                       ),
                       title: Text(
                         eval.nom,
@@ -225,9 +181,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ],
                       ),
                       trailing: Icon(
-                        completa
-                            ? Icons.check_circle
-                            : Icons.arrow_forward_ios,
+                        completa ? Icons.check_circle : Icons.arrow_forward_ios,
                         color: completa ? Colors.green : primaryBlue,
                         size: 20,
                       ),
@@ -246,16 +200,49 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   );
                 },
               ),
+
+            const SizedBox(height: 35),
+
+            // ---------------- COMPAÑEROS ----------------
+            Text(
+              "Compañeros",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            if (listaCompaneros.isEmpty)
+              _buildEmptyState(
+                message: "No hay compañeros asignados.",
+                icon: Icons.group_off,
+              ),
+
+            ...listaCompaneros.map((correo) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: primaryBlue.withOpacity(0.1),
+                    child: Icon(Icons.person, color: primaryBlue),
+                  ),
+                  title: Text(correo),
+                ),
+              );
+            }),
           ],
         );
       }),
     );
   }
 
-  Widget _buildEmptyState({
-    required String message,
-    required IconData icon,
-  }) {
+  Widget _buildEmptyState({required String message, required IconData icon}) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
