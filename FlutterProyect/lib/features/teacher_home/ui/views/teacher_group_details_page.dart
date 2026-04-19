@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'teacher_course_details_controller.dart';
 import '../../../../features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
+import 'teacher_report_page.dart';
 
 class TeacherGroupDetailsPage extends StatefulWidget {
   final String categoriaId;
@@ -291,6 +292,98 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                             ),
                           ],
                         ),
+                      ),
+                      // 🔥 AQUÍ ESTÁ EL BOTÓN DE RESULTADOS INTEGRADO
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: () => evaluacionController.cambiarPrivacidad(
+                              e.id,
+                              e.esPrivada,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: e.esPrivada
+                                    ? Colors.red.withOpacity(0.1)
+                                    : Colors.green.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: e.esPrivada
+                                      ? Colors.red
+                                      : Colors.green,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    e.esPrivada
+                                        ? Icons.lock_outline
+                                        : Icons.public,
+                                    size: 14,
+                                    color: e.esPrivada
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    e.esPrivada
+                                        ? "Privada"
+                                        : "Pública", // En UI usamos Pública
+                                    style: TextStyle(
+                                      color: e.esPrivada
+                                          ? Colors.red
+                                          : Colors.green,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+
+                          // --- 📊 BOTÓN DE RESULTADOS (El que ya tenías) ---
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Get.to(
+                                () => TeacherReportPage(
+                                  idEvaluacion: e.id!,
+                                  nombreEvaluacion: e.nom,
+                                  idCategoria: widget.categoriaId,
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.analytics_outlined,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              "RESULTADOS",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryBlue,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );

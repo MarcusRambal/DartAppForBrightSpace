@@ -56,6 +56,14 @@ class EvluacionRepository implements IEvaluacionRepository {
     String idEvaluacion,
     String idEvaluado,
     String tipo,
-  ) async =>
-      await evaluacionSource.getNotasPorEvaluado(idEvaluacion, idEvaluado, tipo);
+  ) async => await evaluacionSource.getNotasPorEvaluado(
+    idEvaluacion,
+    idEvaluado,
+    tipo,
+  );
+
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) async {
+    await evaluacionSource.updatePrivacidad(idEvaluacion, esPrivada);
+  }
 }

@@ -62,14 +62,12 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
   Future<void> _cargarEstadoEvaluaciones() async {
     print("===== INICIO _cargarEstadoEvaluaciones =====");
 
-    final lista =
-        controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
+    final lista = controller.companerosPorCategoria[widget.grupo.idCat] ?? [];
 
     print("LISTA BRUTA: $lista");
     print("MI CORREO: $miCorreo");
 
-    final companeros =
-        lista.where((correo) => correo != miCorreo).toList();
+    final companeros = lista.where((correo) => correo != miCorreo).toList();
 
     print("COMPANEROS FILTRADOS: $companeros");
 
@@ -165,6 +163,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                     () => StudentReportPage(
                       idEvaluacion: widget.evaluacion.id,
                       nombreEvaluacion: widget.evaluacion.nom,
+                      esPrivada: widget.evaluacion.esPrivada,
                     ),
                   );
                 },
@@ -204,9 +203,7 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                     .companerosPorCategoria[widget.evaluacion.idCategoria];
 
                 if (lista == null) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (lista.isEmpty) {
@@ -231,10 +228,12 @@ class _EvaluacionDetailPageState extends State<EvaluacionDetailPage> {
                         title: Text(correo),
                         trailing: _buildTrailingAction(
                           estadoEvaluacion[correo],
-                          widget.evaluacion.fechaCreacion
-                              .isAfter(DateTime.now()),
-                          widget.evaluacion.fechaFinalizacion
-                              .isBefore(DateTime.now()),
+                          widget.evaluacion.fechaCreacion.isAfter(
+                            DateTime.now(),
+                          ),
+                          widget.evaluacion.fechaFinalizacion.isBefore(
+                            DateTime.now(),
+                          ),
                           correo,
                         ),
                       ),

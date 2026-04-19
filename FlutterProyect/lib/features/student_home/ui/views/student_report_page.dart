@@ -9,11 +9,13 @@ import '../../../../features/reportes/domain/entities/reportePersonalPorEvaluaci
 class StudentReportPage extends StatefulWidget {
   final String idEvaluacion;
   final String nombreEvaluacion;
+  final bool esPrivada; // 🔥 NUEVO: Recibimos el estado de privacidad
 
   const StudentReportPage({
     super.key,
     required this.idEvaluacion,
     required this.nombreEvaluacion,
+    required this.esPrivada, // 🔥 NUEVO
   });
 
   @override
@@ -28,15 +30,19 @@ class _StudentReportPageState extends State<StudentReportPage> {
   bool isLoading = true;
   ReportePersonalPorEvaluacionEntity? miReporte;
 
-  // 🔥 PALETA DE COLORES
-  final Color backgroundColor = const Color(0xFFF4F5EF); // Crema
-  final Color primaryBlue = const Color(0xFF1A365D); // Azul Marino
-  final Color goldAccent = const Color(0xFFE6C363); // Dorado
+  final Color backgroundColor = const Color(0xFFF4F5EF);
+  final Color primaryBlue = const Color(0xFF1A365D);
+  final Color goldAccent = const Color(0xFFE6C363);
 
   @override
   void initState() {
     super.initState();
-    _cargarMisNotas();
+    // 🛑 Si es privada, ni siquiera gastamos datos descargando notas
+    if (widget.esPrivada) {
+      isLoading = false;
+    } else {
+      _cargarMisNotas();
+    }
   }
 
   Future<void> _cargarMisNotas() async {
@@ -45,7 +51,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
     try {
       final evaluacionSource = Get.find<IEvaluacionSource>();
 
-      // 📥 1. Descargamos tus notas directamente de las respuestas originales
       final puntualidad = await evaluacionSource.getNotasPorEvaluado(
         widget.idEvaluacion,
         miCorreo,
@@ -67,7 +72,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
         "Compromiso",
       );
 
-      // 🔍 2. Si las 4 listas están vacías, NADIE te ha evaluado aún.
       if (puntualidad.isEmpty &&
           contribucion.isEmpty &&
           actitud.isEmpty &&
@@ -76,7 +80,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
         return;
       }
 
-      // 🧠 3. Helper para promediar tu lista de números
       String calcular(List<String> notas) {
         if (notas.isEmpty) return "0.0";
         final suma = notas
@@ -85,7 +88,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
         return (suma / notas.length).toStringAsFixed(1);
       }
 
-      // ⚡ 4. Construimos tu reporte en la memoria sin tocar la DB
       final reporteEnMemoria = ReportePersonalPorEvaluacionEntity(
         idReportePersonal: "temporal",
         idEvaluacion: widget.idEvaluacion,
@@ -105,7 +107,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
     }
   }
 
-  // Helper para convertir el texto a número y calcular el promedio seguro
   double _calcularPromedio(ReportePersonalPorEvaluacionEntity r) {
     final p = double.tryParse(r.notaPuntualidad) ?? 0;
     final c = double.tryParse(r.notaContribucion) ?? 0;
@@ -130,19 +131,57 @@ class _StudentReportPageState extends State<StudentReportPage> {
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator(color: primaryBlue))
+          // 🚩 AQUÍ ESTÁ EL BLOQUEO: Si es privada, muestra el candado
+          : widget.esPrivada
+          ? _buildPantallaBloqueada()
           : miReporte == null
           ? _buildEmptyState()
           : _buildReporteVisual(miReporte!),
     );
   }
 
+  // 🔒 PANTALLA BLOQUEADA (Cuando esPrivada == true)
+  Widget _buildPantallaBloqueada() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock_outline, size: 100, color: Colors.grey),
+            const SizedBox(height: 20),
+            Text(
+              "Calificaciones Ocultas",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "El profesor ha marcado esta evaluación como privada. \n\nPodrás ver tus resultados y el desglose de notas una vez que el estado cambie a público.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.blueGrey,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 📊 REPORTE VISUAL (Cuando es pública y hay notas)
   Widget _buildReporteVisual(ReportePersonalPorEvaluacionEntity reporte) {
     final promedio = _calcularPromedio(reporte);
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        // 🏆 TARJETA DE PROMEDIO FINAL
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -191,7 +230,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  promedio.toStringAsFixed(1), // Muestra 1 decimal
+                  promedio.toStringAsFixed(1),
                   style: TextStyle(
                     color: primaryBlue,
                     fontSize: 32,
@@ -203,8 +242,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
           ),
         ),
         const SizedBox(height: 30),
-
-        // 📊 DESGLOSE DE NOTAS
         Text(
           "Desglose de Criterios",
           style: TextStyle(
@@ -214,7 +251,6 @@ class _StudentReportPageState extends State<StudentReportPage> {
           ),
         ),
         const SizedBox(height: 15),
-
         _buildNotaTile("Puntualidad", reporte.notaPuntualidad, Icons.timer),
         _buildNotaTile(
           "Contribución",
@@ -227,9 +263,9 @@ class _StudentReportPageState extends State<StudentReportPage> {
     );
   }
 
+  // 🧩 WIDGET AUXILIAR PARA CADA NOTA
   Widget _buildNotaTile(String titulo, String notaTexto, IconData icono) {
     final nota = double.tryParse(notaTexto) ?? 0.0;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -269,6 +305,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
     );
   }
 
+  // 📭 ESTADO VACÍO (Cuando es pública pero aún no hay calificaciones)
   Widget _buildEmptyState() {
     return Center(
       child: Padding(

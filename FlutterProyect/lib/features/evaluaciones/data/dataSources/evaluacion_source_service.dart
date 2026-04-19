@@ -351,4 +351,40 @@ class EvaluacionSourceService implements IEvaluacionSource {
       return [];
     }
   }
+
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) async {
+    try {
+      final token = await _getValidToken();
+
+      final url = Uri.https(baseUrl, '/database/$contract/update');
+
+      final response = await httpClient.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "tableName": "evaluacion",
+          "idColumn": "idEvaluacion", // La columna de tu tabla que tiene el ID
+          "idValue": idEvaluacion, // El ID específico que tocaste en la app
+          "updates": {
+            // 🔥 LA PALABRA CLAVE QUE FALTABA
+            "tipo": esPrivada ? "Privada" : "General",
+          },
+        }),
+      );
+
+      print("STATUS UPDATE: ${response.statusCode}");
+      print("BODY UPDATE: ${response.body}");
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception("Error al actualizar tipo: ${response.body}");
+      }
+    } catch (e) {
+      logError("Error en updatePrivacidad: $e");
+      rethrow;
+    }
+  }
 }

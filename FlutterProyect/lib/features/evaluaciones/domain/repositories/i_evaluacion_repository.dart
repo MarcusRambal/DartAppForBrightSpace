@@ -27,4 +27,5 @@ abstract class IEvaluacionRepository {
     String idEvaluado,
     String tipo,
   );
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada);
 }

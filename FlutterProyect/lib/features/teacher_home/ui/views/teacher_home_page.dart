@@ -7,6 +7,8 @@ import '../../../../features/cursos/ui/viewsmodels/curso_controller.dart';
 import '../../../../features/cursos/domain/entities/curso_curso.dart';
 import '../../../../features/grupos/ui/viewmodels/grupo_import_controller.dart';
 import '../../../../features/auth/ui/viewsmodels/authentication_controller.dart';
+import 'teacher_alerts_controller.dart';
+import 'teacher_alerts_page.dart';
 
 class TeacherHomePage extends StatelessWidget {
   final String email;
@@ -22,6 +24,7 @@ class TeacherHomePage extends StatelessWidget {
   final GrupoImportController grupoController =
       Get.find(); // 🔥 NUEVO CONTROLADOR
   final authController = Get.find<AuthenticationController>();
+  final alertsController = Get.put(TeacherAlertsController());
 
   // 2️⃣ Menú de opciones del Floating Action Button
   void _showOptionsBottomSheet(BuildContext context) {
@@ -238,13 +241,32 @@ class TeacherHomePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              // Cursos actuales
               Obx(
                 () => _buildSummaryItem(
                   "Mis Cursos",
                   cursoController.cursos.length.toString(),
                 ),
-              ), // 🔥 Enlace dinámico
-              _buildSummaryItem("Alertas", "0"),
+              ),
+
+              // 🔥 NUEVO BOTÓN DE ALERTAS REACTIVO
+              GestureDetector(
+                onTap: () {
+                  // Navega a la página de detalle de las alertas
+                  Get.to(() => const TeacherAlertsPage());
+                },
+                child: Obx(() {
+                  // Muestra "..." mientras hace el cálculo en la base de datos
+                  if (alertsController.isLoading.value) {
+                    return _buildSummaryItem("Alertas", "...");
+                  }
+                  // Muestra el número real de estudiantes en riesgo
+                  return _buildSummaryItem(
+                    "Alertas",
+                    alertsController.cantidadAlertas.value.toString(),
+                  );
+                }),
+              ),
             ],
           ),
         ],

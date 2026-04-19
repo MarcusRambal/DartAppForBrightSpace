@@ -5,7 +5,7 @@ class EvaluacionEntity {
   final String nom;
   final DateTime fechaCreacion;
   final DateTime fechaFinalizacion;
-  final bool esPrivada;
+  bool esPrivada;
 
   EvaluacionEntity({
     required this.id,
