@@ -44,8 +44,10 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
     const Color goldAccent = Color(0xFFE6C363); // Dorado
 
     return Scaffold(
+      key: const Key('teacherGroupDetailsScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('teacherGroupDetailsAppBar'),
         elevation: 0,
         backgroundColor: backgroundColor,
         foregroundColor: primaryBlue, // Texto y flecha en azul marino
@@ -64,16 +66,21 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
 
         if (isLoadingGrupos || evaluacionController.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(color: primaryBlue),
+            child: CircularProgressIndicator(
+              key: Key('teacherGroupDetailsLoadingIndicator'),
+              color: primaryBlue,
+            ),
           );
         }
 
         return ListView(
+          key: const Key('teacherGroupDetailsMainList'),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
             // 👥 SECCIÓN: GRUPOS E COMPAÑEROS
             const Text(
               "Grupos",
+              key: Key('teacherGroupDetailsGruposTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -85,9 +92,10 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
 
             if (grupos.isEmpty)
               _buildEmptyState(
-                "No hay grupos disponibles.",
-                Icons.group_off,
-                primaryBlue,
+                key: const Key('teacherGroupDetailsEmptyGrupos'),
+                message: "No hay grupos disponibles.",
+                icon: Icons.group_off,
+                primaryBlue: primaryBlue,
               ),
 
             ...grupos.map((grupoNombre) {
@@ -96,6 +104,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
               );
 
               return Container(
+                key: Key('teacherGroupCard_$grupoNombre'),
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -114,6 +123,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                     context,
                   ).copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
+                    key: Key('teacherGroupExpansion_$grupoNombre'),
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -136,6 +146,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                     children: integrantes
                         .map(
                           (i) => ListTile(
+                            key: Key('teacherIntegrante_$i'),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 32,
                               vertical: 0,
@@ -165,6 +176,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
             // 📝 SECCIÓN: EVALUACIONES
             const Text(
               "Evaluaciones",
+              key: Key('teacherGroupDetailsEvaluacionesTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -179,13 +191,15 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
 
               if (evals.isEmpty) {
                 return _buildEmptyState(
-                  "No hay evaluaciones creadas.",
-                  Icons.assignment_outlined,
-                  primaryBlue,
+                  key: const Key('teacherGroupDetailsEmptyEvaluaciones'),
+                  message: "No hay evaluaciones creadas.",
+                  icon: Icons.assignment_outlined,
+                  primaryBlue: primaryBlue,
                 );
               }
 
               return ListView.builder(
+                key: const Key('teacherGroupDetailsEvaluacionesList'),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: evals.length,
@@ -193,6 +207,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                   final e = evals[index];
 
                   return Container(
+                    key: Key('teacherEvaluationCard_${e.id}'),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -234,6 +249,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                           children: [
                             // 🏷️ ETIQUETA DE TIPO (General)
                             Container(
+                              key: Key('teacherEvaluationTypeBadge_${e.id}'),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
@@ -255,6 +271,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
 
                             // 🔒 ETIQUETA DE ESTADO (Privada / Pública) PARA EL PROFESOR
                             Container(
+                              key: Key('teacherEvaluationStatusBadge_${e.id}'),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 4,
@@ -305,8 +322,9 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
   }
 
   // Widget auxiliar para cuando las listas están vacías
-  Widget _buildEmptyState(String message, IconData icon, Color primaryBlue) {
+  Widget _buildEmptyState({required Key key, required String message, required IconData icon, required Color primaryBlue}) {
     return Container(
+      key: key,
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
