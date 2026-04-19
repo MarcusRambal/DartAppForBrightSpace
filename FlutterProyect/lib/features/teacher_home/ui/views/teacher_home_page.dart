@@ -22,7 +22,7 @@ class TeacherHomePage extends StatelessWidget {
   // 1️⃣ Inyectamos los controladores
   final CursoController cursoController = Get.find();
   final GrupoImportController grupoController =
-      Get.find(); // 🔥 NUEVO CONTROLADOR
+  Get.find(); // 🔥 NUEVO CONTROLADOR
   final authController = Get.find<AuthenticationController>();
   final alertsController = Get.put(TeacherAlertsController());
 
@@ -94,23 +94,23 @@ class TeacherHomePage extends StatelessWidget {
             child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
           ),
           Obx(
-            () => cursoController.isCreating.value
+                () => cursoController.isCreating.value
                 ? const CircularProgressIndicator()
                 : FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: accentButtonColor,
-                    ),
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        cursoController.crearCurso(
-                          codigoController.text.trim(),
-                          nombreController.text.trim(),
-                        );
-                        Get.back(); // Cierra el diálogo al guardar
-                      }
-                    },
-                    child: const Text("Crear"),
-                  ),
+              style: FilledButton.styleFrom(
+                backgroundColor: accentButtonColor,
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  cursoController.crearCurso(
+                    codigoController.text.trim(),
+                    nombreController.text.trim(),
+                  );
+                  Get.back(); // Cierra el diálogo al guardar
+                }
+              },
+              child: const Text("Crear"),
+            ),
           ),
         ],
       ),
@@ -243,7 +243,7 @@ class TeacherHomePage extends StatelessWidget {
             children: [
               // Cursos actuales
               Obx(
-                () => _buildSummaryItem(
+                    () => _buildSummaryItem(
                   "Mis Cursos",
                   cursoController.cursos.length.toString(),
                 ),
@@ -348,7 +348,7 @@ class TeacherHomePage extends StatelessWidget {
                           Get.defaultDialog(
                             title: "Eliminar Curso",
                             middleText:
-                                "¿Estás seguro? Se perderán todos los grupos.",
+                            "¿Estás seguro? Se perderán todos los grupos.",
                             textConfirm: "Sí, borrar",
                             textCancel: "Cancelar",
                             confirmTextColor: Colors.white,
@@ -375,7 +375,7 @@ class TeacherHomePage extends StatelessWidget {
                       if (grupoController.isImporting.value) {
                         return OutlinedButton(
                           onPressed:
-                              null, // Deshabilita el botón mientras carga
+                          null, // Deshabilita el botón mientras carga
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -432,7 +432,7 @@ class TeacherHomePage extends StatelessWidget {
                               Get.defaultDialog(
                                 title: "Actualizar Grupos",
                                 middleText:
-                                    "Esto borrará la lista actual y cargará la del nuevo archivo. ¿Continuar?",
+                                "Esto borrará la lista actual y cargará la del nuevo archivo. ¿Continuar?",
                                 textConfirm: "Sí, actualizar",
                                 textCancel: "Cancelar",
                                 confirmTextColor: Colors.white,
