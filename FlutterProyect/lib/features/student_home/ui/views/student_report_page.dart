@@ -118,8 +118,10 @@ class _StudentReportPageState extends State<StudentReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('studentReportScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('studentReportAppBar'),
         title: const Text(
           "Mis Resultados",
           style: TextStyle(fontWeight: FontWeight.w700),
@@ -130,13 +132,17 @@ class _StudentReportPageState extends State<StudentReportPage> {
         elevation: 0,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: primaryBlue))
+          ? Center(
+              child: CircularProgressIndicator(
+              key: const Key('studentReportLoadingIndicator'),
+              color: primaryBlue,
+            ))
           // 🚩 AQUÍ ESTÁ EL BLOQUEO: Si es privada, muestra el candado
           : widget.esPrivada
-          ? _buildPantallaBloqueada()
-          : miReporte == null
-          ? _buildEmptyState()
-          : _buildReporteVisual(miReporte!),
+              ? _buildPantallaBloqueada()
+              : miReporte == null
+                  ? _buildEmptyState()
+                  : _buildReporteVisual(miReporte!),
     );
   }
 
@@ -146,12 +152,19 @@ class _StudentReportPageState extends State<StudentReportPage> {
       child: Padding(
         padding: const EdgeInsets.all(30.0),
         child: Column(
+          key: const Key('studentReportLockedColumn'),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.lock_outline, size: 100, color: Colors.grey),
+            const Icon(
+              key: Key('studentReportLockedIcon'),
+              Icons.lock_outline,
+              size: 100,
+              color: Colors.grey,
+            ),
             const SizedBox(height: 20),
             Text(
               "Calificaciones Ocultas",
+              key: const Key('studentReportLockedTitle'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 24,
@@ -162,6 +175,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
             const SizedBox(height: 15),
             const Text(
               "El profesor ha marcado esta evaluación como privada. \n\nPodrás ver tus resultados y el desglose de notas una vez que el estado cambie a público.",
+              key: Key('studentReportLockedMessage'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -180,9 +194,11 @@ class _StudentReportPageState extends State<StudentReportPage> {
     final promedio = _calcularPromedio(reporte);
 
     return ListView(
+      key: const Key('studentReportListView'),
       padding: const EdgeInsets.all(20),
       children: [
         Container(
+          key: const Key('studentReportHeaderContainer'),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -203,6 +219,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
             children: [
               Text(
                 widget.nombreEvaluacion,
+                key: const Key('studentReportEvaluacionName'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white70,
@@ -213,6 +230,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
               const SizedBox(height: 10),
               const Text(
                 "Promedio Final",
+                key: Key('studentReportPromedioTitle'),
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -221,6 +239,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
               ),
               const SizedBox(height: 15),
               Container(
+                key: const Key('studentReportPromedioContainer'),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 12,
@@ -231,6 +250,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
                 ),
                 child: Text(
                   promedio.toStringAsFixed(1),
+                  key: const Key('studentReportPromedioValue'),
                   style: TextStyle(
                     color: primaryBlue,
                     fontSize: 32,
@@ -244,6 +264,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
         const SizedBox(height: 30),
         Text(
           "Desglose de Criterios",
+          key: const Key('studentReportCriteriosTitle'),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -267,6 +288,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
   Widget _buildNotaTile(String titulo, String notaTexto, IconData icono) {
     final nota = double.tryParse(notaTexto) ?? 0.0;
     return Container(
+      key: Key('studentReportNotaTile_$titulo'),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -311,9 +333,11 @@ class _StudentReportPageState extends State<StudentReportPage> {
       child: Padding(
         padding: const EdgeInsets.all(30),
         child: Column(
+          key: const Key('studentReportEmptyColumn'),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
+              key: const Key('studentReportEmptyIcon'),
               Icons.analytics_outlined,
               size: 60,
               color: primaryBlue.withOpacity(0.3),
@@ -321,6 +345,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
             const SizedBox(height: 20),
             Text(
               "Aún no hay resultados",
+              key: const Key('studentReportEmptyTitle'),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -330,6 +355,7 @@ class _StudentReportPageState extends State<StudentReportPage> {
             const SizedBox(height: 10),
             Text(
               "Tus resultados aparecerán aquí cuando tus compañeros te hayan evaluado y el reporte se haya generado.",
+              key: const Key('studentReportEmptyMessage'),
               textAlign: TextAlign.center,
               style: TextStyle(color: primaryBlue.withOpacity(0.6)),
             ),

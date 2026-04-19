@@ -53,4 +53,10 @@ class FakeEvaluacionesRepository implements IEvaluacionRepository {
     throw UnimplementedError();
   }
 
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) {
+    // TODO: implement updatePrivacidad
+    throw UnimplementedError();
+  }
+
 }

@@ -30,6 +30,7 @@ class TeacherHomePage extends StatelessWidget {
   void _showOptionsBottomSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
+        key: const Key('teacherOptionsBottomSheet'),
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -39,10 +40,12 @@ class TeacherHomePage extends StatelessWidget {
           children: [
             const Text(
               "Opciones",
+              key: Key('teacherOptionsTitle'),
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
             ListTile(
+              key: const Key('teacherCreateCourseOption'),
               leading: Icon(Icons.class_, color: accentButtonColor),
               title: const Text("Crear curso"),
               onTap: () {
@@ -64,6 +67,7 @@ class TeacherHomePage extends StatelessWidget {
 
     Get.dialog(
       AlertDialog(
+        key: const Key('createCourseDialog'),
         title: const Text("Nuevo Curso"),
         content: Form(
           key: formKey,
@@ -71,6 +75,7 @@ class TeacherHomePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                key: const Key('createCourseNameField'),
                 controller: nombreController,
                 decoration: const InputDecoration(
                   labelText: "Nombre del curso (Ej: Prog Móvil)",
@@ -79,6 +84,7 @@ class TeacherHomePage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               TextFormField(
+                key: const Key('createCourseCodeField'),
                 controller: codigoController,
                 decoration: const InputDecoration(
                   labelText: "Código (Ej: 202610_1852)",
@@ -90,6 +96,7 @@ class TeacherHomePage extends StatelessWidget {
         ),
         actions: [
           TextButton(
+            key: const Key('createCourseCancelButton'),
             onPressed: () => Get.back(),
             child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
           ),
@@ -97,6 +104,7 @@ class TeacherHomePage extends StatelessWidget {
                 () => cursoController.isCreating.value
                 ? const CircularProgressIndicator()
                 : FilledButton(
+              key: const Key('createCourseSubmitButton'),
               style: FilledButton.styleFrom(
                 backgroundColor: accentButtonColor,
               ),
@@ -120,8 +128,10 @@ class TeacherHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('teacherHomeScaffold'),
       backgroundColor: backgroundColor,
       floatingActionButton: FloatingActionButton(
+        key: const Key('teacherHomeFAB'),
         onPressed: () => _showOptionsBottomSheet(context),
         backgroundColor: accentButtonColor,
         elevation: 6,
@@ -136,13 +146,20 @@ class TeacherHomePage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               Row(
+                key: const Key('teacherHomeHeaderRow'),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/ulogo.png', width: 50, height: 50),
+                  Image.asset(
+                    'assets/images/ulogo.png',
+                    width: 50,
+                    height: 50,
+                    key: const Key('teacherHomeLogo'),
+                  ),
                   const SizedBox(width: 15),
                   const Expanded(
                     child: Text(
                       'Hola, Profesor',
+                      key: Key('teacherHomeWelcomeText'),
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -153,6 +170,7 @@ class TeacherHomePage extends StatelessWidget {
 
                   // 🔥 BOTÓN DE LOGOUT
                   IconButton(
+                    key: const Key('teacherHomeLogoutButton'),
                     icon: const Icon(Icons.logout, color: Colors.black),
                     onPressed: () {
                       Get.defaultDialog(
@@ -177,6 +195,7 @@ class TeacherHomePage extends StatelessWidget {
 
               const Text(
                 "Mis Cursos Reales",
+                key: Key('teacherHomeCursosTitle'),
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -185,13 +204,18 @@ class TeacherHomePage extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   if (cursoController.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        key: Key('teacherHomeLoadingIndicator'),
+                      ),
+                    );
                   }
 
                   if (cursoController.cursos.isEmpty) {
                     return const Center(
                       child: Text(
                         "Aún no has creado ningún curso.\nPresiona el botón '+' para empezar.",
+                        key: Key('teacherHomeEmptyText'),
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey),
                       ),
@@ -199,6 +223,7 @@ class TeacherHomePage extends StatelessWidget {
                   }
 
                   return ListView.builder(
+                    key: const Key('teacherHomeCursosList'),
                     physics: const BouncingScrollPhysics(),
                     itemCount: cursoController.cursos.length,
                     itemBuilder: (context, index) {
@@ -225,6 +250,7 @@ class TeacherHomePage extends StatelessWidget {
 
   Widget _buildTeacherSummaryCard() {
     return Container(
+      key: const Key('teacherHomeSummaryCard'),
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -246,11 +272,13 @@ class TeacherHomePage extends StatelessWidget {
                     () => _buildSummaryItem(
                   "Mis Cursos",
                   cursoController.cursos.length.toString(),
+                  const Key('teacherSummary_cursos'),
                 ),
               ),
 
               // 🔥 NUEVO BOTÓN DE ALERTAS REACTIVO
               GestureDetector(
+                key: const Key('teacherHomeAlertsGesture'),
                 onTap: () {
                   // Navega a la página de detalle de las alertas
                   Get.to(() => const TeacherAlertsPage());
@@ -258,12 +286,17 @@ class TeacherHomePage extends StatelessWidget {
                 child: Obx(() {
                   // Muestra "..." mientras hace el cálculo en la base de datos
                   if (alertsController.isLoading.value) {
-                    return _buildSummaryItem("Alertas", "...");
+                    return _buildSummaryItem(
+                      "Alertas",
+                      "...",
+                      const Key('teacherSummary_alertas_loading'),
+                    );
                   }
                   // Muestra el número real de estudiantes en riesgo
                   return _buildSummaryItem(
                     "Alertas",
                     alertsController.cantidadAlertas.value.toString(),
+                    const Key('teacherSummary_alertas'),
                   );
                 }),
               ),
@@ -274,8 +307,9 @@ class TeacherHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryItem(String label, String value) {
+  Widget _buildSummaryItem(String label, String value, Key key) {
     return Column(
+      key: key,
       children: [
         Text(label, style: const TextStyle(fontSize: 12)),
         Text(
@@ -290,11 +324,13 @@ class TeacherHomePage extends StatelessWidget {
   Widget _buildCourseCard(CursoCurso curso, Color colorBanner) {
     // 🔥 ENVOLVEMOS TODO EN ESTO:
     return GestureDetector(
+      key: Key('teacherCourseGesture_${curso.id}'),
       onTap: () {
         // Al tocar, navegamos a la página de detalles pasando el curso actual
         Get.to(() => TeacherCourseDetailsPage(curso: curso));
       },
       child: Container(
+        key: Key('teacherCourseCard_${curso.id}'),
         // Este es tu Container original
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
@@ -312,6 +348,7 @@ class TeacherHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              key: Key('teacherCourseBanner_${curso.id}'),
               height: 60,
               decoration: BoxDecoration(
                 color: colorBanner,
@@ -333,6 +370,7 @@ class TeacherHomePage extends StatelessWidget {
                       Expanded(
                         child: Text(
                           curso.nombre,
+                          key: Key('teacherCourseName_${curso.id}'),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -340,6 +378,7 @@ class TeacherHomePage extends StatelessWidget {
                         ),
                       ),
                       IconButton(
+                        key: Key('teacherCourseDeleteButton_${curso.id}'),
                         icon: const Icon(
                           Icons.delete,
                           color: Color(0xFF8B0000),
@@ -364,6 +403,7 @@ class TeacherHomePage extends StatelessWidget {
                   ),
                   Text(
                     "Código: ${curso.id}",
+                    key: Key('teacherCourseCode_${curso.id}'),
                     style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                   const SizedBox(height: 15),
@@ -374,6 +414,7 @@ class TeacherHomePage extends StatelessWidget {
                     child: Obx(() {
                       if (grupoController.isImporting.value) {
                         return OutlinedButton(
+                          key: Key('teacherCourseImportingButton_${curso.id}'),
                           onPressed:
                           null, // Deshabilita el botón mientras carga
                           style: OutlinedButton.styleFrom(
@@ -413,6 +454,7 @@ class TeacherHomePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           OutlinedButton.icon(
+                            key: Key('teacherCourseUploadCSVButton_${curso.id}'),
                             onPressed: () {
                               grupoController.importarCSV(curso.id);
                             },
@@ -428,6 +470,7 @@ class TeacherHomePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           OutlinedButton.icon(
+                            key: Key('teacherCourseUpdateCSVButton_${curso.id}'),
                             onPressed: () {
                               Get.defaultDialog(
                                 title: "Actualizar Grupos",
