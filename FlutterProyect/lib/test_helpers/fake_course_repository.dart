@@ -79,11 +79,11 @@ class FakeCourseRepository implements ICursoRepository {
   @override
   Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat) async {
     await Future.delayed(const Duration(milliseconds: 300)); // Simulamos red
-    // Asegúrate de devolver al menos un mapa vacío o datos para que no se quede bloqueado
     return [
-      {
-        "Grupo 1": ["Estudiante 1", "Estudiante 2"]
-      }
+      {"nombre": "Grupo 3", "Correo": "gmrey@uninorte.edu.co"},
+      {"nombre": "Grupo 3", "Correo": "mpreston@uninorte.edu.co"},
+      {"nombre": "Grupo 3", "Correo": "acoronellm@uninorte.edu.co"},
+      {"nombre": "Grupo 3", "Correo": "jdimitola@uninorte.edu.co"},
     ];
   }
   @override

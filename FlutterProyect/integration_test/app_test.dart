@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_prueba/core/i_local_preferences.dart';
 import 'package:flutter_prueba/features/auth/domain/repositories/i_auth_repository.dart';
+import 'package:flutter_prueba/features/reportes/data/dataSources/i_reporte_source.dart';
 import 'package:flutter_prueba/test_helpers/fake_authentication_repository.dart';
+import 'package:flutter_prueba/test_helpers/fake_http_client.dart';
+import 'package:flutter_prueba/test_helpers/fake_report_sources.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get_common/get_reset.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter_prueba/main.dart' as app;
 import 'package:flutter_prueba/test_helpers/fake_local_preferences.dart';
@@ -23,7 +27,13 @@ void main() {
     final fakePrefs = FakeLocalPreferences();
     fakePrefs.injectToken("fake_token_valido");
     Get.put<ILocalPreferences>(fakePrefs, permanent: true);
+    Get.put<IReporteSource>(FakeReporteSource(), permanent: true);
   }
+
+  void setupFakeApi() {
+    Get.put<http.Client>(MockApiCliente(), tag: 'apiClient', permanent: true);
+  }
+
   group('Pruebas de Flujo desde login hasta hacer evaluaciones desde usuario de estudiante', () {
     testWidgets('Validar inicio de sesión, carga de cursos y clic en curso', (tester) async {
       setupFakes(id: 'bce0313f-611a-43b8-9e6d-23b5e7fe3f18', role: 'estudiante', email: 'mpreston@uninorte.edu.co');
@@ -178,8 +188,95 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('teacherGroupDetailsScaffold')), findsOneWidget);
+      final groupKey = Key('teacherGroupExpansion_Grupo 3');
 
-      await tester.pump(const Duration(milliseconds: 600));
+      await tester.tap(find.byKey(groupKey));
+
+      await tester.pumpAndSettle();
+
+
+      final String evalId = '1775164724851';
+      // 2. Tap en cambiar privacidad
+      final privButton = find.byKey(Key('evalPrivacidadButton_$evalId'));
+      await tester.tap(privButton);
+      await tester.pumpAndSettle(); // Espera a que el estado se actualice
+
+      // 3. Verificación (Opcional): Verifica que cambió el estado (por ejemplo, el icono o texto)
+      // expect(find.text('Pública'), findsOneWidget);
+
+      // 4. Tap en resultados
+      final resButton = find.byKey(Key('evalResultadosButton_$evalId'));
+      await tester.tap(resButton);
+      await tester.pumpAndSettle();
+
+
+      // 2. Verificar que el Scaffold cargó
+      expect(find.byKey(const Key('teacherReportScaffold')), findsOneWidget);
+
+      // 3. Esperar a que el CircularProgressIndicator desaparezca (cargando datos)
+      // Usamos pumpAndSettle para esperar a que la red (Fake) responda
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // 4. Verificar que el promedio general aparece
+      expect(find.byKey(const Key('teacherReportGeneralAverageText')), findsOneWidget);
+
+      // 5. Expandir un grupo para ver a los estudiantes
+      // Aquí usamos la key que definiste en tu código: 'teacherReportGroupExpansion_$nombreGrupo'
+      final groupKeyReport = Key('teacherReportGroupExpansion_Grupo 3');
+      await tester.tap(find.byKey(groupKeyReport));
+      await tester.pumpAndSettle();
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherGroupDetailsScaffold')), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherCourseDetailsScaffold')), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherHomeScaffold')), findsOneWidget);
+
+      final alertsButton = find.byKey(const Key('teacherHomeAlertsGesture'));
+
+      await tester.tap(alertsButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherAlertsScaffold')), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 3000));
+
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherHomeScaffold')), findsOneWidget);
+      await tester.pumpAndSettle();
+
+      final deleteFinder = find.byKey(Key('teacherCourseDeleteButton_202610_1852'));
+      await tester.tap(deleteFinder);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text("Sí, borrar"));
+      await tester.pumpAndSettle();
+
+      await tester.pumpAndSettle(const Duration(seconds: 3));
+      final logoutBtn = find.byKey(const Key('teacherHomeLogoutButton'));
+
+      await tester.ensureVisible(logoutBtn);
+      await tester.tap(logoutBtn);
+      await tester.pumpAndSettle();
+
+      final confirmBtn = find.byKey(const Key('logoutConfirmButton'));
+
+      expect(confirmBtn, findsOneWidget);
+
+      await tester.tap(confirmBtn);
+      await tester.pumpAndSettle();
+
+      await tester.pump(const Duration(milliseconds: 6000));
     });
 
   });

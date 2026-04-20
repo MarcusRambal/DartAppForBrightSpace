@@ -1,45 +1,36 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:http/http.dart' as http;
+import 'package:mockito/mockito.dart';
 
 
-class FakeHttpClient implements http.Client {
-  @override
-  Future<http.Response> post(
-      Uri url, {
-        Map<String, String>? headers,
-        Object? body,
-        Object? encoding,
-      }) async {
-    if (url.path.contains('/login')) {
-      return http.Response(jsonEncode({
-        'accessToken': 'token_abc',
-        'refreshToken': 'token_def',
-        'user': {'id': "999", 'email': 'mpreston@uninorte.edu.co'}
-      }), 201);
-    }
-
-    if (body != null && body.toString().contains('error@test.com')) {
-      return http.Response(jsonEncode({'message': 'Unauthorized'}), 401);
-    }
-
-    if (url.path.contains('/insert')) {
-      return http.Response(jsonEncode({'status': 'ok'}), 201);
-    }
-
-    return http.Response(jsonEncode({}), 200);
-  }
-
+class MockApiCliente extends Mock implements http.Client {
   @override
   Future<http.Response> get(Uri url, {Map<String, String>? headers}) async {
-    return http.Response(jsonEncode([
-      {
-        "userId": "999",
-        "email": "mpreston@uninorte.edu.co",
-        "rol": "estudiante"
-      }
-    ]), 200, headers: {'content-type': 'application/json; charset=UTF-8'});
+    // Simulamos que el endpoint devuelve datos de estudiantes
+    // Este es el objeto que debe retornar tu MockApiCliente.get()
+    final mockData = [
+      // estudiante 1: Promedio alto (ej. 4.5)
+      {"idEvaluado": "gmrey@uninorte.edu.co", "tipo": "puntualidad", "valor_comentario": "4.5"},
+      {"idEvaluado": "gmrey@uninorte.edu.co", "tipo": "contribucion", "valor_comentario": "4.5"},
+      {"idEvaluado": "gmrey@uninorte.edu.co", "tipo": "actitud", "valor_comentario": "4.5"},
+      {"idEvaluado": "gmrey@uninorte.edu.co", "tipo": "compromiso", "valor_comentario": "4.5"},
+
+      // estudiante 2: Promedio bajo (ej. 2.0)
+      {"idEvaluado": "mpreston@uninorte.edu.co", "tipo": "puntualidad", "valor_comentario": "2.0"},
+      {"idEvaluado": "mpreston@uninorte.edu.co", "tipo": "contribucion", "valor_comentario": "2.0"},
+      {"idEvaluado": "mpreston@uninorte.edu.co", "tipo": "actitud", "valor_comentario": "2.0"},
+      {"idEvaluado": "mpreston@uninorte.edu.co", "tipo": "compromiso", "valor_comentario": "2.0"},
+
+      // estudiante 3: Promedio neutro (ej. 3.0)
+      {"idEvaluado": "acoronellm@uninorte.edu.co", "tipo": "puntualidad", "valor_comentario": "3.0"},
+      {"idEvaluado": "acoronellm@uninorte.edu.co", "tipo": "contribucion", "valor_comentario": "3.0"},
+      {"idEvaluado": "acoronellm@uninorte.edu.co", "tipo": "actitud", "valor_comentario": "3.0"},
+      {"idEvaluado": "acoronellm@uninorte.edu.co", "tipo": "compromiso", "valor_comentario": "3.0"},
+
+      // estudiante 4: No lo incluimos para probar el estado "Pendiente"
+    ];
+    return http.Response(jsonEncode(mockData), 200);
   }
 
   @override
@@ -62,6 +53,12 @@ class FakeHttpClient implements http.Client {
   @override
   Future<http.Response> patch(Uri url, {Map<String, String>? headers, Object? body, Encoding? encoding}) {
     // TODO: implement patch
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<http.Response> post(Uri url, {Map<String, String>? headers, Object? body, Encoding? encoding}) {
+    // TODO: implement post
     throw UnimplementedError();
   }
 

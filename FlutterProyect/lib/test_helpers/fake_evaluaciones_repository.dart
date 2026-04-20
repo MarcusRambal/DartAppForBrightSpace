@@ -49,19 +49,6 @@ class FakeEvaluacionesRepository implements IEvaluacionRepository {
     // Filtramos la lista interna _evaluaciones (donde se agregan las nuevas)
     // + una evaluación base para que siempre haya algo en la UI
     final lista = _evaluaciones.where((e) => e.idCategoria == idCategoria).toList();
-
-    // Si la categoría es la que estamos probando, agregamos la predeterminada
-    if (idCategoria == "1774449735424") {
-      lista.add(EvaluacionEntity(
-        id: "13152525623",
-        idCategoria: idCategoria,
-        tipo: "General",
-        nom: "Proyecto Final",
-        fechaCreacion: DateTime.now(),
-        fechaFinalizacion: DateTime.now(),
-        esPrivada: false,
-      ));
-    }
     return lista;
   }
 

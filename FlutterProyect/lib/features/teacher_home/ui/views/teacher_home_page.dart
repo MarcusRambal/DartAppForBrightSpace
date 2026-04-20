@@ -168,7 +168,6 @@ class TeacherHomePage extends StatelessWidget {
                     ),
                   ),
 
-                  // 🔥 BOTÓN DE LOGOUT
                   IconButton(
                     key: const Key('teacherHomeLogoutButton'),
                     icon: const Icon(Icons.logout, color: Colors.black),
@@ -176,14 +175,18 @@ class TeacherHomePage extends StatelessWidget {
                       Get.defaultDialog(
                         title: "Cerrar sesión",
                         middleText: "¿Seguro que quieres cerrar sesión?",
-                        textConfirm: "Sí",
                         textCancel: "Cancelar",
-                        confirmTextColor: Colors.white,
                         buttonColor: Colors.red,
-                        onConfirm: () {
-                          Get.back();
-                          authController.logout();
-                        },
+                        confirm: ElevatedButton(
+                          key: const Key('logoutConfirmButton'),
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                          onPressed: () {
+                            Get.back();
+                            authController.logout();
+                          },
+                          child: const Text("Sí", style: TextStyle(color: Colors.white)),
+                        ),
+                        onCancel: () => Get.back(),
                       );
                     },
                   ),
