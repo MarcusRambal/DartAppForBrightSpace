@@ -43,7 +43,32 @@ class _TeacherAlertsPageState extends State<TeacherAlertsPage> {
   @override
   void initState() {
     super.initState();
-    _cargarDetallesAlertas();
+
+    const isTesting = String.fromEnvironment('IS_TESTING', defaultValue: 'false');
+
+    if (isTesting == 'true') {
+      setState(() {
+        listaAlertas = [
+          AlertaEstudiante(
+            cursoNombre: "Móvil",
+            categoriaNombre: "CategoríaPyFlutter",
+            grupoNombre: "Grupo 3",
+            correo: "mpreston@uninorte.edu.co",
+            nota: 2.0,
+          ),
+          AlertaEstudiante(
+            cursoNombre: "Móvil",
+            categoriaNombre: "CategoríaPyFlutter",
+            grupoNombre: "Grupo 3",
+            correo: "acoronellm@uninorte.edu.co",
+            nota: 3.0,
+          ),
+        ];
+        isLoading = false;
+      });
+    } else {
+      _cargarDetallesAlertas();
+    }
   }
 
   Future<void> _cargarDetallesAlertas() async {
@@ -117,8 +142,10 @@ class _TeacherAlertsPageState extends State<TeacherAlertsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('teacherAlertsScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('teacherAlertsAppBar'),
         title: const Text(
           "Alertas de Rendimiento",
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -128,21 +155,27 @@ class _TeacherAlertsPageState extends State<TeacherAlertsPage> {
         elevation: 0,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: alertRed))
+          ? const Center(
+              child: CircularProgressIndicator(
+              key: Key('teacherAlertsLoadingIndicator'),
+              color: alertRed,
+            ))
           : listaAlertas.isEmpty
-          ? _buildEmptyState()
-          : _buildListaAlertas(),
+              ? _buildEmptyState()
+              : _buildListaAlertas(),
     );
   }
 
   Widget _buildListaAlertas() {
     return ListView.builder(
+      key: const Key('teacherAlertsListView'),
       padding: const EdgeInsets.all(16),
       itemCount: listaAlertas.length,
       itemBuilder: (context, index) {
         final alerta = listaAlertas[index];
 
         return Card(
+          key: Key('teacherAlertsCard_${alerta.correo}_$index'),
           margin: const EdgeInsets.only(bottom: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
@@ -156,21 +189,30 @@ class _TeacherAlertsPageState extends State<TeacherAlertsPage> {
             ),
             title: Text(
               alerta.correo,
+              key: Key('teacherAlertsEmail_${alerta.correo}'),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                Text("Curso: ${alerta.cursoNombre}"),
+                Text(
+                  "Curso: ${alerta.cursoNombre}",
+                  key: Key('teacherAlertsCourse_${alerta.correo}'),
+                ),
                 Text(
                   "Categoría: ${alerta.categoriaNombre}",
+                  key: Key('teacherAlertsCategory_${alerta.correo}'),
                 ), // 🔥 Texto corregido
-                Text("Grupo: ${alerta.grupoNombre}"),
+                Text(
+                  "Grupo: ${alerta.grupoNombre}",
+                  key: Key('teacherAlertsGroup_${alerta.correo}'),
+                ),
               ],
             ),
             trailing: Text(
               alerta.nota.toStringAsFixed(1),
+              key: Key('teacherAlertsGrade_${alerta.correo}'),
               style: const TextStyle(
                 color: alertRed,
                 fontWeight: FontWeight.bold,
@@ -184,6 +226,11 @@ class _TeacherAlertsPageState extends State<TeacherAlertsPage> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(child: Text("No hay alertas de bajo rendimiento."));
+    return const Center(
+      child: Text(
+        "No hay alertas de bajo rendimiento.",
+        key: Key('teacherAlertsEmptyText'),
+      ),
+    );
   }
 }

@@ -59,7 +59,6 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
         ),
       ),
       body: Obx(() {
-        // 🔥 AQUÍ ESTÁ TU LÓGICA ORIGINAL INTACTA
         final gruposMap = controller.datosGrupos[widget.categoriaId] ?? {};
         final grupos = gruposMap.keys.toList();
         final isLoadingGrupos =
@@ -119,10 +118,7 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                   ],
                 ),
                 child: Theme(
-                  // Quitamos las líneas divisorias que trae por defecto el ExpansionTile
-                  data: Theme.of(
-                    context,
-                  ).copyWith(dividerColor: Colors.transparent),
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     key: Key('teacherGroupExpansion_$grupoNombre'),
                     leading: Container(
@@ -207,9 +203,12 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                 itemBuilder: (context, index) {
                   final e = evals[index];
 
+                  // 🚀 REFACTORIZADO: Usamos Row/Column personalizado en lugar de ListTile
+                  // para evitar el error de RenderFlex overflow.
                   return Container(
                     key: Key('teacherEvaluationCard_${e.id}'),
                     margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -221,187 +220,117 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
                         ),
                       ],
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      leading: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: goldAccent.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Icono Izquierdo
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: goldAccent.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.assignment_turned_in,
+                            color: goldAccent,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.assignment_turned_in,
-                          color: goldAccent,
-                        ),
-                      ),
-                      title: Text(
-                        e.nom,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            // 🏷️ ETIQUETA DE TIPO (General)
-                            Container(
-                              key: Key('teacherEvaluationTypeBadge_${e.id}'),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: primaryBlue.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                e.tipo,
+                        const SizedBox(width: 12),
+                        // Contenido Central (Nombre + Badges)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                e.nom,
                                 style: const TextStyle(
-                                  color: primaryBlue,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            const SizedBox(width: 8),
-
-                            // 🔒 ETIQUETA DE ESTADO (Privada / Pública) PARA EL PROFESOR
-                            Container(
-                              key: Key('teacherEvaluationStatusBadge_${e.id}'),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: e.esPrivada
-                                    ? Colors.red.withOpacity(0.1)
-                                    : Colors.green.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
                                 children: [
-                                  Icon(
-                                    e.esPrivada ? Icons.lock : Icons.public,
-                                    size: 12,
-                                    color: e.esPrivada
-                                        ? Colors.red
-                                        : Colors.green,
+                                  Container(
+                                    key: Key('teacherEvaluationTypeBadge_${e.id}'),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: primaryBlue.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      e.tipo,
+                                      style: const TextStyle(color: primaryBlue, fontSize: 10, fontWeight: FontWeight.w700),
+                                    ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    e.esPrivada ? "Privada" : "Pública",
-                                    style: TextStyle(
-                                      color: e.esPrivada
-                                          ? Colors.red
-                                          : Colors.green,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
+                                  Container(
+                                    key: Key('teacherEvaluationStatusBadge_${e.id}'),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: e.esPrivada ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(e.esPrivada ? Icons.lock : Icons.public, size: 10, color: e.esPrivada ? Colors.red : Colors.green),
+                                        const SizedBox(width: 4),
+                                        Text(e.esPrivada ? "Privada" : "Pública", style: TextStyle(color: e.esPrivada ? Colors.red : Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Acciones Derecha (Botones compactos)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            InkWell(
+                              key: Key('evalPrivacidadButton_${e.id}'),
+                              onTap: () => evaluacionController.cambiarPrivacidad(e.id, e.esPrivada),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: e.esPrivada ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: e.esPrivada ? Colors.red : Colors.green),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(e.esPrivada ? Icons.lock_outline : Icons.public, size: 12, color: e.esPrivada ? Colors.red : Colors.green),
+                                    const SizedBox(width: 4),
+                                    Text(e.esPrivada ? "Privada" : "Pública", style: TextStyle(color: e.esPrivada ? Colors.red : Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              key: Key('evalResultadosButton_${e.id}'),
+                              onPressed: () {
+                                Get.to(() => TeacherReportPage(idEvaluacion: e.id!, nombreEvaluacion: e.nom, idCategoria: widget.categoriaId));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryBlue,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                minimumSize: const Size(60, 30),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text("RESULTADOS", style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
-                      ),
-                      // 🔥 AQUÍ ESTÁ EL BOTÓN DE RESULTADOS INTEGRADO
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          InkWell(
-                            onTap: () => evaluacionController.cambiarPrivacidad(
-                              e.id,
-                              e.esPrivada,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: e.esPrivada
-                                    ? Colors.red.withOpacity(0.1)
-                                    : Colors.green.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: e.esPrivada
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    e.esPrivada
-                                        ? Icons.lock_outline
-                                        : Icons.public,
-                                    size: 14,
-                                    color: e.esPrivada
-                                        ? Colors.red
-                                        : Colors.green,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    e.esPrivada
-                                        ? "Privada"
-                                        : "Pública", // En UI usamos Pública
-                                    style: TextStyle(
-                                      color: e.esPrivada
-                                          ? Colors.red
-                                          : Colors.green,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-
-                          // --- 📊 BOTÓN DE RESULTADOS (El que ya tenías) ---
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              Get.to(
-                                () => TeacherReportPage(
-                                  idEvaluacion: e.id!,
-                                  nombreEvaluacion: e.nom,
-                                  idCategoria: widget.categoriaId,
-                                ),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.analytics_outlined,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            label: const Text(
-                              "RESULTADOS",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryBlue,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   );
                 },
@@ -414,7 +343,6 @@ class _TeacherGroupDetailsPageState extends State<TeacherGroupDetailsPage> {
     );
   }
 
-  // Widget auxiliar para cuando las listas están vacías
   Widget _buildEmptyState({required Key key, required String message, required IconData icon, required Color primaryBlue}) {
     return Container(
       key: key,

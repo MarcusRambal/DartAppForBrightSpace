@@ -35,9 +35,9 @@ class FakeAuthenticationSource implements IAuthenticationSource {
   }
 
   @override
-  Future<bool> logOut() {
-    // TODO: implement logOut
-    throw UnimplementedError();
+  Future<bool> logOut() async {
+    print("FakeAuthenticationSource: Sesión cerrada correctamente.");
+    return true;
   }
 
   @override

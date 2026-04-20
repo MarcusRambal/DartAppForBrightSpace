@@ -5,6 +5,7 @@ import 'package:flutter_prueba/test_helpers/fake_authentication_source.dart';
 import 'package:flutter_prueba/test_helpers/fake_course_repository.dart';
 import 'package:flutter_prueba/test_helpers/fake_evaluaciones_repository.dart';
 import 'package:flutter_prueba/test_helpers/fake_local_preferences.dart';
+import 'package:flutter_prueba/test_helpers/fake_report_sources.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 import 'package:http/http.dart' as http;
@@ -65,8 +66,8 @@ void main() async {
     Get.put<ILocalPreferences>(FakeLocalPreferences(), permanent: true);
     Get.put<ICursoRepository>(FakeCourseRepository(), permanent: true);
     Get.put<IEvaluacionRepository>(FakeEvaluacionesRepository(), permanent: true);
-    Get.put<http.Client>(FakeHttpClient(), tag: 'apiClient', permanent: true);
-
+    Get.put<http.Client>(MockApiCliente(), tag: 'apiClient', permanent: true);
+    Get.put<IReporteSource>(FakeReporteSource(), permanent: true);
   } else {
     //Real
 

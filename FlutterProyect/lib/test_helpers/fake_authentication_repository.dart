@@ -35,7 +35,11 @@ class FakeAuthenticationRepository implements IAuthRepository {
       AuthenticationUser(id: id, email: email, rol: role);
 
   @override
-  Future<bool> logOut() async => true;
+  Future<bool> logOut() async {
+    _fakeToken = null;
+
+    return true;
+  }
 
   @override
   Future<bool> refreshToken() async => true;
