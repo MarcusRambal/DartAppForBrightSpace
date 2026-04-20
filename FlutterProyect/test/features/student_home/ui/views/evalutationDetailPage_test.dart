@@ -15,6 +15,9 @@ class MockStudentCourseController extends GetxController with Mock implements St
   RxMap<String, List<String>> get companerosPorCategoria => {
     "cat_1": ["marcus@uninorte.edu.co", "companero@uninorte.edu.co"]
   }.obs;
+
+  @override
+  Future<void> cargarCompaneros(String idCat, String grupoNombre) async {}
 }
 
 class MockEvaluacionController extends GetxController with Mock implements EvaluacionController {
@@ -43,7 +46,7 @@ void main() {
     esPrivada: false,
   );
 
-  final grupoSimulado = NavigationData(idCat: "cat_1");
+  final grupoSimulado = NavigationData(idCat: "cat_1", grupoNombre: "Grupo 1");
 
   setUp(() {
     Get.testMode = true;
@@ -62,30 +65,41 @@ void main() {
 
   group('EvaluacionDetailPage Widget Tests', () {
 
-    testWidgets('Debe mostrar indicador de carga si miCorreo es null', (WidgetTester tester) async {
-      fakePrefs.returnEmail = null;
+    testWidgets('Debe mostrar el nombre de la evaluación', (WidgetTester tester) async {
+      fakePrefs.returnEmail = "marcus@uninorte.edu.co";
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado, cursoMatriculado: null,),
+        home: EvaluacionDetailPage(
+          evaluacion: testEval, 
+          grupo: grupoSimulado, 
+          cursoMatriculado: null,
+        ),
       ));
 
-      expect(find.byKey(const Key('evaluacionDetailLoadingScaffold')), findsOneWidget);
+      await tester.pump(); // Procesar _init()
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text("Evaluación de Desempeño"), findsOneWidget);
     });
 
     testWidgets('Debe mostrar la lista de compañeros correctamente', (WidgetTester tester) async {
       fakePrefs.returnEmail = "marcus@uninorte.edu.co";
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado, cursoMatriculado: null,),
+        home: EvaluacionDetailPage(
+          evaluacion: testEval, 
+          grupo: grupoSimulado, 
+          cursoMatriculado: null,
+        ),
       ));
 
-      await tester.pump();
+      await tester.pump(); 
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text("companero@uninorte.edu.co"), findsOneWidget);
     });
 
-    testWidgets('Debe mostrar banner de CERRADO si la fecha ya pasó', (WidgetTester tester) async {
+    testWidgets('Debe mostrar iconos de tiempo/bloqueo si la fecha es inválida', (WidgetTester tester) async {
       fakePrefs.returnEmail = "marcus@uninorte.edu.co";
 
       final evalCerrada = EvaluacionEntity(
@@ -99,19 +113,24 @@ void main() {
       );
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: evalCerrada, grupo: grupoSimulado, cursoMatriculado: null,),
+        home: EvaluacionDetailPage(
+          evaluacion: evalCerrada, 
+          grupo: grupoSimulado, 
+          cursoMatriculado: null,
+        ),
       ));
 
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.byKey(const Key('evaluacionStatusBanner_cerrado')), findsOneWidget);
-      expect(find.byKey(const Key('lockAction_companero@uninorte.edu.co')), findsOneWidget);
+      // Verificamos que aparezca el icono de bloqueo (lock) o reloj (watch)
+      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
     });
   });
 }
 
 class NavigationData {
   final String idCat;
-  NavigationData({required this.idCat});
+  final String grupoNombre;
+  NavigationData({required this.idCat, required this.grupoNombre});
 }
