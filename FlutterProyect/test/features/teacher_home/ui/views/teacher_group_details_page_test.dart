@@ -9,6 +9,9 @@ import 'package:flutter_prueba/features/evaluaciones/domain/repositories/i_evalu
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/evaluacion_entity.dart';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/pregunta_entity.dart';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_entity.dart';
+import 'package:flutter_prueba/features/cursos/domain/repositories/i_curso_repository.dart';
+import 'package:flutter_prueba/features/cursos/domain/entities/curso_curso.dart';
+import 'package:flutter_prueba/features/cursos/domain/entities/curso_matriculado.dart';
 
 class FakeTeacherCourseDetailsController extends GetxController
     implements TeacherCourseDetailsController {
@@ -69,11 +72,48 @@ class FakeEvaluacionRepository implements IEvaluacionRepository {
   ) async {
     return false;
   }
+
+  @override
+  Future<List<String>> getNotasPorEvaluado(String idEvaluacion, String idEvaluado, String tipo) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<EvaluacionEntity>> getEvaluacionesIncompletasByProfe(String idCategoria) {
+    throw UnimplementedError();
+  }
+}
+
+class FakeCursoRepository implements ICursoRepository {
+  @override
+  Future<void> createCurso(String idCurso, String nom) async {}
+  @override
+  Future<void> updateCurso(CursoCurso curso, String NomNuevo) async {}
+  @override
+  Future<void> deleteCurso(String idCurso) async {}
+  @override
+  Future<List<CursoCurso>> getCursosByProfe() async => [];
+  @override
+  Future<List<CursoMatriculado>> getCursosByEstudiante(String emailEstudiante) async => [];
+  @override
+  Future<void> vaciarContenidoCurso(String idCurso) async {}
+  @override
+  Future<List<String>> getCompanerosDeGrupo(String idCat, String nombreGrupo) async => [];
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriasByCurso(String idCurso) async => [];
+  @override
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat) async => [];
 }
 
 void main() {
   late FakeTeacherCourseDetailsController fakeController;
   late FakeEvaluacionRepository fakeRepository;
+  late FakeCursoRepository fakeCursoRepository;
   late EvaluacionController evaluacionController;
 
   setUp(() {
@@ -82,7 +122,12 @@ void main() {
 
     fakeController = FakeTeacherCourseDetailsController();
     fakeRepository = FakeEvaluacionRepository();
-    evaluacionController = EvaluacionController(repository: fakeRepository);
+    fakeCursoRepository = FakeCursoRepository();
+    
+    evaluacionController = EvaluacionController(
+      repository: fakeRepository, 
+      cursoRepository: fakeCursoRepository,
+    );
 
     Get.put<TeacherCourseDetailsController>(fakeController);
     Get.put<EvaluacionController>(evaluacionController);

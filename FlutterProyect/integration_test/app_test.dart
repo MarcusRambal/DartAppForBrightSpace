@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_prueba/core/i_local_preferences.dart';
 import 'package:flutter_prueba/features/auth/domain/repositories/i_auth_repository.dart';
 import 'package:flutter_prueba/test_helpers/fake_authentication_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter_prueba/main.dart' as app;
+import 'package:flutter_prueba/test_helpers/fake_local_preferences.dart';
+
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +20,9 @@ void main() {
         FakeAuthenticationRepository(id: id, role: role, email: email),
         permanent: true
     );
+    final fakePrefs = FakeLocalPreferences();
+    fakePrefs.injectToken("fake_token_valido");
+    Get.put<ILocalPreferences>(fakePrefs, permanent: true);
   }
   group('Pruebas de Flujo desde login hasta hacer evaluaciones desde usuario de estudiante', () {
     testWidgets('Validar inicio de sesión, carga de cursos y clic en curso', (tester) async {
@@ -112,8 +118,8 @@ void main() {
       final submitButton = find.byKey(const Key('createCourseSubmitButton'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(nameField, "Curso de Prueba Móvil");
-      await tester.enterText(codeField, "TEST_2026");
+      await tester.enterText(nameField, "Movil");
+      await tester.enterText(codeField, "202610_1852");
       await tester.pumpAndSettle();
 
 // 4. Guardar
@@ -123,10 +129,10 @@ void main() {
 // 5. Verificación crítica:
 // Si el curso se creó, el diálogo debería cerrarse y el nuevo curso debería estar en la lista
       expect(find.byKey(const Key('createCourseDialog')), findsNothing);
-      expect(find.text("Curso de Prueba Móvil"), findsOneWidget);
+      expect(find.text("Movil"), findsOneWidget);
 
       // 6. CLIC EN EL CURSO CREADO
-      final courseCardFinder = find.byKey(const Key('teacherCourseGesture_TEST_2026'));
+      final courseCardFinder = find.byKey(const Key('teacherCourseGesture_202610_1852'));
       expect(courseCardFinder, findsOneWidget);
       await tester.tap(courseCardFinder);
 
@@ -149,7 +155,7 @@ void main() {
       await tester.tap(find.byKey(const Key('newEvaluationCategoryDropdown')));
       await tester.pumpAndSettle();
 // Asegúrate de que el texto coincida exactamente con lo que devuelve tu Fake
-      await tester.tap(find.text('Proyecto Final').last);
+      await tester.tap(find.text('CategoríaPyFlutter').last);
       await tester.pumpAndSettle();
 
 // Nombre
@@ -168,7 +174,12 @@ void main() {
       await tester.tap(submitButtonFinder);
       await tester.pumpAndSettle();
 
-      await tester.pump(const Duration(seconds: 2));
+      await tester.tap(find.text('CategoríaPyFlutter'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('teacherGroupDetailsScaffold')), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 600));
     });
 
   });

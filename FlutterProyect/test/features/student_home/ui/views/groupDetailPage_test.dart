@@ -73,7 +73,7 @@ void main() {
       ];
 
       await tester.pumpWidget(GetMaterialApp(
-        home: GroupDetailsPage(grupo: grupoMock),
+        home: GroupDetailsPage(grupo: grupoMock, cursoMatriculado: null,),
       ));
 
       await tester.pump();
@@ -89,7 +89,7 @@ void main() {
       fakeRepo.resultadosSimulados = [];
 
       await tester.pumpWidget(GetMaterialApp(
-        home: GroupDetailsPage(grupo: grupoMock),
+        home: GroupDetailsPage(grupo: grupoMock, cursoMatriculado: null,),
       ));
 
       await tester.pump();
@@ -105,7 +105,7 @@ void main() {
       controller.isLoadingCategoria[tIdCat] = true;
 
       await tester.pumpWidget(GetMaterialApp(
-        home: GroupDetailsPage(grupo: grupoMock),
+        home: GroupDetailsPage(grupo: grupoMock, cursoMatriculado: null,),
       ));
 
       expect(find.byKey(const Key('groupDetailsLoadingCompaneros')), findsOneWidget);

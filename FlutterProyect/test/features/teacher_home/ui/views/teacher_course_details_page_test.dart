@@ -113,6 +113,18 @@ class FakeEvaluacionRepository implements IEvaluacionRepository {
   ) async {
     return false;
   }
+
+  @override
+  Future<List<String>> getNotasPorEvaluado(String idEvaluacion, String idEvaluado, String tipo) {
+    // TODO: implement getNotasPorEvaluado
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) {
+    // TODO: implement updatePrivacidad
+    throw UnimplementedError();
+  }
 }
 
 void main() {

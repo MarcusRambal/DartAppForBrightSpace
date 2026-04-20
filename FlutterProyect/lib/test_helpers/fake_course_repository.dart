@@ -38,7 +38,13 @@ class FakeCourseRepository implements ICursoRepository {
 
   @override
   Future<List<Map<String, dynamic>>> getCategoriasByCurso(String idCurso) async {
-    return [{'id': 'CAT-01', 'nombre': 'Proyecto Final'}];
+    // Ajustamos para que devuelva categorías reales basadas en el ID del curso
+    if (idCurso == "202610_1852") {
+      return [
+        {'idcat': '1774449735424', 'nombre': 'CategoríaPyFlutter'}
+      ];
+    }
+    return [];
   }
 
   @override
@@ -71,7 +77,15 @@ class FakeCourseRepository implements ICursoRepository {
     ];
   }
   @override
-  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat) async => [];
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat) async {
+    await Future.delayed(const Duration(milliseconds: 300)); // Simulamos red
+    // Asegúrate de devolver al menos un mapa vacío o datos para que no se quede bloqueado
+    return [
+      {
+        "Grupo 1": ["Estudiante 1", "Estudiante 2"]
+      }
+    ];
+  }
   @override
   Future<void> updateCurso(CursoCurso curso, String NomNuevo) async {}
   @override

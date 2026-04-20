@@ -9,6 +9,9 @@ import 'package:flutter_prueba/features/evaluaciones/domain/entities/respuesta_e
 import 'package:flutter_prueba/features/evaluaciones/domain/repositories/i_evaluacion_repository.dart';
 import 'package:flutter_prueba/features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 import 'package:flutter_prueba/features/evaluaciones/ui/views/responder_evaluacion_page.dart';
+import 'package:flutter_prueba/features/cursos/domain/repositories/i_curso_repository.dart';
+import 'package:flutter_prueba/features/cursos/domain/entities/curso_curso.dart';
+import 'package:flutter_prueba/features/cursos/domain/entities/curso_matriculado.dart';
 
 class FakeEvaluacionRepository implements IEvaluacionRepository {
   List<PreguntaEntity> preguntas = [];
@@ -53,10 +56,46 @@ class FakeEvaluacionRepository implements IEvaluacionRepository {
   ) async {
     return false;
   }
+
+  @override
+  Future<List<String>> getNotasPorEvaluado(String idEvaluacion, String idEvaluado, String tipo) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updatePrivacidad(String idEvaluacion, bool esPrivada) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<EvaluacionEntity>> getEvaluacionesIncompletasByProfe(String idCategoria) {
+    throw UnimplementedError();
+  }
+}
+
+class FakeCursoRepository implements ICursoRepository {
+  @override
+  Future<void> createCurso(String idCurso, String nom) async {}
+  @override
+  Future<void> updateCurso(CursoCurso curso, String NomNuevo) async {}
+  @override
+  Future<void> deleteCurso(String idCurso) async {}
+  @override
+  Future<List<CursoCurso>> getCursosByProfe() async => [];
+  @override
+  Future<List<CursoMatriculado>> getCursosByEstudiante(String emailEstudiante) async => [];
+  @override
+  Future<void> vaciarContenidoCurso(String idCurso) async {}
+  @override
+  Future<List<String>> getCompanerosDeGrupo(String idCat, String nombreGrupo) async => [];
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriasByCurso(String idCurso) async => [];
+  @override
+  Future<List<Map<String, dynamic>>> getDatosDeGruposPorCategoria(String idCat) async => [];
 }
 
 class FakeLocalPreferences implements ILocalPreferences {
-  final Map<String, dynamic> storage = {'userId': 'mi_correo@uninorte.edu.co'};
+  final Map<String, dynamic> storage = {'email': 'mi_correo@uninorte.edu.co'};
 
   @override
   Future<String?> getString(String key) async => storage[key] as String?;
@@ -112,6 +151,7 @@ class FakeLocalPreferences implements ILocalPreferences {
 
 void main() {
   late FakeEvaluacionRepository fakeRepository;
+  late FakeCursoRepository fakeCursoRepository;
   late EvaluacionController controller;
   late FakeLocalPreferences fakePrefs;
 
@@ -130,9 +170,13 @@ void main() {
     Get.reset();
 
     fakeRepository = FakeEvaluacionRepository();
+    fakeCursoRepository = FakeCursoRepository();
     fakePrefs = FakeLocalPreferences();
 
-    controller = EvaluacionController(repository: fakeRepository);
+    controller = EvaluacionController(
+      repository: fakeRepository,
+      cursoRepository: fakeCursoRepository,
+    );
 
     Get.put<EvaluacionController>(controller);
     Get.put<ILocalPreferences>(fakePrefs);
@@ -156,7 +200,10 @@ void main() {
         GetMaterialApp(
           home: ResponderEvaluacionPage(
             evaluacion: evaluacion,
-            evaluadoCorreo: 'compa@uninorte.edu.co',
+            evaluadoCorreo: 'compa@uninorte.edu.co', 
+            grupoNombre: 'Grupo 1', 
+            idCat: 'cat_1', 
+            idCurso: 'curso_1',
           ),
         ),
       );
@@ -173,7 +220,10 @@ void main() {
         GetMaterialApp(
           home: ResponderEvaluacionPage(
             evaluacion: evaluacion,
-            evaluadoCorreo: 'compa@uninorte.edu.co',
+            evaluadoCorreo: 'compa@uninorte.edu.co', 
+            grupoNombre: 'Grupo 1', 
+            idCat: 'cat_1', 
+            idCurso: 'curso_1',
           ),
         ),
       );
@@ -196,7 +246,10 @@ void main() {
         GetMaterialApp(
           home: ResponderEvaluacionPage(
             evaluacion: evaluacion,
-            evaluadoCorreo: 'compa@uninorte.edu.co',
+            evaluadoCorreo: 'compa@uninorte.edu.co', 
+            grupoNombre: 'Grupo 1', 
+            idCat: 'cat_1', 
+            idCurso: 'curso_1',
           ),
         ),
       );
@@ -226,7 +279,10 @@ void main() {
         GetMaterialApp(
           home: ResponderEvaluacionPage(
             evaluacion: evaluacion,
-            evaluadoCorreo: 'compa@uninorte.edu.co',
+            evaluadoCorreo: 'compa@uninorte.edu.co', 
+            grupoNombre: 'Grupo 1', 
+            idCat: 'cat_1', 
+            idCurso: 'curso_1',
           ),
         ),
       );
@@ -260,7 +316,10 @@ void main() {
         GetMaterialApp(
           home: ResponderEvaluacionPage(
             evaluacion: evaluacion,
-            evaluadoCorreo: 'compa@uninorte.edu.co',
+            evaluadoCorreo: 'compa@uninorte.edu.co', 
+            grupoNombre: 'Grupo 1', 
+            idCat: 'cat_1', 
+            idCurso: 'curso_1',
           ),
         ),
       );

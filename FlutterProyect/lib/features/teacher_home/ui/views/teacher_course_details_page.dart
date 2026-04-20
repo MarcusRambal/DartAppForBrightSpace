@@ -215,7 +215,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                     ),
                     onTap: () {
                       if (const bool.fromEnvironment('IS_TESTING')) {
-                        fechaInicioController.text = "2026-04-19 16:45";
+                        fechaInicioController.text = "2026-04-02T16:18:00";
                       } else {
                         pickDateTime(true);
                       }
@@ -234,7 +234,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                     onTap: () {
 
                       if (const bool.fromEnvironment('IS_TESTING')) {
-                        fechaFinController.text = "2026-04-20 18:00";
+                        fechaFinController.text = "2026-04-02T17:18:00";
                       } else {
                         pickDateTime(false);
                       }

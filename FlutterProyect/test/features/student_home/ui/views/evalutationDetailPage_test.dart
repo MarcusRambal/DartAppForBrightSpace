@@ -66,7 +66,7 @@ void main() {
       fakePrefs.returnEmail = null;
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado),
+        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado, cursoMatriculado: null,),
       ));
 
       expect(find.byKey(const Key('evaluacionDetailLoadingScaffold')), findsOneWidget);
@@ -76,7 +76,7 @@ void main() {
       fakePrefs.returnEmail = "marcus@uninorte.edu.co";
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado),
+        home: EvaluacionDetailPage(evaluacion: testEval, grupo: grupoSimulado, cursoMatriculado: null,),
       ));
 
       await tester.pump();
@@ -99,7 +99,7 @@ void main() {
       );
 
       await tester.pumpWidget(GetMaterialApp(
-        home: EvaluacionDetailPage(evaluacion: evalCerrada, grupo: grupoSimulado),
+        home: EvaluacionDetailPage(evaluacion: evalCerrada, grupo: grupoSimulado, cursoMatriculado: null,),
       ));
 
       await tester.pump();

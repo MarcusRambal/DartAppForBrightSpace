@@ -96,12 +96,14 @@ class EvaluacionController extends GetxController {
         esPrivada,
       );
 
-      Get.snackbar(
-        "Éxito",
-        "Evaluación creada correctamente",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      if (!const bool.fromEnvironment('IS_TESTING')) {
+        Get.snackbar(
+          "Éxito",
+          "Evaluación creada correctamente",
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
       logError("Error creando evaluación: $e");
       Get.snackbar(

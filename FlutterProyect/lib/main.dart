@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_prueba/test_helpers/fake_authentication_source.dart';
 import 'package:flutter_prueba/test_helpers/fake_course_repository.dart';
 import 'package:flutter_prueba/test_helpers/fake_evaluaciones_repository.dart';
+import 'package:flutter_prueba/test_helpers/fake_local_preferences.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 import 'package:http/http.dart' as http;
@@ -61,6 +62,7 @@ void main() async {
     // Inyectamos tus Fakes
     Get.put<IAuthRepository>(FakeAuthenticationRepository(id: '', role: '', email: ''), permanent: true);
     Get.put<IAuthenticationSource>(FakeAuthenticationSource(), permanent: true);
+    Get.put<ILocalPreferences>(FakeLocalPreferences(), permanent: true);
     Get.put<ICursoRepository>(FakeCourseRepository(), permanent: true);
     Get.put<IEvaluacionRepository>(FakeEvaluacionesRepository(), permanent: true);
     Get.put<http.Client>(FakeHttpClient(), tag: 'apiClient', permanent: true);
