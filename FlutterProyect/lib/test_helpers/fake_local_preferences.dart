@@ -7,7 +7,8 @@ class FakeLocalPreferences implements ILocalPreferences {
   Future<String?> getString(String key) async => _storage[key] as String?;
 
   @override
-  Future<void> setString(String key, String value) async => _storage[key] = value;
+  Future<void> setString(String key, String value) async =>
+      _storage[key] = value;
 
   @override
   Future<int?> getInt(String key) async => _storage[key] as int?;
@@ -19,7 +20,8 @@ class FakeLocalPreferences implements ILocalPreferences {
   Future<double?> getDouble(String key) async => _storage[key] as double?;
 
   @override
-  Future<void> setDouble(String key, double value) async => _storage[key] = value;
+  Future<void> setDouble(String key, double value) async =>
+      _storage[key] = value;
 
   @override
   Future<bool?> getBool(String key) async => _storage[key] as bool?;
@@ -28,10 +30,12 @@ class FakeLocalPreferences implements ILocalPreferences {
   Future<void> setBool(String key, bool value) async => _storage[key] = value;
 
   @override
-  Future<List<String>?> getStringList(String key) async => _storage[key] as List<String>?;
+  Future<List<String>?> getStringList(String key) async =>
+      _storage[key] as List<String>?;
 
   @override
-  Future<void> setStringList(String key, List<String> value) async => _storage[key] = value;
+  Future<void> setStringList(String key, List<String> value) async =>
+      _storage[key] = value;
 
   @override
   Future<void> remove(String key) async => _storage.remove(key);
@@ -41,5 +45,13 @@ class FakeLocalPreferences implements ILocalPreferences {
 
   void injectToken(String token) {
     _storage['auth_token'] = token;
+  }
+
+  void injectEmail(String email) {
+    _storage['email'] = email;
+  }
+
+  void injectUserId(String userId) {
+    _storage['userId'] = userId;
   }
 }
