@@ -4,11 +4,16 @@
 
 ---
 
-## Composición y Diseño de la Solución
+## Descripción de la aplicación / Proposito
 
-La solución estará compuesta por una única aplicación móvil desarrollada en Flutter, la cual será utilizada tanto por docentes como por estudiantes, diferenciando las funcionalidades mediante un sistema de roles (Profesor y Estudiante).
+DartAppForBrightSpace es una aplicación móvil desarrollada en Flutter cuyo propósito es facilitar la evaluación del trabajo colaborativo entre estudiantes dentro de cursos académicos.
 
-Se propone el desarrollo de una sola aplicación móvil con acceso basado en roles, lo que permitirá centralizar la autenticación, la gestión de permisos y el almacenamiento de información a través de los servicios de Roble.
+La aplicación permite a docentes y estudiantes interactuar en una misma plataforma mediante un sistema de roles, centralizando la gestión de cursos, grupos y evaluaciones. Su objetivo principal es optimizar el proceso de evaluación entre pares, mejorar la transparencia en los resultados y facilitar la identificación de desempeños individuales dentro de actividades grupales.
+
+## Alcance
+
+La aplicación está enfocada en entornos educativos que utilizan Brightspace, integrando la gestión de grupos mediante archivos externos y centralizando la evaluación dentro de una sola plataforma móvil. No contempla la creación de grupos dentro del sistema, sino que se apoya en herramientas externas para este proceso.
+
 
 ### Justificación de la Arquitectura
 
