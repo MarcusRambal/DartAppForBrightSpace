@@ -81,9 +81,13 @@ Luego de promediar los resultados según las indicaciones definidas, los resulta
 
 ## Vdeos
 1)Demo de gestión académica: creación de usuarios, cursos, registro de estudiantes, procesamiento de CSV y verificación de grupos: https://youtu.be/SyihjrFyRDM
+
 2)Demo de evaluación y reportes: https://youtu.be/OxVkhhQ_i0c
+
 3)Pruebas de widget: ejecución y explicación cubriendo todos los widgets con mocks de controladores: https://youtu.be/n3JzDUmDGWA
+
 4)Pruebas de integración: flujo completo (profesor/estudiante) usando mock de cliente HTTP: https://youtu.be/8aNKZnxtlR4
-Referencia: https://github.com/augustosalazar/f_web_authentication/tree/main/integration_test
+
 5)Implementación de caché: decisiones de diseño, datos almacenados y gestión (lectura/escritura/invalidez): https://youtu.be/Ur2iZGI-xjk?si=rh19Z72U16lLdrWb
+
 6)Revisión del código: explicación del enfoque de arquitecture: https://youtu.be/OxVkhhQ_i0c
