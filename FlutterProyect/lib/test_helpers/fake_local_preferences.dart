@@ -1,3 +1,4 @@
+
 import '../core/i_local_preferences.dart';
 
 class FakeLocalPreferences implements ILocalPreferences {
