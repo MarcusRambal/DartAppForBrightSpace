@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/auth/ui/views/signup_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';

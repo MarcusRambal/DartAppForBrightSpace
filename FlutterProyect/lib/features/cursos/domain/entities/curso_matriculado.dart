@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/cursos/domain/entities/curso_matriculado.dart
 import 'curso_curso.dart';
 
 class CategoriaGrupo {

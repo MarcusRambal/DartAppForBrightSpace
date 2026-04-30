@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/auth/domain/entities/authentication_user.dart
 class AuthenticationUser {
   final String id;
   final String email;

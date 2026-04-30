@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/cursos/domain/entities/curso_curso.dart
 class CursoCurso {
   final String id;
   final String nombre;

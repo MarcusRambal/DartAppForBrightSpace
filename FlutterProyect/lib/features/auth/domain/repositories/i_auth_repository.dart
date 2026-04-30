@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/auth/domain/repositories/i_auth_repository.dart
 import '../entities/authentication_user.dart';
 
 abstract class IAuthRepository {

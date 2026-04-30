@@ -1,3 +1,4 @@
+//FlutterProyect/lib/features/cursos/domain/repositories/i_curso_repository.dart
 import '../entities/curso_curso.dart';
 import '../entities/curso_matriculado.dart';
 
