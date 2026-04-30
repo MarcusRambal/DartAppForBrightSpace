@@ -68,14 +68,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Widget build(BuildContext context) {
     if (isScreenLoading) {
       return Scaffold(
+        key: const Key('groupDetailsScreenLoadingScaffold'),
         backgroundColor: backgroundColor,
-        body: Center(child: CircularProgressIndicator(color: primaryBlue)),
+        body: Center(
+          child: CircularProgressIndicator(
+            key: const Key('groupDetailsScreenLoadingIndicator'),
+            color: primaryBlue,
+          ),
+        ),
       );
     }
 
     return Scaffold(
+      key: const Key('groupDetailsScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('groupDetailsAppBar'),
         title: const Text("Detalles del Grupo"),
         centerTitle: true,
         elevation: 0,
@@ -83,6 +91,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         foregroundColor: primaryBlue,
         actions: [
           IconButton(
+            key: const Key('groupDetailsRefreshButton'),
             icon: const Icon(Icons.refresh),
             onPressed: _cargarTodo, // 🔥 recarga completa
           ),
@@ -90,7 +99,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       ),
       body: Obx(() {
         if (controller.isLoadingCategoria[widget.grupo.idCat] == true) {
-          return Center(child: CircularProgressIndicator(color: primaryBlue));
+          return Center(
+            child: CircularProgressIndicator(
+              key: const Key('groupDetailsObxLoadingIndicator'),
+              color: primaryBlue,
+            ),
+          );
         }
 
         final listaCompaneros =
@@ -99,11 +113,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         final evaluaciones = evaluacionController.evaluaciones;
 
         return ListView(
+          key: const Key('groupDetailsMainList'),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           children: [
             // ---------------- EVALUACIONES ----------------
             Text(
               "Evaluaciones",
+              key: const Key('groupDetailsEvaluacionesTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -114,11 +130,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
             if (evaluaciones.isEmpty)
               _buildEmptyState(
+                key: const Key('groupDetailsEmptyEvaluaciones'),
                 message: "No hay evaluaciones disponibles.",
                 icon: Icons.assignment_outlined,
               )
             else
               ListView.builder(
+                key: const Key('groupDetailsEvaluacionesList'),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: evaluaciones.length,
@@ -129,6 +147,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   final tipo = eval.esPrivada ? "Privada" : "Pública";
 
                   return Container(
+                    key: Key('evaluationCard_${eval.id}'),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -157,6 +176,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           Text("Tipo: ${eval.tipo}"),
                           const SizedBox(height: 6),
                           Container(
+                            key: Key('evaluationBadge_${eval.id}'),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 4,
@@ -181,6 +201,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         ],
                       ),
                       trailing: Icon(
+                        key: Key('evaluationStatusIcon_${eval.id}'),
                         completa ? Icons.check_circle : Icons.arrow_forward_ios,
                         color: completa ? Colors.green : primaryBlue,
                         size: 20,
@@ -206,6 +227,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             // ---------------- COMPAÑEROS ----------------
             Text(
               "Compañeros",
+              key: const Key('groupDetailsCompanerosTitle'),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -216,12 +238,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
             if (listaCompaneros.isEmpty)
               _buildEmptyState(
+                key: const Key('groupDetailsEmptyCompaneros'),
                 message: "No hay compañeros asignados.",
                 icon: Icons.group_off,
               ),
 
             ...listaCompaneros.map((correo) {
               return Container(
+                key: Key('companeroCard_$correo'),
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -242,8 +266,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     );
   }
 
-  Widget _buildEmptyState({required String message, required IconData icon}) {
+  Widget _buildEmptyState({required Key key, required String message, required IconData icon}) {
     return Container(
+      key: key,
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [

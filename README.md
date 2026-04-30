@@ -4,11 +4,16 @@
 
 ---
 
-## Composición y Diseño de la Solución
+## Descripción de la aplicación / Proposito
 
-La solución estará compuesta por una única aplicación móvil desarrollada en Flutter, la cual será utilizada tanto por docentes como por estudiantes, diferenciando las funcionalidades mediante un sistema de roles (Profesor y Estudiante).
+DartAppForBrightSpace es una aplicación móvil desarrollada en Flutter cuyo propósito es facilitar la evaluación del trabajo colaborativo entre estudiantes dentro de cursos académicos.
 
-Se propone el desarrollo de una sola aplicación móvil con acceso basado en roles, lo que permitirá centralizar la autenticación, la gestión de permisos y el almacenamiento de información a través de los servicios de Roble.
+La aplicación permite a docentes y estudiantes interactuar en una misma plataforma mediante un sistema de roles, centralizando la gestión de cursos, grupos y evaluaciones. Su objetivo principal es optimizar el proceso de evaluación entre pares, mejorar la transparencia en los resultados y facilitar la identificación de desempeños individuales dentro de actividades grupales.
+
+## Alcance
+
+La aplicación está enfocada en entornos educativos que utilizan Brightspace, integrando la gestión de grupos mediante archivos externos y centralizando la evaluación dentro de una sola plataforma móvil. No contempla la creación de grupos dentro del sistema, sino que se apoya en herramientas externas para este proceso.
+
 
 ### Justificación de la Arquitectura
 
@@ -72,3 +77,17 @@ Al finalizar el trabajo colaborativo, se realiza una evaluación final. Tanto en
 ### 6. Visualización de resultados
 Luego de promediar los resultados según las indicaciones definidas, los resultados se mostrarán a los estudiantes dependiendo de si la evaluación fue configurada como pública o privada.
 
+---
+
+## Vdeos
+1)Demo de gestión académica: creación de usuarios, cursos, registro de estudiantes, procesamiento de CSV y verificación de grupos: https://youtu.be/SyihjrFyRDM
+
+2)Demo de evaluación y reportes: https://youtu.be/OxVkhhQ_i0c
+
+3)Pruebas de widget: ejecución y explicación cubriendo todos los widgets con mocks de controladores: https://youtu.be/n3JzDUmDGWA
+
+4)Pruebas de integración: flujo completo (profesor/estudiante) usando mock de cliente HTTP: https://youtu.be/8aNKZnxtlR4
+
+5)Implementación de caché: decisiones de diseño, datos almacenados y gestión (lectura/escritura/invalidez): https://youtu.be/Ur2iZGI-xjk?si=rh19Z72U16lLdrWb
+
+6)Revisión del código: explicación del enfoque de arquitecture: https://youtu.be/OxVkhhQ_i0c

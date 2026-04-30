@@ -1,6 +1,11 @@
 //FlutterProyect/lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_prueba/test_helpers/fake_authentication_source.dart';
+import 'package:flutter_prueba/test_helpers/fake_course_repository.dart';
+import 'package:flutter_prueba/test_helpers/fake_evaluaciones_repository.dart';
+import 'package:flutter_prueba/test_helpers/fake_local_preferences.dart';
+import 'package:flutter_prueba/test_helpers/fake_report_sources.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 import 'package:http/http.dart' as http;
@@ -41,6 +46,8 @@ import 'features/reportes/data/dataSources/i_reporte_source.dart';
 import 'features/reportes/data/dataSources/reporte_source_service.dart';
 import 'features/reportes/domain/services/ReporteService.dart';
 import 'features/reportes/ui/viewsmodels/reporte_controller.dart';
+import 'test_helpers/fake_authentication_repository.dart';
+import 'package:flutter_prueba/test_helpers/fake_http_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,17 +56,53 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
+  //Test
+  const isTest = bool.fromEnvironment('IS_TESTING', defaultValue: false);
+
+  if (isTest) {
+    // Inyectamos tus Fakes
+    Get.put<IAuthRepository>(FakeAuthenticationRepository(id: '', role: '', email: ''), permanent: true);
+    Get.put<IAuthenticationSource>(FakeAuthenticationSource(), permanent: true);
+    Get.put<ILocalPreferences>(FakeLocalPreferences(), permanent: true);
+    Get.put<ICursoRepository>(FakeCourseRepository(), permanent: true);
+    Get.put<IEvaluacionRepository>(FakeEvaluacionesRepository(), permanent: true);
+    Get.put<http.Client>(MockApiCliente(), tag: 'apiClient', permanent: true);
+    Get.put<IReporteSource>(FakeReporteSource(), permanent: true);
+  } else {
+    //Real
+
+    //Autenticacion
+    Get.put<IAuthenticationSource>(AuthenticationSourceServiceRoble());
+
+    // 🔐 Storage (donde se guarda el token)
+    Get.lazyPut<ILocalPreferences>(() => LocalPreferencesSecured(), fenix: true);
+
+    // Repository Cursos
+    Get.lazyPut<ICursoRepository>(
+          () => CursoRepository(
+        Get.find<ICursoSource>(),
+        Get.find<
+            LocalCursoCacheSource
+        >(), // 🔥 Le pasamos el caché al repositorio
+      ),
+      fenix: true,
+    );
+
+    // Repository
+    Get.lazyPut<IEvaluacionRepository>(
+          () => EvluacionRepository(Get.find<IEvaluacionSource>()),
+      fenix: true,
+    );
+
+    Get.put<http.Client>(
+      RefreshClient(http.Client(), Get.find<IAuthenticationSource>()),
+      tag: 'apiClient',
+      permanent: true,
+    );
+  }
+
   Get.lazyPut<INotificationService>(() => NotificationService(), fenix: true);
 
-  // 🔐 Storage (donde se guarda el token)
-  Get.lazyPut<ILocalPreferences>(() => LocalPreferencesSecured(), fenix: true);
-
-  // 🔥 NUEVO: Registramos el servicio de autenticación
-  // Este contiene el método refreshToken()
-  Get.lazyPut<IAuthenticationSource>(
-    () => AuthenticationSourceServiceRoble(),
-    fenix: true,
-  );
 
   // 🔥 NUEVO: Cliente HTTP con interceptor (RefreshClient)
   // Este reemplaza al http.Client normal
@@ -104,16 +147,7 @@ void main() async {
     fenix: true,
   );
 
-  // Repository Cursos
-  Get.lazyPut<ICursoRepository>(
-    () => CursoRepository(
-      Get.find<ICursoSource>(),
-      Get.find<
-        LocalCursoCacheSource
-      >(), // 🔥 Le pasamos el caché al repositorio
-    ),
-    fenix: true,
-  );
+
 
   // Controller
   Get.lazyPut(
@@ -146,11 +180,7 @@ void main() async {
     fenix: true,
   );
 
-  // Repository
-  Get.lazyPut<IEvaluacionRepository>(
-    () => EvluacionRepository(Get.find<IEvaluacionSource>()),
-    fenix: true,
-  );
+
 
   // Controller
   Get.lazyPut(

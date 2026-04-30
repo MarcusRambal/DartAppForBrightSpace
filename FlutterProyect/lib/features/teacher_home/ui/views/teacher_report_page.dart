@@ -136,8 +136,10 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('teacherReportScaffold'),
       backgroundColor: backgroundColor,
       appBar: AppBar(
+        key: const Key('teacherReportAppBar'),
         title: Text(
           widget.nombreEvaluacion,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -147,13 +149,18 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
         elevation: 0,
         actions: [
           IconButton(
+            key: const Key('teacherReportRefreshButton'),
             icon: const Icon(Icons.refresh),
             onPressed: _cargarReportes,
           ),
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator(color: primaryBlue))
+          ? const Center(
+              child: CircularProgressIndicator(
+              key: Key('teacherReportLoadingIndicator'),
+              color: primaryBlue,
+            ))
           : _buildVistaJerarquica(),
     );
   }
@@ -171,10 +178,12 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
     }
 
     return ListView(
+      key: const Key('teacherReportListView'),
       padding: const EdgeInsets.all(16),
       children: [
         // 🏆 TARJETA: PROMEDIO GENERAL
         Container(
+          key: const Key('teacherReportSummaryCard'),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -193,6 +202,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
             children: [
               const Text(
                 "PROMEDIO DE LA EVALUACIÓN",
+                key: Key('teacherReportSummaryTitle'),
                 style: TextStyle(
                   color: Colors.white70,
                   fontWeight: FontWeight.bold,
@@ -202,6 +212,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
               const SizedBox(height: 10),
               Text(
                 reportes.isEmpty ? "0.0" : promedioGeneral.toStringAsFixed(1),
+                key: const Key('teacherReportGeneralAverageText'),
                 style: const TextStyle(
                   color: goldAccent,
                   fontSize: 48,
@@ -211,6 +222,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
               const SizedBox(height: 5),
               Text(
                 "${reportes.length} estudiantes evaluados",
+                key: const Key('teacherReportEvaluatedCountText'),
                 style: const TextStyle(color: Colors.white54, fontSize: 14),
               ),
             ],
@@ -220,6 +232,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
         const SizedBox(height: 25),
         const Text(
           "Desempeño por Grupos",
+          key: Key('teacherReportGroupsTitle'),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -253,6 +266,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
           }
 
           return Card(
+            key: Key('teacherReportGroupCard_$nombreGrupo'),
             margin: const EdgeInsets.only(bottom: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
@@ -262,6 +276,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                 context,
               ).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
+                key: Key('teacherReportGroupExpansion_$nombreGrupo'),
                 leading: CircleAvatar(
                   backgroundColor: goldAccent.withOpacity(0.2),
                   child: const Icon(Icons.group, color: primaryBlue),
@@ -302,6 +317,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                   // Si aún no lo evalúan, lo mostramos pendiente
                   if (reporteEstudiante == null) {
                     return ListTile(
+                      key: Key('teacherReportStudentTile_pending_$correo'),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 30,
                         vertical: 0,
@@ -333,6 +349,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                   final promEstudiante = _calcularPromedio(reporteEstudiante);
 
                   return ListTile(
+                    key: Key('teacherReportStudentTile_evaluated_$correo'),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 30,
                       vertical: 0,
@@ -354,6 +371,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                       style: const TextStyle(fontSize: 11),
                     ),
                     trailing: Container(
+                      key: Key('teacherReportStudentAverageBadge_$correo'),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 4,

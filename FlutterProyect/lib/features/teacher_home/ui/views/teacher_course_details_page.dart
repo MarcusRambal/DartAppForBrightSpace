@@ -28,14 +28,17 @@ class TeacherCourseDetailsPage extends StatelessWidget {
     });
 
     return Scaffold(
+      key: const Key('teacherCourseDetailsScaffold'),
       backgroundColor: backgroundColor,
       floatingActionButton: FloatingActionButton(
+        key: const Key('teacherCourseDetailsFAB'),
         onPressed: () =>
             _showOptionsBottomSheet(context, evaluacionController, controller),
         backgroundColor: goldAccent,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       appBar: AppBar(
+        key: const Key('teacherCourseDetailsAppBar'),
         elevation: 0,
         backgroundColor: backgroundColor,
         foregroundColor: Colors.black,
@@ -47,20 +50,31 @@ class TeacherCourseDetailsPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoadingCategorias.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(
+              key: Key('teacherCourseDetailsLoadingIndicator'),
+            ),
+          );
         }
 
         if (controller.categorias.isEmpty) {
-          return const Center(child: Text("No hay categorías disponibles"));
+          return const Center(
+            child: Text(
+              "No hay categorías disponibles",
+              key: Key('teacherCourseDetailsEmptyText'),
+            ),
+          );
         }
 
         return ListView(
+          key: const Key('teacherCourseDetailsListView'),
           padding: const EdgeInsets.all(20),
           children: controller.categorias.map((cat) {
             final idCat = cat['idcat'].toString();
             final nombreCategoria = (cat['nombre'] ?? 'Sin nombre').toString();
 
             return GestureDetector(
+              key: Key('categoryGesture_$idCat'),
               onTap: () {
                 Get.to(
                   () => TeacherGroupDetailsPage(
@@ -70,6 +84,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                 );
               },
               child: Container(
+                key: Key('categoryCard_$idCat'),
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -93,6 +108,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                     Expanded(
                       child: Text(
                         nombreCategoria,
+                        key: Key('categoryName_$idCat'),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -160,6 +176,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
 
     Get.dialog(
       AlertDialog(
+        key: const Key('newEvaluationDialog'),
         title: const Text("Nueva Evaluación"),
         content: SingleChildScrollView(
           child: Form(
@@ -169,6 +186,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
+                    key: const Key('newEvaluationCategoryDropdown'),
                     items: controller.categorias.map((c) {
                       return DropdownMenuItem(
                         value: c['idcat'].toString(),
@@ -181,36 +199,53 @@ class TeacherCourseDetailsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
+                    key: const Key('newEvaluationNameField'),
                     controller: nombreController,
                     decoration: const InputDecoration(labelText: "Nombre"),
                     validator: (v) => v!.isEmpty ? "Requerido" : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
+                    key: const Key('newEvaluationStartDateField'),
                     controller: fechaInicioController,
                     readOnly: true,
                     decoration: const InputDecoration(
                       labelText: "Fecha inicio",
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
-                    onTap: () => pickDateTime(true),
+                    onTap: () {
+                      if (const bool.fromEnvironment('IS_TESTING')) {
+                        fechaInicioController.text = "2026-04-02T16:18:00";
+                      } else {
+                        pickDateTime(true);
+                      }
+                    },
                     validator: (v) => v!.isEmpty ? "Requerido" : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
+                    key: const Key('newEvaluationEndDateField'),
                     controller: fechaFinController,
                     readOnly: true,
                     decoration: const InputDecoration(
                       labelText: "Fecha fin",
                       suffixIcon: Icon(Icons.calendar_today),
                     ),
-                    onTap: () => pickDateTime(false),
+                    onTap: () {
+
+                      if (const bool.fromEnvironment('IS_TESTING')) {
+                        fechaFinController.text = "2026-04-02T17:18:00";
+                      } else {
+                        pickDateTime(false);
+                      }
+                    },
                     validator: (v) => v!.isEmpty ? "Requerido" : null,
                   ),
 
                   // 🔥 SWITCH ARREGLADO (Sintaxis limpia)
                   const SizedBox(height: 15),
                   SwitchListTile(
+                    key: const Key('newEvaluationPrivateSwitch'),
                     title: const Text(
                       "Privada",
                       style: TextStyle(fontSize: 14),
@@ -230,6 +265,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
         ),
         actions: [
           TextButton(
+            key: const Key('newEvaluationCancelButton'),
             onPressed: () => Get.back(),
             child: const Text("Cancelar"),
           ),
@@ -239,6 +275,7 @@ class TeacherCourseDetailsPage extends StatelessWidget {
             }
 
             return FilledButton(
+              key: const Key('newEvaluationSubmitButton'),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   evaluacionController.crearEvaluacion(

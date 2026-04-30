@@ -81,13 +81,20 @@ class _StudentHomePageState extends State<StudentHomePage> {
               const SizedBox(height: 20),
 
               Row(
+                key: const Key('studentHomeHeaderRow'),
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/ulogo.png', width: 50, height: 50),
+                  Image.asset(
+                    'assets/images/ulogo.png',
+                    width: 50,
+                    height: 50,
+                    key: const Key('studentHomeLogo'),
+                  ),
                   const SizedBox(width: 15),
                   const Expanded(
                     child: Text(
                       'Bienvenido',
+                      key: Key('studentHomeWelcomeText'),
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -96,6 +103,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   ),
 
                   IconButton(
+                    key: const Key('studentHomeLogoutButton'),
                     icon: const Icon(Icons.logout),
                     onPressed: () {
                       Get.defaultDialog(
@@ -124,18 +132,29 @@ class _StudentHomePageState extends State<StudentHomePage> {
               Expanded(
                 child: Obx(() {
                   if (controller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        key: Key('studentHomeLoadingIndicator'),
+                      ),
+                    );
                   }
 
                   if (controller.cursos.isEmpty) {
                     return const Center(
                       child: Column(
+                        key: Key('studentHomeEmptyCursosColumn'),
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.folder_off, size: 80, color: Colors.grey),
+                          Icon(
+                            Icons.folder_off,
+                            size: 80,
+                            color: Colors.grey,
+                            key: Key('studentHomeEmptyIcon'),
+                          ),
                           SizedBox(height: 16),
                           Text(
                             'Aún no estás inscrito en ningún curso.',
+                            key: Key('studentHomeEmptyText'),
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.black54,
@@ -154,6 +173,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   ];
 
                   return ListView.builder(
+                    key: const Key('studentHomeCoursesListView'),
                     itemCount: controller.cursos.length,
                     itemBuilder: (context, index) {
                       final curso = controller.cursos[index];
@@ -173,6 +193,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   Widget _buildSummaryCard() {
     return Container(
+      key: const Key('studentHomeSummaryCard'),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -185,6 +206,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
+            key: const Key('studentHomeSummaryTextColumn'),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
@@ -196,6 +218,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
               Obx(() {
                 if (evaluacionController.isLoading.value) {
                   return const SizedBox(
+                    key: Key('studentHomeSummaryLoading'),
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(strokeWidth: 2),
@@ -207,6 +230,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                 return Text(
                   "$cantidad Tareas",
+                  key: const Key('studentHomePendingTasksText'),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -216,6 +240,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
             ],
           ),
           Container(
+            key: const Key('studentHomeSummaryIconContainer'),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: primaryGold.withOpacity(0.2),
@@ -230,6 +255,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   Widget _buildCourseCard(CursoMatriculado cursoMatriculado, Color color) {
     return GestureDetector(
+      key: Key('courseGestureDetector_${cursoMatriculado.curso.id}'),
       onTap: () {
         Get.to(
           () => StudentCourseDetailsPage(cursoMatriculado: cursoMatriculado),
@@ -242,6 +268,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
         });
       },
       child: Container(
+        key: Key('courseCardContainer_${cursoMatriculado.curso.id}'),
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -254,6 +281,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              key: Key('courseCardColorBand_${cursoMatriculado.curso.id}'),
               height: 15,
               decoration: BoxDecoration(
                 color: color,
@@ -270,6 +298,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 children: [
                   Text(
                     cursoMatriculado.curso.nombre,
+                    key: Key('courseName_${cursoMatriculado.curso.id}'),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -277,6 +306,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   ),
                   Text(
                     "NRC: ${cursoMatriculado.curso.id}",
+                    key: Key('courseNrc_${cursoMatriculado.curso.id}'),
                     style: const TextStyle(color: Colors.black54),
                   ),
                   const SizedBox(height: 15),
@@ -292,6 +322,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
                   ...cursoMatriculado.grupos.map((grupo) {
                     return Padding(
+                      key: Key('groupRow_${cursoMatriculado.curso.id}_${grupo.idCat}'),
                       padding: const EdgeInsets.only(bottom: 6.0),
                       child: Row(
                         children: [
@@ -311,6 +342,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   const SizedBox(height: 15),
 
                   GestureDetector(
+                    key: Key('pendingEvaluationsGesture_${cursoMatriculado.curso.id}'),
                     onTap: () {
                       Get.to(
                         () => StudentPendingEvaluationsPage(
@@ -325,6 +357,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
                       });
                     },
                     child: Container(
+                      key: Key('pendingEvaluationsContainer_${cursoMatriculado.curso.id}'),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,

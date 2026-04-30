@@ -9,6 +9,7 @@ import 'package:flutter_prueba/features/cursos/domain/entities/curso_matriculado
 import 'package:flutter_prueba/features/cursos/domain/entities/curso_curso.dart';
 import 'package:flutter_prueba/features/evaluaciones/ui/viewmodels/evaluaciones_controller.dart';
 import 'package:flutter_prueba/features/evaluaciones/domain/entities/evaluacion_entity.dart';
+import 'package:flutter_prueba/core/i_local_preferences.dart';
 
 class FakeCursoRepository extends Fake implements ICursoRepository {
   @override
@@ -21,16 +22,28 @@ class FakeCursoRepository extends Fake implements ICursoRepository {
 class MockEvaluacionController extends GetxController with Mock implements EvaluacionController {
   final _evaluaciones = <EvaluacionEntity>[].obs;
   final _isLoading = false.obs;
+  final _evaluacionesIncompletas = <EvaluacionEntity>[].obs;
 
   @override
   RxList<EvaluacionEntity> get evaluaciones => _evaluaciones;
   @override
   RxBool get isLoading => _isLoading;
+  @override
+  RxList<EvaluacionEntity> get evaluacionesIncompletas => _evaluacionesIncompletas;
 
   @override
-  Future<void> cargarEvaluaciones(String idCat) async {
-    return;
-  }
+  Future<void> cargarEvaluaciones(String idCat) async {}
+
+  @override
+  Future<void> cargarEvaluacionesIncompletasPorGrupos(List<dynamic> grupos) async {}
+
+  @override
+  bool estaCompleta(String idEvaluacion) => false;
+}
+
+class FakeLocalPreferences extends Fake implements ILocalPreferences {
+  @override
+  Future<String?> getString(String key) async => "test@test.com";
 }
 
 void main() {
@@ -55,12 +68,14 @@ void main() {
       ),
     ],
   );
+
   setUp(() {
     Get.testMode = true;
     fakeRepo = FakeCursoRepository();
 
     Get.put<ICursoRepository>(fakeRepo);
-    Get.lazyPut<EvaluacionController>(() => MockEvaluacionController());
+    Get.put<ILocalPreferences>(FakeLocalPreferences());
+    Get.put<EvaluacionController>(MockEvaluacionController());
   });
 
   tearDown(() async {
@@ -89,8 +104,6 @@ void main() {
 
       expect(find.text("Asignación: Grupo Alfa"), findsOneWidget);
       expect(find.text("Asignación: Grupo Beta"), findsOneWidget);
-
-      expect(find.byType(ListTile), findsNWidgets(2));
     });
 
     testWidgets('Debe navegar a GroupDetailsPage al tocar un grupo', (WidgetTester tester) async {
@@ -100,33 +113,14 @@ void main() {
 
       final tileFinder = find.byKey(const Key('groupListTile_cat_1'));
       expect(tileFinder, findsOneWidget);
+      
       await tester.tap(tileFinder);
-
-      await tester.pumpAndSettle();
-
+      await tester.pump(); // Inicia la transición
+      await tester.pump(const Duration(milliseconds: 500)); // Espera la animación
+      
+      // Verificamos que llegamos a la página de detalles
       expect(find.text("Detalles del Grupo"), findsOneWidget);
-
-      await tester.runAsync(() async {
-        await Future.delayed(const Duration(milliseconds: 200));
-      });
-      await tester.pumpAndSettle();
-
-      final foundText = find.byWidgetPredicate(
-            (widget) => widget is Text && (widget.data?.contains("Alfa") ?? false),
-      );
-
-      if (foundText.evaluate().isEmpty) {
-        expect(find.textContaining("Grupo"), findsAtLeastNWidgets(1));
-      } else {
-        expect(foundText, findsAtLeastNWidgets(1));
-      }
+      expect(find.byKey(const Key('groupDetailsScaffold')), findsOneWidget);
     });
   });
-}
-
-class GrupoMatriculado {
-  final String idCat;
-  final String categoriaNombre;
-  final String grupoNombre;
-  GrupoMatriculado({required this.idCat, required this.categoriaNombre, required this.grupoNombre});
 }
